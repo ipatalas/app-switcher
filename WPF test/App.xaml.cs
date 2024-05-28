@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace WPF_test
+namespace AppSwitcher
 {
     /// <summary>
     /// Interaction logic for App.xaml
