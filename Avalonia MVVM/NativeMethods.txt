@@ -1,0 +1,13 @@
+﻿ShowWindow
+SetForegroundWindow
+GetShellWindow
+GetThreadDesktop
+GetCurrentThreadId
+GetWindowPlacement
+GetWindowText
+GetWindowTextLength
+GetWindowThreadProcessId
+EnumDesktopWindows
+EnumWindows
+IsWindowVisible
+IsWindow

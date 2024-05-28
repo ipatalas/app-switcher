@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk ">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+	<!--UseWPF property is required to bring in System.Windows.Input
+	This is because our project needs to reference the above namespace
+	The above DLL is part of the WPF framework
+	
+	We are not bound by System.Windows.Forms, so therefore this library
+	should also work with WINUI3 and modern UI Frameworks--> 
+	<UseWPF>true</UseWPF> 
+	  
+	<Authors>tuffstuff</Authors> 
+	<Description>A lightweight low-level global windows keyboard hook compatible with modern UI frameworks (WPF, MAUI, WinUI 3, etc.)</Description> 
+	<PackageProjectUrl>https://github.com/tuffstuff9/KeyboardHookLite</PackageProjectUrl> 
+	<RepositoryUrl>https://github.com/tuffstuff9/KeyboardHookLite</RepositoryUrl> 
+	<RepositoryType>git</RepositoryType> 
+	<PackageTags>keyboard;hook; low-level; global; global-keyboard-hook; hotkey; keyboard-hook; global-hook; event; global-event</PackageTags> 
+	<AllowUnsafeBlocks>True</AllowUnsafeBlocks> 
+	<Copyright>MIT</Copyright> 
+	<PackageReadmeFile>README.md</PackageReadmeFile> 
+	<PackageIcon>KLlogo.png</PackageIcon> 
+	<FileVersion>1.1.3</FileVersion> 
+	<NeutralLanguage>aa-DJ</NeutralLanguage> 
+	<AssemblyVersion>1.1.3</AssemblyVersion> 
+	<Version>1.1.3</Version>
+	  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\Desktop\KLlogo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\..\Desktop\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
