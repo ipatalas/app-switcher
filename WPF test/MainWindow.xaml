@@ -5,18 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AppSwitcher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Opacity="0.6" WindowStyle="None">
-    <Window.Background>
-        <SolidColorBrush Opacity="0.5" Color="White"/>
-    </Window.Background>
+        Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <ListView d:ItemsSource="{d:SampleData ItemCount=4}" SelectionMode="Single">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
+        <Label Content="Hello, world!" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 </Window>

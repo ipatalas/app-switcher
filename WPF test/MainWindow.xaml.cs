@@ -1,13 +1,5 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Logging;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AppSwitcher
 {
@@ -16,9 +8,17 @@ namespace AppSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly ILogger<MainWindow> _logger;
+
+        public MainWindow(ILogger<MainWindow> logger)
         {
             InitializeComponent();
+            _logger = logger;
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            _logger.LogInformation("MainWindow activated");
         }
     }
 }
