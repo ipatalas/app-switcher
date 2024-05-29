@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia MVVM", "Avalonia M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyboardHookLite", "KeyboardHookLite\KeyboardHookLite.csproj", "{88090B91-EAA6-40FB-AF44-0703DC7E2D93}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppSwitcher", "WPF test\AppSwitcher.csproj", "{1E0EB0DA-0174-4649-9F16-221ECD0939EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppSwitcher", "AppSwitcher\AppSwitcher.csproj", "{1E0EB0DA-0174-4649-9F16-221ECD0939EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6810B6C6-8CBF-4D53-97F8-58CE8E06D13C}"
 	ProjectSection(SolutionItems) = preProject
