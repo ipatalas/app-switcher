@@ -1,4 +1,4 @@
-﻿using Avalonia_MVVM;
+﻿using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;

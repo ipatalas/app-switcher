@@ -1,13 +1,11 @@
-﻿using KeyboardHookLite;
+﻿using AppSwitcher.WindowDiscovery;
+using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Input;
 
 using Win32 = Windows.Win32;
 
-namespace Avalonia_MVVM
+namespace AppSwitcher
 {
     internal class Hook : IDisposable
     {
@@ -18,27 +16,27 @@ namespace Avalonia_MVVM
 
         public Hook(ILogger<Hook> logger, WindowHelper windowHelper)
         {
-            this.hook = new KeyboardHook();
+            hook = new KeyboardHook();
             this.logger = logger;
             this.windowHelper = windowHelper;
         }
 
         public void Start()
         {
-            this.logger.LogInformation("Starting hook");
-            this.hook.KeyboardPressed += Hook_KeyboardPressed;
+            logger.LogInformation("Starting hook");
+            hook.KeyboardPressed += Hook_KeyboardPressed;
         }
 
         public void Stop()
         {
-            this.logger.LogInformation("Stopping hook");
-            this.hook.KeyboardPressed -= Hook_KeyboardPressed;
+            logger.LogInformation("Stopping hook");
+            hook.KeyboardPressed -= Hook_KeyboardPressed;
         }
 
         public void Dispose()
         {
-            this.Stop();
-            this.hook.Dispose();
+            Stop();
+            hook.Dispose();
         }
 
         private void Hook_KeyboardPressed(object? sender, KeyboardHookEventArgs e)
@@ -75,11 +73,11 @@ namespace Avalonia_MVVM
                     var window = windows.FirstOrDefault(w => w.Process.ProductName == appProductName);
                     if (window is null)
                     {
-                        this.logger.LogWarning("{ProductName} process not found", appProductName);
+                        logger.LogWarning("{ProductName} process not found", appProductName);
                         return;
                     }
 
-                    this.logger.LogInformation("App-{Letter} pressed - switching to {ProductName}", letter, appProductName);
+                    logger.LogInformation("App-{Letter} pressed - switching to {ProductName}", letter, appProductName);
                     var hwnd = window.Handle;
                     Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
                     Win32.PInvoke.SetForegroundWindow(hwnd);

@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
-namespace Avalonia_MVVM
+namespace AppSwitcher.WindowDiscovery
 {
     internal class WindowHelper
     {
@@ -34,7 +31,7 @@ namespace Avalonia_MVVM
                 var title = GetWindowText(hwnd);
                 GetWindowThreadProcessId(hwnd, out var processId);
                 var process = Process.GetProcessById((int)processId);
-                var mainModule = process.MainModule!;               
+                var mainModule = process.MainModule!;
 
                 var appWinProcess = new ApplicationWindowProcess(process.Id, process.ProcessName, mainModule.FileVersionInfo.ProductName!, mainModule.FileName!);
                 var position = new Point(window.left, window.top);
@@ -50,12 +47,12 @@ namespace Avalonia_MVVM
             return result;
         }
 
-        private ISet<IntPtr> GetVisibleWindowsHandles(bool currentDesktop)
+        private ISet<nint> GetVisibleWindowsHandles(bool currentDesktop)
         {
             var sw = Stopwatch.StartNew();
-            var result = new HashSet<IntPtr>();
-            
-            var shellWindow = PInvoke.GetShellWindow(); 
+            var result = new HashSet<nint>();
+
+            var shellWindow = PInvoke.GetShellWindow();
 
             WNDENUMPROC enumerator = delegate (HWND hwnd, LPARAM lParam)
             {
@@ -69,12 +66,12 @@ namespace Avalonia_MVVM
 
             if (currentDesktop)
             {
-                var handle = PInvoke.GetThreadDesktop((uint)PInvoke.GetCurrentThreadId());
-                PInvoke.EnumDesktopWindows(handle, enumerator, IntPtr.Zero);
+                var handle = PInvoke.GetThreadDesktop(PInvoke.GetCurrentThreadId());
+                PInvoke.EnumDesktopWindows(handle, enumerator, nint.Zero);
             }
             else
             {
-                PInvoke.EnumWindows(enumerator, IntPtr.Zero);
+                PInvoke.EnumWindows(enumerator, nint.Zero);
             }
 
             logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");

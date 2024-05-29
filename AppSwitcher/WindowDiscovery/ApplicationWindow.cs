@@ -1,9 +1,8 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
-namespace Avalonia_MVVM
+namespace AppSwitcher.WindowDiscovery
 {
     internal record ApplicationWindow(HWND Handle,
                                       string Title,
