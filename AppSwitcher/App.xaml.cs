@@ -25,10 +25,18 @@ public partial class App : System.Windows.Application
         InitializeMainWindow(mainWindow);
 #endif
         var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
+        var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
+
         var config = configReader.ReadConfiguration();
         if (config is null)
         {
-            MessageBox.Show("Error reading configuration file - see logs for details", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("Error reading configuration file - see logs for details", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return;
+        }
+        else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
+        {            
+            MessageBox.Show($"Invalid configuration: {result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
             Current.Shutdown(1);
             return;
         }
@@ -39,7 +47,7 @@ public partial class App : System.Windows.Application
         NotifyIcon trayIcon = new()
         {
             Icon = ProjectResources.AppIcon,
-            Visible = true,
+            Visible = true,            
             Text = "Click to close AppSwitcher"
         };
 

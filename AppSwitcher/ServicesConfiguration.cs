@@ -13,6 +13,7 @@ internal static class ServicesConfiguration
 
         services.AddSingleton<MainWindow>();
         services.AddSingleton<ConfigurationReader>();
+        services.AddSingleton<ConfigurationValidator>();
         services.AddSingleton<Hook>();
         services.AddSingleton<WindowHelper>();
     }
