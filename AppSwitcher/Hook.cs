@@ -13,6 +13,7 @@ namespace AppSwitcher
         private readonly ILogger<Hook> logger;
         private readonly WindowHelper windowHelper;
         private readonly Key selectedModifier = Key.Apps;
+        private bool suppressKeyUpEvents = false;
 
         public Hook(ILogger<Hook> logger, WindowHelper windowHelper)
         {
@@ -51,40 +52,44 @@ namespace AppSwitcher
             if (isKeyDownEvent)
             {
                 keysDown.Add(e.InputEvent.Key);
+
+                if (keysDown.Count == 2 && keysDown.Contains(selectedModifier))
+                {
+                    keysDown.Remove(selectedModifier);
+                    var letter = keysDown.Single();
+
+                    if (letterAppMap.TryGetValue(letter, out var filename))
+                    {
+                        e.SuppressKeyPress = true;
+                        suppressKeyUpEvents = true;
+
+                        var windows = windowHelper.GetWindows(true);
+                        var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename));
+                        if (window is null)
+                        {
+                            logger.LogWarning("{ProcessName} process not found", filename);
+                            return;
+                        }
+
+                        logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", selectedModifier, letter, filename);
+                        var hwnd = window.Handle;
+                        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
+                        Win32.PInvoke.SetForegroundWindow(hwnd);
+                    }
+                }
             }
             else
             {
                 keysDown.Remove(e.InputEvent.Key);
-                if (e.InputEvent.Key == selectedModifier)
+                if (e.InputEvent.Key == selectedModifier && suppressKeyUpEvents)
                 {
+                    // When releasing the modifier just after the application switch, passing this event down the line to target app can cause side effects.
+                    // For instance for Apps modifier it would open up context menu in the target app right after the switch.
                     e.SuppressKeyPress = true;
-                    return;
+                    suppressKeyUpEvents = false;
+                    logger.LogDebug("Suppressing {Key} release", e.InputEvent.Key);
                 }
-            }
-
-            if (isKeyDownEvent && keysDown.Count == 2 && keysDown.Contains(selectedModifier))
-            {
-                keysDown.Remove(selectedModifier);
-                var letter = keysDown.Single();
-
-                if (letterAppMap.TryGetValue(letter, out var filename))
-                {
-                    e.SuppressKeyPress = true;
-
-                    var windows = windowHelper.GetWindows(true);
-                    var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename));
-                    if (window is null)
-                    {
-                        logger.LogWarning("{ProcessName} process not found", filename);
-                        return;
-                    }
-
-                    logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", selectedModifier, letter, filename);
-                    var hwnd = window.Handle;
-                    Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
-                    Win32.PInvoke.SetForegroundWindow(hwnd);
-                }
-            }
+            }            
         }
 
         private IDictionary<Key, string> letterAppMap = new Dictionary<Key, string>
