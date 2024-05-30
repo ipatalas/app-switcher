@@ -64,7 +64,7 @@ namespace AppSwitcher
                         suppressKeyUpEvents = true;
 
                         var windows = windowHelper.GetWindows(true);
-                        var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename));
+                        var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename, StringComparison.CurrentCultureIgnoreCase));
                         if (window is null)
                         {
                             logger.LogWarning("{ProcessName} process not found", filename);
@@ -103,12 +103,12 @@ namespace AppSwitcher
 
         private HashSet<Key> keysDown = new();
 
-        private readonly HashSet<Key> modifiers = new()
+        private readonly HashSet<Key> allowedModifiers = new()
         {
-            Key.LeftAlt, Key.LeftCtrl, Key.LWin, Key.RightAlt, Key.RightCtrl, Key.Apps
+            Key.LeftAlt, Key.LeftCtrl, Key.RightAlt, Key.RightCtrl, Key.Apps
         };
 
-        private bool IsLetter(Key key) => key >= Key.A && key <= Key.Z;
-        private bool IsModifier(Key key) => modifiers.Contains(key);
+        private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
+        private bool IsModifier(Key key) => allowedModifiers.Contains(key);
     }
 }
