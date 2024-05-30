@@ -2,17 +2,16 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
-namespace AppSwitcher.WindowDiscovery
-{
-    internal record ApplicationWindow(HWND Handle,
-                                      string Title,
-                                      ApplicationWindowProcess Process,
-                                      SHOW_WINDOW_CMD State,
-                                      Point Position,
-                                      Size Size);
+namespace AppSwitcher.WindowDiscovery;
 
-    internal record ApplicationWindowProcess(int ProcessId,
-                                             string Name,
-                                             string ProductName,
-                                             string FileName);
-}
+internal record ApplicationWindow(HWND Handle,
+                                  string Title,
+                                  ApplicationWindowProcess Process,
+                                  SHOW_WINDOW_CMD State,
+                                  Point Position,
+                                  Size Size);
+
+internal record ApplicationWindowProcess(int ProcessId,
+                                         string Name,
+                                         string ProductName,
+                                         string FileName);

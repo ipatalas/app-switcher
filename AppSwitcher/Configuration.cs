@@ -1,6 +1,5 @@
-﻿namespace AppSwitcher
+﻿namespace AppSwitcher;
+
+internal class Configuration
 {
-    internal class Configuration
-    {
-    }
 }
