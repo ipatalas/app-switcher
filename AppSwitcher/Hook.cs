@@ -67,32 +67,33 @@ namespace AppSwitcher
                 keysDown.Remove(selectedModifier);
                 var letter = keysDown.Single();
 
-                if (letterAppMap.TryGetValue(letter, out var appProductName))
+                if (letterAppMap.TryGetValue(letter, out var filename))
                 {
+                    e.SuppressKeyPress = true;
+
                     var windows = windowHelper.GetWindows(true);
-                    var window = windows.FirstOrDefault(w => w.Process.ProductName == appProductName);
+                    var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename));
                     if (window is null)
                     {
-                        logger.LogWarning("{ProductName} process not found", appProductName);
+                        logger.LogWarning("{ProcessName} process not found", filename);
                         return;
                     }
 
-                    logger.LogInformation("App-{Letter} pressed - switching to {ProductName}", letter, appProductName);
+                    logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", selectedModifier, letter, filename);
                     var hwnd = window.Handle;
                     Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
                     Win32.PInvoke.SetForegroundWindow(hwnd);
-                    e.SuppressKeyPress = true;
                 }
             }
         }
 
         private IDictionary<Key, string> letterAppMap = new Dictionary<Key, string>
         {
-            { Key.T, "Windows Terminal" },
-            { Key.V, "Microsoft® Visual Studio®" },
-            { Key.E, "Brave Browser" },
-            { Key.M, "eM Client" },
-            { Key.Q, "Quicken for Windows" }
+            { Key.T, "WindowsTerminal.exe" },
+            { Key.V, "devenv.exe" },
+            { Key.E, "Brave.exe" },
+            { Key.M, "MailClient.exe" },
+            { Key.Q, "qw.exe" }
         };
 
         private HashSet<Key> keysDown = new();
