@@ -42,7 +42,7 @@ namespace AppSwitcher.WindowDiscovery
             .Where(item => item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
             .ToList();
 
-            logger.LogInformation($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
+            logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
 
             return result;
         }
@@ -74,7 +74,7 @@ namespace AppSwitcher.WindowDiscovery
                 PInvoke.EnumWindows(enumerator, nint.Zero);
             }
 
-            logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
+            logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
 
             return result;
         }

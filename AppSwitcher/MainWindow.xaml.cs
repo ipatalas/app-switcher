@@ -18,12 +18,12 @@ namespace AppSwitcher
 
         protected override void OnActivated(EventArgs e)
         {
-            _logger.LogInformation("MainWindow activated");
+            _logger.LogDebug("MainWindow activated");
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            _logger.LogInformation("MainWindow closed");
+            _logger.LogDebug("MainWindow closed");
         }
     }
 }
