@@ -1,0 +1,26 @@
+{
+  "$schema": "config.schema.json",
+  "modifier": "Apps", // Allowed modifiers: LeftAlt, LeftCtrl, RightAlt, RightCtrl, Apps
+  "applications": [
+    {
+      "key": "T",
+      "process": "WindowsTerminal.exe"
+    },
+    {
+      "key": "V",
+      "process": "devenv.exe"
+    },
+    {
+      "key": "E",
+      "process": "Brave.exe"
+    },
+    {
+      "key": "M",
+      "process": "MailClient.exe"
+    },
+    {
+      "key": "Q",
+      "process": "qw.exe"
+    }
+  ]
+}

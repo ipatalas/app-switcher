@@ -1,0 +1,45 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "modifier": {
+      "type": "string",
+      "enum": [ "LeftAlt", "LeftCtrl", "RightAlt", "RightCtrl", "Apps" ],
+      "description": "Modifier(s) to use with the letter to activate an application"
+    },
+    "applications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Application"
+      }
+    }
+  },
+  "required": [
+    "applications",
+    "modifier"
+  ],
+  "definitions": {
+    "Application": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "A letter shortcut for this application",
+          "pattern": "^[a-zA-Z]$"
+        },
+        "process": {
+          "type": "string",
+          "description": "Process name for the application (with or without trailing .exe)"
+        }
+      },
+      "required": [
+        "key",
+        "process"
+      ],
+      "title": "Application"
+    }
+  }
+}
