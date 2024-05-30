@@ -12,8 +12,9 @@ internal class Hook : IDisposable
     private readonly KeyboardHook hook;
     private readonly ILogger<Hook> logger;
     private readonly WindowHelper windowHelper;
-    private readonly Key selectedModifier = Key.Apps;
+    private readonly HashSet<Key> keysDown = [];
     private bool suppressKeyUpEvents = false;
+    private Configuration.Configuration? config;
 
     public Hook(ILogger<Hook> logger, WindowHelper windowHelper)
     {
@@ -22,8 +23,9 @@ internal class Hook : IDisposable
         this.windowHelper = windowHelper;
     }
 
-    public void Start()
+    public void Start(Configuration.Configuration config)
     {
+        this.config = config;
         logger.LogInformation("Starting hook");
         hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -42,46 +44,59 @@ internal class Hook : IDisposable
 
     private void Hook_KeyboardPressed(object? sender, KeyboardHookEventArgs e)
     {
-        if (!IsLetter(e.InputEvent.Key) && !IsModifier(e.InputEvent.Key))
+        try
         {
-            return;
-        }
+            ArgumentNullException.ThrowIfNull(config);
 
+            if (!IsLetter(e.InputEvent.Key) && !IsModifier(e.InputEvent.Key))
+            {
+                return;
+            }
+
+            HandleKeyPress(e, config);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error handling key press");
+        }
+    }
+
+    private void HandleKeyPress(KeyboardHookEventArgs e, Configuration.Configuration config)
+    {
         var isKeyDownEvent = e.KeyPressType is KeyboardHook.KeyPressType.KeyDown or KeyboardHook.KeyPressType.SysKeyDown;
 
         if (isKeyDownEvent)
         {
             keysDown.Add(e.InputEvent.Key);
 
-            if (keysDown.Count == 2 && keysDown.Contains(selectedModifier))
+            if (keysDown.Count == 2 && keysDown.Contains(config.Modifier))
             {
-                keysDown.Remove(selectedModifier);
+                keysDown.Remove(config.Modifier);
                 var letter = keysDown.Single();
 
-                if (letterAppMap.TryGetValue(letter, out var filename))
+                var appConfig = config.Applications.FirstOrDefault(a => a.Key == letter);
+                if (appConfig is not null)
                 {
                     e.SuppressKeyPress = true;
                     suppressKeyUpEvents = true;
 
-                    var windows = windowHelper.GetWindows(true);
-                    var window = windows.FirstOrDefault(w => w.Process.FileName.EndsWith(filename, StringComparison.CurrentCultureIgnoreCase));
+                    var topLevelWindows = windowHelper.GetWindows(true);
+                    var window = topLevelWindows.FirstOrDefault(w => w.Process.FileName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
                     if (window is null)
                     {
-                        logger.LogWarning("{ProcessName} process not found", filename);
+                        logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
                         return;
                     }
 
-                    logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", selectedModifier, letter, filename);
-                    var hwnd = window.Handle;
-                    Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
-                    Win32.PInvoke.SetForegroundWindow(hwnd);
+                    logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", config.Modifier, letter, appConfig.NormalizedProcessName);
+                    ActivateWindow(window);
                 }
             }
         }
         else
         {
             keysDown.Remove(e.InputEvent.Key);
-            if (e.InputEvent.Key == selectedModifier && suppressKeyUpEvents)
+            if (e.InputEvent.Key == config.Modifier && suppressKeyUpEvents)
             {
                 // When releasing the modifier just after the application switch, passing this event down the line to target app can cause side effects.
                 // For instance for Apps modifier it would open up context menu in the target app right after the switch.
@@ -89,25 +104,16 @@ internal class Hook : IDisposable
                 suppressKeyUpEvents = false;
                 logger.LogDebug("Suppressing {Key} release", e.InputEvent.Key);
             }
-        }            
+        }
     }
 
-    private IDictionary<Key, string> letterAppMap = new Dictionary<Key, string>
+    private static void ActivateWindow(ApplicationWindow window)
     {
-        { Key.T, "WindowsTerminal.exe" },
-        { Key.V, "devenv.exe" },
-        { Key.E, "Brave.exe" },
-        { Key.M, "MailClient.exe" },
-        { Key.Q, "qw.exe" }
-    };
-
-    private HashSet<Key> keysDown = new();
-
-    private readonly HashSet<Key> allowedModifiers = new()
-    {
-        Key.LeftAlt, Key.LeftCtrl, Key.RightAlt, Key.RightCtrl, Key.Apps
-    };
+        var hwnd = window.Handle;
+        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
+        Win32.PInvoke.SetForegroundWindow(hwnd);
+    }
 
     private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
-    private bool IsModifier(Key key) => allowedModifiers.Contains(key);
+    private bool IsModifier(Key key) => config!.Modifier == key;
 }

@@ -42,7 +42,7 @@ internal class WindowHelper
         .Where(item => item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
         .ToList();
 
-        logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
+        logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
     }
@@ -74,7 +74,7 @@ internal class WindowHelper
             PInvoke.EnumWindows(enumerator, nint.Zero);
         }
 
-        logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms ({sw.ElapsedTicks})");
+        logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
     }

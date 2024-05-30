@@ -1,8 +1,8 @@
-﻿using AppSwitcher.WindowDiscovery;
+﻿using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NLog.Extensions.Logging;
 using System.Diagnostics;
 using System.Windows;
+using MessageBox = System.Windows.MessageBox;
 
 namespace AppSwitcher;
 
@@ -16,7 +16,7 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         var serviceCollection = new ServiceCollection();
-        ConfigureServices(serviceCollection);
+        serviceCollection.ConfigureServices();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -24,9 +24,17 @@ public partial class App : System.Windows.Application
 #if DEBUG
         InitializeMainWindow(mainWindow);
 #endif
+        var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
+        var config = configReader.ReadConfiguration();
+        if (config is null)
+        {
+            MessageBox.Show("Error reading configuration file - see logs for details", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return;
+        }
 
         hook = serviceProvider.GetRequiredService<Hook>();
-        hook.Start();
+        hook.Start(config);
 
         NotifyIcon trayIcon = new()
         {
@@ -60,13 +68,4 @@ public partial class App : System.Windows.Application
         mainWindow.Hide();
     }
 #endif
-
-    private void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLogging(logging => logging.AddNLog());
-
-        services.AddTransient<MainWindow>();
-        services.AddTransient<Hook>();
-        services.AddTransient<WindowHelper>();
-    }
 }
