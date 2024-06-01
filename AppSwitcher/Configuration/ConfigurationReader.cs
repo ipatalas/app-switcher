@@ -8,9 +8,9 @@ namespace AppSwitcher.Configuration;
 
 internal class ConfigurationReader
 {
-    private readonly ILogger<ConfigurationReader> logger;
+    private readonly ILogger<ConfigurationReader> _logger;
 
-    private readonly JsonSerializerOptions options = new()
+    private readonly JsonSerializerOptions _options = new()
     {
         ReadCommentHandling = JsonCommentHandling.Skip,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -19,7 +19,7 @@ internal class ConfigurationReader
 
     public ConfigurationReader(ILogger<ConfigurationReader> logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     public Configuration? ReadConfiguration()
@@ -29,23 +29,23 @@ internal class ConfigurationReader
 
         if (!File.Exists(configPath))
         {
-            logger.LogError("Configuration file not found, using default configuration");
+            _logger.LogError("Configuration file not found, using default configuration");
             return null;
         }
 
         try
         {
             using var fileStream = File.OpenRead(configPath);
-            return JsonSerializer.Deserialize<Configuration>(fileStream, options)!;
+            return JsonSerializer.Deserialize<Configuration>(fileStream, _options)!;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error reading configuration file");
+            _logger.LogError(ex, "Error reading configuration file");
             return null;
         }
         finally
         {
-            logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
+            _logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
         }
     }
 }

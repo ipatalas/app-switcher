@@ -9,11 +9,11 @@ namespace AppSwitcher.WindowDiscovery;
 
 internal class WindowHelper
 {
-    private readonly ILogger<WindowHelper> logger;
+    private readonly ILogger<WindowHelper> _logger;
 
     public WindowHelper(ILogger<WindowHelper> logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     public IList<ApplicationWindow> GetWindows(bool currentDesktop)
@@ -42,7 +42,7 @@ internal class WindowHelper
         .Where(item => item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
         .ToList();
 
-        logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
+        _logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
     }
@@ -74,7 +74,7 @@ internal class WindowHelper
             PInvoke.EnumWindows(enumerator, nint.Zero);
         }
 
-        logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
+        _logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
     }

@@ -11,7 +11,7 @@ namespace AppSwitcher;
 /// </summary>
 public partial class App : System.Windows.Application
 {
-    private Hook? hook;
+    private Hook? _hook;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -41,8 +41,8 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        hook = serviceProvider.GetRequiredService<Hook>();
-        hook.Start(config);
+        _hook = serviceProvider.GetRequiredService<Hook>();
+        _hook.Start(config);
 
         NotifyIcon trayIcon = new()
         {
@@ -56,7 +56,7 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        hook?.Dispose();
+        _hook?.Dispose();
     }
 
 #if DEBUG

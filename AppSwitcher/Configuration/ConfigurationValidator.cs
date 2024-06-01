@@ -6,12 +6,12 @@ namespace AppSwitcher.Configuration;
 
 internal class ConfigurationValidator
 {
-    private readonly ILogger<ConfigurationValidator> logger;
-    private readonly Key[] validModifiers = { Key.LeftCtrl, Key.RightCtrl, Key.LeftAlt, Key.RightAlt, Key.Apps };
+    private readonly ILogger<ConfigurationValidator> _logger;
+    private readonly Key[] _validModifiers = { Key.LeftCtrl, Key.RightCtrl, Key.LeftAlt, Key.RightAlt, Key.Apps };
 
     public ConfigurationValidator(ILogger<ConfigurationValidator> logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     public ValidationResult ValidateAndLog(Configuration configuration)
@@ -20,7 +20,7 @@ internal class ConfigurationValidator
 
         if (result.Status == ValidationResultStatus.Error)
         {
-            logger.LogError("Config validation error: {Error}", result.Message);
+            _logger.LogError("Config validation error: {Error}", result.Message);
         }
 
         return result;
@@ -28,9 +28,9 @@ internal class ConfigurationValidator
 
     public ValidationResult Validate(Configuration configuration)
     {
-        if (!validModifiers.Contains(configuration.Modifier))
+        if (!_validModifiers.Contains(configuration.Modifier))
         {
-            return ValidationResult.Error($"Invalid modifier key ({configuration.Modifier}) - must be one of: {string.Join(", ", validModifiers)}");
+            return ValidationResult.Error($"Invalid modifier key ({configuration.Modifier}) - must be one of: {string.Join(", ", _validModifiers)}");
         }
 
         if (configuration.Applications.Count == 0)
