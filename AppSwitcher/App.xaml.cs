@@ -21,9 +21,8 @@ public partial class App : System.Windows.Application
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-#if DEBUG
-        InitializeMainWindow(mainWindow);
-#endif
+        FixMainWindowWhenDebuggerAttached(mainWindow);
+
         var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
         var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
 
@@ -59,8 +58,8 @@ public partial class App : System.Windows.Application
         _hook?.Dispose();
     }
 
-#if DEBUG
-    private void InitializeMainWindow(MainWindow mainWindow)
+    [Conditional("DEBUG")]
+    private void FixMainWindowWhenDebuggerAttached(MainWindow mainWindow)
     {
         if (!Debugger.IsAttached)
         {
@@ -75,5 +74,4 @@ public partial class App : System.Windows.Application
         mainWindow.Show();
         mainWindow.Hide();
     }
-#endif
 }
