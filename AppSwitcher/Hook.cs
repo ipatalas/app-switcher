@@ -81,7 +81,7 @@ internal class Hook : IDisposable
                     _suppressKeyUpEvents = true;
 
                     var topLevelWindows = _windowHelper.GetWindows(true);
-                    var window = topLevelWindows.FirstOrDefault(w => w.Process.FileName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
+                    var window = topLevelWindows.FirstOrDefault(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
                     if (window is null)
                     {
                         _logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);

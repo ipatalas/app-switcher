@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Drawing;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -21,30 +20,48 @@ internal class WindowHelper
         var sw = Stopwatch.StartNew();
         var handles = GetVisibleWindowsHandles(currentDesktop);
 
-        var result = handles.Select(handle =>
-        {
-            // TODO: use WinApi to get process info to see if that improves performance
-            var hwnd = new HWND(handle);
-            WINDOWPLACEMENT placement = new();
-            PInvoke.GetWindowPlacement(hwnd, ref placement);
-            var window = placement.rcNormalPosition;
-            var title = GetWindowText(hwnd);
-            GetWindowThreadProcessId(hwnd, out var processId);
-            var process = Process.GetProcessById((int)processId);
-            var mainModule = process.MainModule!;
-
-            var appWinProcess = new ApplicationWindowProcess(process.Id, process.ProcessName, mainModule.FileVersionInfo.ProductName!, mainModule.FileName!);
-            var position = new Point(window.left, window.top);
-            var size = new Size(window.right - window.left, window.bottom - window.top);
-
-            return new ApplicationWindow(hwnd, title, appWinProcess, placement.showCmd, position, size);
-        })
-        .Where(item => item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
-        .ToList();
+        var result = handles.Select(handle => GetApplicationWindow((HWND)handle))
+            .Where(item => item != null && item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
+            .Select(item => item!)
+            .ToList();
 
         _logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
+    }
+
+    private ApplicationWindow? GetApplicationWindow(HWND hwnd)
+    {
+        WINDOWPLACEMENT placement = new();
+        PInvoke.GetWindowPlacement(hwnd, ref placement);
+        var window = placement.rcNormalPosition;
+
+        var title = GetWindowText(hwnd);
+        GetWindowThreadProcessId(hwnd, out var processId);
+
+        var position = new Point(window.left, window.top);
+        var size = new Size(window.right - window.left, window.bottom - window.top);
+
+        var processHandle = PInvoke.OpenProcess(Windows.Win32.System.Threading.PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
+        if (processHandle == IntPtr.Zero)
+        {
+            _logger.LogWarning($"Failed to open process {processId}");
+            return null;
+        }
+
+        var processImageName = GetProcessImageName(processHandle);
+        if (processImageName is null)
+        {
+            _logger.LogWarning($"Failed to get process image name for process {processId}");
+            return null;
+        }
+
+        if (PInvoke.CloseHandle(processHandle) == false)
+        {
+            _logger.LogWarning($"Failed to close process handle for process {processId}");
+        }
+
+        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size);
     }
 
     private ISet<nint> GetVisibleWindowsHandles(bool currentDesktop)
@@ -93,9 +110,24 @@ internal class WindowHelper
         string s = new('_', length + 1);
         fixed (char* p = s)
         {
-            PInvoke.GetWindowText(hwnd, p, length + 1);
+            length = PInvoke.GetWindowText(hwnd, p, length + 1);
         }
 
-        return s;
+        return s[0..(int)length];
+    }
+
+    internal unsafe static string? GetProcessImageName(HANDLE handle)
+    {
+        string s = new('_', 256);
+        uint length = (uint)s.Length;
+        fixed (char* p = s)
+        {
+            if (!PInvoke.QueryFullProcessImageName(handle, 0, p, &length))
+            {
+                return null;
+            }
+        }
+
+        return s[0..(int)length];
     }
 }

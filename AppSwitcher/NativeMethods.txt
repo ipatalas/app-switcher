@@ -11,3 +11,6 @@ EnumDesktopWindows
 EnumWindows
 IsWindowVisible
 IsWindow
+OpenProcess
+CloseHandle
+QueryFullProcessImageName
