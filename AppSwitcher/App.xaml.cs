@@ -36,7 +36,7 @@ public partial class App : System.Windows.Application
         }
         else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
         {            
-            MessageBox.Show($"Invalid configuration: {result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"{result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
             Current.Shutdown(1);
             return;
         }

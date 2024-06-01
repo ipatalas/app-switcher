@@ -7,7 +7,7 @@ namespace AppSwitcher.Configuration;
 internal class ConfigurationValidator
 {
     private readonly ILogger<ConfigurationValidator> logger;
-    private readonly Key[] validModifiers = { Key.LeftCtrl, Key.RightCtrl, Key.LeftAlt, Key.RightAlt, Key.Apps, Key.F };
+    private readonly Key[] validModifiers = { Key.LeftCtrl, Key.RightCtrl, Key.LeftAlt, Key.RightAlt, Key.Apps };
 
     public ConfigurationValidator(ILogger<ConfigurationValidator> logger)
     {
@@ -28,14 +28,9 @@ internal class ConfigurationValidator
 
     public ValidationResult Validate(Configuration configuration)
     {
-        if (configuration.Modifier == Key.None)
-        {
-            return ValidationResult.Error("Modifier key must be set correctly");
-        }  
-
         if (!validModifiers.Contains(configuration.Modifier))
         {
-            return ValidationResult.Error($"Invalid modifier key - {configuration.Modifier}");
+            return ValidationResult.Error($"Invalid modifier key ({configuration.Modifier}) - must be one of: {string.Join(", ", validModifiers)}");
         }
 
         if (configuration.Applications.Count == 0)
