@@ -58,6 +58,9 @@ jobs:
       
       - name: Build unpackaged application
         run: msbuild /t:Publish /p:PublishProfile=FolderProfile /p:Configuration=$env:configuration
+
+      - name: Rename config file
+        run: Rename-Item AppSwitcher/bin/publish/folder/config.json config.json.example
         
       - name: Create ZIP of unpackaged application
         run: Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher.zip

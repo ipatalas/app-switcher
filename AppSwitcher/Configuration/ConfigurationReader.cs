@@ -22,6 +22,8 @@ internal class ConfigurationReader
         this._logger = logger;
     }
 
+    public bool ConfigurationExists() => File.Exists("config.json");
+
     public Configuration? ReadConfiguration()
     {
         var sw = Stopwatch.StartNew();

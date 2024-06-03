@@ -26,6 +26,13 @@ public partial class App : System.Windows.Application
         var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
         var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
 
+        if (configReader.ConfigurationExists() is false)
+        {
+            MessageBox.Show("Configuration file (config.json) not found. Please create one and restart AppSwitcher\nYou can use config.json.example as an example", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return;
+        }
+
         var config = configReader.ReadConfiguration();
         if (config is null)
         {
