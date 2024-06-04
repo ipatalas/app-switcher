@@ -71,8 +71,15 @@ jobs:
           name: AppSwitcher
           path: AppSwitcher.zip
 
+      - name: Read changelog
+        id: changelog
+        run: |
+            "body<<EOF`n$(.\\extract-changelog.ps1 1.0.0)`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          CHANGES: ${{ steps.changelog.outputs.body }}
         with:
           draft: true
           prerelease: true
@@ -80,7 +87,5 @@ jobs:
           files: AppSwitcher.zip
           tag_name: ${{ env.ver }}
           release_name: ${{ env.ver }}
-          body: |
-            Changes in this Release:
-            - Initial Test Release
+          body: ${{ env.CHANGES }}
         
