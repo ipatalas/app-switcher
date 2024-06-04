@@ -74,7 +74,7 @@ jobs:
       - name: Read changelog
         id: changelog
         run: |
-            "body<<EOF`n$(.\\extract-changelog.ps1 1.0.0)`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            "body<<EOF`n$(.\\extract-changelog.ps1 $env:ver)`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
