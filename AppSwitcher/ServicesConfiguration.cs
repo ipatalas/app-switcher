@@ -7,8 +7,10 @@ namespace AppSwitcher;
 
 internal static class ServicesConfiguration
 {
-    public static void ConfigureServices(this IServiceCollection services)
+    public static IServiceProvider Build()
     {
+        var services = new ServiceCollection();
+
         services.AddLogging(logging => logging.AddNLog());
 
         services.AddSingleton<MainWindow>();
@@ -16,5 +18,7 @@ internal static class ServicesConfiguration
         services.AddSingleton<ConfigurationValidator>();
         services.AddSingleton<Hook>();
         services.AddSingleton<WindowHelper>();
+
+        return services.BuildServiceProvider();
     }
 }

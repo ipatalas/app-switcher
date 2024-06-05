@@ -1,6 +1,8 @@
 ﻿using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -15,32 +17,10 @@ public partial class App : System.Windows.Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.ConfigureServices();
+        var serviceProvider = ServicesConfiguration.Build();
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
-        var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
-
-        if (configReader.ConfigurationExists() is false)
+        if (!GetConfiguration(serviceProvider, out var config))
         {
-            MessageBox.Show("Configuration file (config.json) not found. Please create one and restart AppSwitcher\nYou can use config.json.example as an example", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
-            return;
-        }
-
-        var config = configReader.ReadConfiguration();
-        if (config is null)
-        {
-            MessageBox.Show("Error reading configuration file - see logs for details", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
-            return;
-        }
-        else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
-        {            
-            MessageBox.Show($"{result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
             return;
         }
 
@@ -53,7 +33,7 @@ public partial class App : System.Windows.Application
         NotifyIcon trayIcon = new()
         {
             Icon = ProjectResources.AppIcon,
-            Visible = true,            
+            Visible = true,
             Text = "Click to close AppSwitcher"
         };
 
@@ -63,6 +43,38 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _hook?.Dispose();
+    }
+
+    private bool GetConfiguration(IServiceProvider serviceProvider, [NotNullWhen(true)] out Configuration.Configuration? configuration)
+    {
+        configuration = null;
+        var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
+        var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
+
+        if (configReader.ConfigurationExists() is false)
+        {
+            MessageBox.Show("Configuration file (config.json) not found. Please create one and restart AppSwitcher\nYou can use config.json.example as an example", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return false;
+        }
+
+        var config = configReader.ReadConfiguration();
+        if (config is null)
+        {
+            MessageBox.Show("Error reading configuration file - see logs for details", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return false;
+        }
+        else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
+        {
+            MessageBox.Show($"{result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown(1);
+            return false;
+        }
+
+        configuration = config;
+
+        return true;
     }
 
     [Conditional("DEBUG")]
