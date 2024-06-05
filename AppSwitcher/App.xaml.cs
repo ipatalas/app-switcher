@@ -20,9 +20,6 @@ public partial class App : System.Windows.Application
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-        FixMainWindowWhenDebuggerAttached(mainWindow);
-
         var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
         var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
 
@@ -46,6 +43,9 @@ public partial class App : System.Windows.Application
             Current.Shutdown(1);
             return;
         }
+
+        var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+        FixMainWindowWhenDebuggerAttached(mainWindow);
 
         _hook = serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
