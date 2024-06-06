@@ -81,9 +81,7 @@ jobs:
         env:
           CHANGES: ${{ steps.changelog.outputs.body }}
         with:
-          draft: true
-          prerelease: true
-          name: Test release - ${{ env.ver }}
+          name: AppSwitcher ${{ env.ver }}
           files: AppSwitcher.zip
           tag_name: ${{ env.ver }}
           release_name: ${{ env.ver }}
