@@ -11,16 +11,12 @@
       "process": "devenv.exe"
     },
     {
-      "key": "E",
-      "process": "Brave.exe"
+      "key": "C",
+      "process": "chrome.exe"
     },
     {
-      "key": "M",
-      "process": "MailClient.exe"
-    },
-    {
-      "key": "Q",
-      "process": "qw.exe"
+      "key": "N",
+      "process": "notepad.exe"
     }
   ]
 }
