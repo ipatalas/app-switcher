@@ -1,6 +1,5 @@
 ﻿using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
@@ -14,9 +13,18 @@ namespace AppSwitcher;
 public partial class App : System.Windows.Application
 {
     private Hook? _hook;
+    private Mutex? _mutex;
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
+        if (!createdNew)
+        {
+            MessageBox.Show("AppSwitcher is already running", "AppSwitcher", MessageBoxButton.OK, MessageBoxImage.Information);
+            Current.Shutdown(0);
+            return;
+        }
+
         var serviceProvider = ServicesConfiguration.Build();
 
         if (!GetConfiguration(serviceProvider, out var config))
@@ -43,6 +51,7 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _hook?.Dispose();
+        _mutex?.Dispose();
     }
 
     private bool GetConfiguration(IServiceProvider serviceProvider, [NotNullWhen(true)] out Configuration.Configuration? configuration)
