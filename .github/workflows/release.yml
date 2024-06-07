@@ -26,11 +26,6 @@ jobs:
         with:
           fetch-depth: 0
  
-      - id: get_version
-        name: Get version
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: jannemattila/get-version-from-tag@v3
-
       - name: Set version - test branch
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
@@ -40,10 +35,8 @@ jobs:
 
       - name: Set version - tag
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          version: ${{ steps.get_version.outputs.version }}
         run: |
-          "ver=$env:version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ver=$env:GITHUB_REF_NAME" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -83,7 +76,7 @@ jobs:
         with:
           name: AppSwitcher ${{ env.ver }}
           files: AppSwitcher.zip
-          tag_name: ${{ env.ver }}
           release_name: ${{ env.ver }}
           body: ${{ env.CHANGES }}
+          make_latest: true
         

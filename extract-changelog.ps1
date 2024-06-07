@@ -5,6 +5,8 @@ if (-not $version) {
 	exit 1
 }
 
+$version = $version -replace "^v", ""
+
 $output = ""
 $found = $false
 
