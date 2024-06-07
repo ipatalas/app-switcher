@@ -18,6 +18,7 @@ internal static class ServicesConfiguration
         services.AddSingleton<ConfigurationValidator>();
         services.AddSingleton<Hook>();
         services.AddSingleton<WindowHelper>();
+        services.AddSingleton<Switcher>();
 
         return services.BuildServiceProvider();
     }

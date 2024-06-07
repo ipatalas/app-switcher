@@ -3,8 +3,6 @@ using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Windows.Input;
 
-using Win32 = Windows.Win32;
-
 namespace AppSwitcher;
 
 internal class Hook : IDisposable
@@ -12,15 +10,18 @@ internal class Hook : IDisposable
     private readonly KeyboardHook _hook;
     private readonly ILogger<Hook> _logger;
     private readonly WindowHelper _windowHelper;
+    private Configuration.Configuration? _config;
+    private Switcher _switcher;
+
     private readonly HashSet<Key> _keysDown = [];
     private bool _suppressKeyUpEvents = false;
-    private Configuration.Configuration? _config;
 
-    public Hook(ILogger<Hook> logger, WindowHelper windowHelper)
+    public Hook(ILogger<Hook> logger, WindowHelper windowHelper, Switcher switcher)
     {
         _hook = new KeyboardHook();
         this._logger = logger;
         this._windowHelper = windowHelper;
+        _switcher = switcher;
     }
 
     public void Start(Configuration.Configuration config)
@@ -80,16 +81,7 @@ internal class Hook : IDisposable
                     e.SuppressKeyPress = true;
                     _suppressKeyUpEvents = true;
 
-                    var topLevelWindows = _windowHelper.GetWindows(true);
-                    var window = topLevelWindows.FirstOrDefault(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
-                    if (window is null)
-                    {
-                        _logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
-                        return;
-                    }
-
-                    _logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", config.Modifier, letter, appConfig.NormalizedProcessName);
-                    ActivateWindow(window);
+                    _switcher.Execute(config.Modifier, letter, appConfig);
                 }
             }
         }
@@ -105,13 +97,6 @@ internal class Hook : IDisposable
                 _logger.LogDebug("Suppressing {Key} release", e.InputEvent.Key);
             }
         }
-    }
-
-    private static void ActivateWindow(ApplicationWindow window)
-    {
-        var hwnd = window.Handle;
-        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
-        Win32.PInvoke.SetForegroundWindow(hwnd);
     }
 
     private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
