@@ -72,8 +72,7 @@ internal class Hook : IDisposable
 
             if (_keysDown.Count == 2 && _keysDown.Contains(config.Modifier))
             {
-                _keysDown.Remove(config.Modifier);
-                var letter = _keysDown.Single();
+                var letter = _keysDown.Single(IsLetter);
 
                 var appConfig = config.Applications.FirstOrDefault(a => a.Key == letter);
                 if (appConfig is not null)
