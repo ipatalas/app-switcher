@@ -26,11 +26,23 @@ Every hotkey that is defined in the configuration file will be available system-
 That means that if you have a hotkey defined as `Ctrl+V` and you press it while working in Notepad the hotkey won't be passed to Notepad, hence nothing will be pasted.
 Bear that in mind when defining hotkeys.
 
+## Features
+
+### Cycle mode
+
+By default the application will be brought to the front if it's running but subsequently pressing the hotkey will do nothing.
+You can change this behavior by setting the `cycleMode` option in the configuration file per each hotkey.
+Available options are:
+
+- `Default` - the default behavior so nothing will happen
+- `Hide` - if the application is currently active it will be hidden - this is useful to quickly toggle an application
+- `NextWindow` - if the application is currently active the next window of the same application will be brought to the front
+
 ## Roadmap:
 
 - Add support for multiple modifiers (eg. Ctrl-Alt-A)
 - ~~Add option to show/hide for specific apps~~
-- Add option to cycle between different windows of the same app
+- ~~Add option to cycle between different windows of the same app~~
 - Add option to run the app if it's not running when the hotkey is pressed
 - Installer + autostart
 - ~~Trace logging to help with debugging (log all windows)~~
