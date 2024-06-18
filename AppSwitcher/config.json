@@ -9,7 +9,8 @@
     },
     {
       "key": "V",
-      "process": "devenv.exe"
+      "process": "code.exe",
+      "cycleMode": "NextWindow"
     },
     {
       "key": "C",

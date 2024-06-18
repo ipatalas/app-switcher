@@ -31,14 +31,7 @@ internal class WindowHelper
             .ToList();
 
         _logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
-
-        if (_logger.IsEnabled(LogLevel.Trace))
-        {
-            foreach (var item in result)
-            {
-                _logger.LogTrace("#{ProcessId}, {ProcessName}, {Title}, {State}", item.ProcessId, item.ProcessImageName, item.Title, item.State);
-            }
-        }
+        LogWindows(result);
 
         return result;
     }
@@ -56,6 +49,17 @@ internal class WindowHelper
         }
 
         return GetApplicationWindow(hwnd)!;
+    }
+
+    public void LogWindows(IEnumerable<ApplicationWindow> result)
+    {
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            foreach (var item in result)
+            {
+                _logger.LogTrace("PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}", item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State);
+            }
+        }
     }
 
     private ApplicationWindow? GetApplicationWindow(HWND hwnd)

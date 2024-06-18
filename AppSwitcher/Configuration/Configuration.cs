@@ -6,7 +6,8 @@ namespace AppSwitcher.Configuration;
 internal enum CycleMode
 {
     Default = 0,
-    Hide
+    Hide,
+    NextWindow
 }
 
 internal record Configuration(Key Modifier, IReadOnlyList<ApplicationConfiguration> Applications);

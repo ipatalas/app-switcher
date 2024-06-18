@@ -36,7 +36,7 @@
         },
         "cycleMode": {
           "type": "string",
-          "enum": [ "Default", "Hide" ],
+          "enum": [ "Default", "Hide", "NextWindow" ],
           "description": "Action when triggering hotkey for app which is active"
         }
       },

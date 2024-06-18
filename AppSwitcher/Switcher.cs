@@ -1,15 +1,17 @@
 ﻿using AppSwitcher.Configuration;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
-using System.Windows.Input;
-using Win32 = Windows.Win32;
-
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+using Windows.Win32;
 
 namespace AppSwitcher;
+
 internal class Switcher
 {
     private readonly ILogger<Switcher> _logger;
     private readonly WindowHelper _windowHelper;
+    private readonly List<HWND> _nextWindows = new();
 
     public Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
     {
@@ -20,7 +22,8 @@ internal class Switcher
     public void Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = _windowHelper.GetWindows(true);
-        var window = topLevelWindows.FirstOrDefault(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
+        var matchingWindows = topLevelWindows.Where(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
+        var window = matchingWindows.FirstOrDefault();
         if (window is null)
         {
             _logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
@@ -31,6 +34,7 @@ internal class Switcher
 
         if (currentWindow.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.Default)
         {
+            _nextWindows.Clear();
             _logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
             ActivateWindow(window);
         }
@@ -39,18 +43,47 @@ internal class Switcher
             _logger.LogDebug("Hiding {ProcessName}", appConfig.NormalizedProcessName);
             HideWindow(window);
         }
+        else if (appConfig.CycleMode == CycleMode.NextWindow)
+        {
+            _logger.LogDebug("Switching to next window of {ProcessName}", appConfig.NormalizedProcessName);
+            var nextWindow = GetNextWindow(matchingWindows.ToList(), currentWindow);
+            _logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
+            ActivateWindow(nextWindow);
+        }
+    }
+
+    private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
+    {
+        _logger.LogTrace("Matching windows:");
+        _windowHelper.LogWindows(matchingWindows);
+
+        if (!_nextWindows.Contains(window.Handle))
+        {
+            _nextWindows.Add(window.Handle);
+        }
+        _logger.LogTrace("Next windows: {Handles}", string.Join(", ", _nextWindows));
+
+        if (matchingWindows.TrueForAll(w => _nextWindows.Contains(w.Handle)))
+        {
+            var idx = _nextWindows.IndexOf(window.Handle);
+            var nextHandle = _nextWindows[(idx + 1) % _nextWindows.Count];
+
+            return matchingWindows.First(w => w.Handle == nextHandle);
+        }
+
+        return matchingWindows.First(w => !_nextWindows.Contains(w.Handle));
     }
 
     private void ActivateWindow(ApplicationWindow window)
     {
         var hwnd = window.Handle;
-        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
-        Win32.PInvoke.SetForegroundWindow(hwnd);
+        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
+        PInvoke.SetForegroundWindow(hwnd);
     }
 
     private void HideWindow(ApplicationWindow window)
     {
         var hwnd = window.Handle;
-        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_MINIMIZE);
+        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 }
