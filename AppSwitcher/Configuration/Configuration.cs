@@ -3,10 +3,16 @@ using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
 
+internal enum CycleMode
+{
+    Default = 0,
+    Hide
+}
+
 internal record Configuration(Key Modifier, IReadOnlyList<ApplicationConfiguration> Applications);
 
-[DebuggerDisplay("{Key} -> {Process}")]
-internal record ApplicationConfiguration(Key Key, string Process)
+[DebuggerDisplay("{Key} -> {Process} (CycleMode: {CycleMode})")]
+internal record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode)
 {
     public string NormalizedProcessName => Process.EndsWith(".exe") ? Process : $"{Process}.exe";
 }

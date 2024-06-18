@@ -1,8 +1,11 @@
 ﻿ShowWindow
 SetForegroundWindow
+GetForegroundWindow
 GetShellWindow
 GetThreadDesktop
 GetCurrentThreadId
+GetParent
+GetWindowLong
 GetWindowPlacement
 GetWindowText
 GetWindowTextLength

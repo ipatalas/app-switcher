@@ -80,7 +80,8 @@ internal class Hook : IDisposable
                     e.SuppressKeyPress = true;
                     _suppressKeyUpEvents = true;
 
-                    _switcher.Execute(config.Modifier, letter, appConfig);
+                    _logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
+                    _switcher.Execute(appConfig);
                 }
             }
         }

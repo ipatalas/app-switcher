@@ -33,6 +33,11 @@
         "process": {
           "type": "string",
           "description": "Process name for the application (with or without trailing .exe)"
+        },
+        "cycleMode": {
+          "type": "string",
+          "enum": [ "Default", "Hide" ],
+          "description": "Action when triggering hotkey for app which is active"
         }
       },
       "required": [

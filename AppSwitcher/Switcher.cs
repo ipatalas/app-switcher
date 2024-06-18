@@ -17,7 +17,7 @@ internal class Switcher
         _windowHelper = windowHelper;
     }
 
-    public void Execute(Key modifier, Key letter, ApplicationConfiguration appConfig)
+    public void Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = _windowHelper.GetWindows(true);
         var window = topLevelWindows.FirstOrDefault(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
@@ -27,8 +27,18 @@ internal class Switcher
             return;
         }
 
-        _logger.LogDebug("{Modifier}-{Letter} pressed - switching to {ProcessName}", modifier, letter, appConfig.NormalizedProcessName);
-        ActivateWindow(window);
+        var currentWindow = _windowHelper.GetCurrentWindow();
+
+        if (currentWindow.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.Default)
+        {
+            _logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
+            ActivateWindow(window);
+        }
+        else if (appConfig.CycleMode == CycleMode.Hide)
+        {
+            _logger.LogDebug("Hiding {ProcessName}", appConfig.NormalizedProcessName);
+            HideWindow(window);
+        }
     }
 
     private void ActivateWindow(ApplicationWindow window)
@@ -36,5 +46,11 @@ internal class Switcher
         var hwnd = window.Handle;
         Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
         Win32.PInvoke.SetForegroundWindow(hwnd);
+    }
+
+    private void HideWindow(ApplicationWindow window)
+    {
+        var hwnd = window.Handle;
+        Win32.PInvoke.ShowWindow(hwnd, Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 }

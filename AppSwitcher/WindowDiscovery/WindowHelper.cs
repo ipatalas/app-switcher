@@ -8,6 +8,11 @@ namespace AppSwitcher.WindowDiscovery;
 
 internal class WindowHelper
 {
+#pragma warning disable IDE1006 // Naming Styles
+    private const uint WS_CHILD = 0x40000000;
+    private const uint WS_POPUP = 0x80000000;
+#pragma warning restore IDE1006 // Naming Styles
+
     private readonly ILogger<WindowHelper> _logger;
 
     public WindowHelper(ILogger<WindowHelper> logger)
@@ -27,7 +32,30 @@ internal class WindowHelper
 
         _logger.LogDebug($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
 
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            foreach (var item in result)
+            {
+                _logger.LogTrace("#{ProcessId}, {ProcessName}, {Title}, {State}", item.ProcessId, item.ProcessImageName, item.Title, item.State);
+            }
+        }
+
         return result;
+    }
+
+    public ApplicationWindow GetCurrentWindow()
+    {
+        var hwnd = PInvoke.GetForegroundWindow();
+
+        uint style = (uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+
+        while ((style & WS_CHILD) != 0 || (style & WS_POPUP) != 0)
+        {
+            hwnd = PInvoke.GetParent(hwnd);
+            style = (uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        }
+
+        return GetApplicationWindow(hwnd)!;
     }
 
     private ApplicationWindow? GetApplicationWindow(HWND hwnd)
@@ -73,6 +101,13 @@ internal class WindowHelper
 
         WNDENUMPROC enumerator = delegate (HWND hwnd, LPARAM lParam)
         {
+            // exclude popup windows
+            var style = (uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            if ((style & WS_POPUP) != 0)
+            {
+                return true;
+            }
+
             if (hwnd != shellWindow && PInvoke.IsWindowVisible(hwnd) && PInvoke.IsWindow(hwnd))
             {
                 result.Add(hwnd);
@@ -90,8 +125,6 @@ internal class WindowHelper
         {
             PInvoke.EnumWindows(enumerator, nint.Zero);
         }
-
-        _logger.LogDebug($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
 
         return result;
     }

@@ -4,7 +4,8 @@
   "applications": [
     {
       "key": "T",
-      "process": "WindowsTerminal.exe"
+      "process": "WindowsTerminal.exe",
+      "cycleMode": "Hide"
     },
     {
       "key": "V",

@@ -29,7 +29,8 @@ Bear that in mind when defining hotkeys.
 ## Roadmap:
 
 - Add support for multiple modifiers (eg. Ctrl-Alt-A)
-- Add option to show/hide for specific apps
+- ~~Add option to show/hide for specific apps~~
 - Add option to cycle between different windows of the same app
 - Add option to run the app if it's not running when the hotkey is pressed
 - Installer + autostart
+- ~~Trace logging to help with debugging (log all windows)~~
