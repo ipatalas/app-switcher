@@ -21,7 +21,7 @@ internal class Switcher
 
     public void Execute(ApplicationConfiguration appConfig)
     {
-        var topLevelWindows = _windowHelper.GetWindows(true);
+        var topLevelWindows = _windowHelper.GetWindows();
         var matchingWindows = topLevelWindows.Where(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
         var window = matchingWindows.FirstOrDefault();
         if (window is null)

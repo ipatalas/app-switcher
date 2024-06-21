@@ -12,4 +12,5 @@ internal record ApplicationWindow(HWND Handle,
                                   string ProcessImageName,
                                   SHOW_WINDOW_CMD State,
                                   Point Position,
-                                  Size Size);
+                                  Size Size,
+                                  WindowStyle Style);

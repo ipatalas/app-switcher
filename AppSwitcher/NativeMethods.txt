@@ -2,7 +2,6 @@
 SetForegroundWindow
 GetForegroundWindow
 GetShellWindow
-GetThreadDesktop
 GetCurrentThreadId
 GetParent
 GetWindowLong
@@ -10,7 +9,6 @@ GetWindowPlacement
 GetWindowText
 GetWindowTextLength
 GetWindowThreadProcessId
-EnumDesktopWindows
 EnumWindows
 IsWindowVisible
 IsWindow

@@ -17,6 +17,15 @@ public partial class App : System.Windows.Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        var serviceProvider = ServicesConfiguration.Build();
+
+        var cliHandler = serviceProvider.GetRequiredService<CliHandler>();
+        if (cliHandler.Handle(e.Args))
+        {            
+            Current.Shutdown(0);
+            return;
+        }
+
         _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
         if (!createdNew)
         {
@@ -25,10 +34,10 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        var serviceProvider = ServicesConfiguration.Build();
-
+        
         if (!GetConfiguration(serviceProvider, out var config))
         {
+            Current.Shutdown(1);
             return;
         }
 
@@ -63,7 +72,6 @@ public partial class App : System.Windows.Application
         if (configReader.ConfigurationExists() is false)
         {
             MessageBox.Show("Configuration file (config.json) not found. Please create one and restart AppSwitcher\nYou can use config.json.example as an example", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
             return false;
         }
 
@@ -71,13 +79,11 @@ public partial class App : System.Windows.Application
         if (config is null)
         {
             MessageBox.Show("Error reading configuration file - see logs for details", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
             return false;
         }
         else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
         {
             MessageBox.Show($"{result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Current.Shutdown(1);
             return false;
         }
 

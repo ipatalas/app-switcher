@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
