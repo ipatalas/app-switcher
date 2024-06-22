@@ -37,12 +37,12 @@ internal class WindowHelper
     {
         var hwnd = PInvoke.GetForegroundWindow();
 
-        var style = (WindowStyle)(uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        var style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
 
         while (style.HasFlag(WindowStyle.WS_CHILD) || style.HasFlag(WindowStyle.WS_POPUP))
         {
             hwnd = PInvoke.GetParent(hwnd);
-            style = (WindowStyle)(uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         }
 
         return GetApplicationWindow(hwnd, style)!;
@@ -73,7 +73,7 @@ internal class WindowHelper
 
         foreach (var item in result)
         {
-            _logger.LogInformation("PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}, {WindowStyle}", item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State, item.Style & (WindowStyle.WS_CHILD | WindowStyle.WS_POPUP));
+            _logger.LogInformation("PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}, {WindowStyle}", item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State, WindowStyleHelpers.GetString(item.Style));
         }
     }
 
@@ -119,7 +119,7 @@ internal class WindowHelper
         WNDENUMPROC enumerator = delegate (HWND hwnd, LPARAM lParam)
         {
             // exclude popup windows
-            var style = (WindowStyle)(uint)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            var style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             
             if (hwnd != shellWindow && PInvoke.IsWindowVisible(hwnd) && PInvoke.IsWindow(hwnd))
             {
