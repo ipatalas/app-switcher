@@ -5,6 +5,11 @@ Instead of using Alt-Tab you can have predefined hotkeys to switch to particular
 I've been using similar application for Mac recently and this has changed the way I work with applications. 
 I couldn't find any similar application for Windows so I've decided to create one. 
 
+## Requirements
+
+- Windows 10 or newer (very likely it will work on Windows 7 and 8 as well)
+- .NET 8 Desktop Runtime ([link](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)) is recommended but there is also a self-contained version available in the releases
+
 ## Installation
 
 1. Download the latest release from the [releases page](https://github.com/ipatalas/app-switcher/releases) 
@@ -44,5 +49,6 @@ Available options are:
 - ~~Add option to show/hide for specific apps~~
 - ~~Add option to cycle between different windows of the same app~~
 - Add option to run the app if it's not running when the hotkey is pressed
+- Add option to have a single hotkey to cycle between different apps (CycleMode.NextApp?)
 - Installer + autostart
 - ~~Trace logging to help with debugging (log all windows)~~

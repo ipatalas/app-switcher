@@ -52,17 +52,25 @@ jobs:
       - name: Build unpackaged application
         run: msbuild /t:Publish /p:PublishProfile=FolderProfile /p:Configuration=$env:configuration
 
-      - name: Rename config file
-        run: Rename-Item AppSwitcher/bin/publish/folder/config.json config.json.example
+      - name: Build self-contained application
+        run: msbuild /t:Publish /p:PublishProfile=SelfContainedProfile /p:Configuration=$env:configuration
         
-      - name: Create ZIP of unpackaged application
-        run: Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher.zip
+      - name: Rename config file
+        run: |
+          Rename-Item AppSwitcher/bin/publish/folder/config.json config.json.example
+          Rename-Item AppSwitcher/bin/publish/selfcontained/config.json config.json.example
+        
+      - name: Create ZIPs
+        run: |
+          Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher.zip
+          Compress-Archive AppSwitcher/bin/publish/selfcontained/* AppSwitcher-selfcontained.zip
 
       - name: Upload ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: AppSwitcher
-          path: AppSwitcher.zip
+          path: |
+            AppSwitcher.zip
+            AppSwitcher-selfcontained.zip
 
       - name: Read changelog
         id: changelog
@@ -75,7 +83,9 @@ jobs:
           CHANGES: ${{ steps.changelog.outputs.body }}
         with:
           name: AppSwitcher ${{ env.ver }}
-          files: AppSwitcher.zip
+          files: |
+            AppSwitcher.zip
+            AppSwitcher-selfcontained.zip
           release_name: ${{ env.ver }}
           body: ${{ env.CHANGES }}
           make_latest: true
