@@ -6,7 +6,7 @@
   "properties": {
     "modifier": {
       "type": "string",
-      "enum": [ "LeftAlt", "LeftCtrl", "RightAlt", "RightCtrl", "Apps" ],
+      "enum": [ "RightAlt", "RightCtrl", "RightShift", "Apps" ],
       "description": "Modifier(s) to use with the letter to activate an application"
     },
     "applications": {

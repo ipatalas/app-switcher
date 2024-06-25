@@ -6,7 +6,7 @@ namespace AppSwitcher.Configuration;
 internal class ConfigurationValidator
 {
     private readonly ILogger<ConfigurationValidator> _logger;
-    private readonly Key[] _validModifiers = { Key.LeftCtrl, Key.RightCtrl, Key.LeftAlt, Key.RightAlt, Key.Apps };
+    private readonly Key[] _validModifiers = { Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift };
 
     public ConfigurationValidator(ILogger<ConfigurationValidator> logger)
     {
