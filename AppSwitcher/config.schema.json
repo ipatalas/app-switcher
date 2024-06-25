@@ -38,6 +38,10 @@
           "type": "string",
           "enum": [ "Default", "Hide", "NextWindow" ],
           "description": "Action when triggering hotkey for app which is active"
+        },
+        "startIfNotRunning": {
+          "type": "boolean",
+          "description": "Whether to start the application if it's not running already"
         }
       },
       "required": [

@@ -83,7 +83,12 @@ public partial class App : System.Windows.Application
         }
         else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
         {
-            MessageBox.Show($"{result.Message}\nFix the error and run AppSwitcher again", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            var message = $"{result.Message}\n\nFix the error and run AppSwitcher again";
+            if (result.Process is not null)
+            {
+                message = $"Error for application: {result.Process}\n\n{message}";
+            }
+            MessageBox.Show(message, "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
             return false;
         }
 

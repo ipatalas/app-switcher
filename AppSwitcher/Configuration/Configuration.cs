@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
@@ -12,8 +13,12 @@ internal enum CycleMode
 
 internal record Configuration(Key Modifier, IReadOnlyList<ApplicationConfiguration> Applications);
 
-[DebuggerDisplay("{Key} -> {Process} (CycleMode: {CycleMode})")]
-internal record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode)
+[DebuggerDisplay("{Key} -> {Process} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
+internal record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode, bool StartIfNotRunning)
 {
     public string NormalizedProcessName => Process.EndsWith(".exe") ? Process : $"{Process}.exe";
+
+    public string ProcessName => Path.GetFileName(NormalizedProcessName);
+
+    public bool HasFullProcessPath => Path.IsPathRooted(Process);
 }

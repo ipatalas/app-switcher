@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Windows.Win32;
+using System.Diagnostics;
 
 namespace AppSwitcher;
 
@@ -22,10 +23,16 @@ internal class Switcher
     public void Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = _windowHelper.GetWindows();
-        var matchingWindows = topLevelWindows.Where(w => w.ProcessImageName.EndsWith(appConfig.NormalizedProcessName, StringComparison.CurrentCultureIgnoreCase));
+        var matchingWindows = topLevelWindows.Where(w => w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase));
         var window = matchingWindows.FirstOrDefault();
         if (window is null)
         {
+            if (appConfig.StartIfNotRunning)
+            {
+                Process.Start(appConfig.Process);
+                _logger.LogInformation("Starting {ProcessName}", appConfig.NormalizedProcessName);
+                return;
+            }
             _logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
             return;
         }

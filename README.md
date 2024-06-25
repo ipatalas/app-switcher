@@ -47,12 +47,17 @@ Available options are:
 - `Hide` - if the application is currently active it will be hidden - this is useful to quickly toggle an application
 - `NextWindow` - if the application is currently active the next window of the same application will be brought to the front
 
+### Start if not running
+
+If you want to start the application if it's not running you can set the `startIfNotRunning` option in the configuration file per each application configuration.
+This implies that a full path to the executable is provided in the `process` option.
+
 ## Roadmap:
 
 - Add support for multiple modifiers (eg. Ctrl-Alt-A)
 - ~~Add option to show/hide for specific apps~~
 - ~~Add option to cycle between different windows of the same app~~
-- Add option to run the app if it's not running when the hotkey is pressed
+- ~~Add option to run the app if it's not running when the hotkey is pressed~~
 - Add option to have a single hotkey to cycle between different apps (CycleMode.NextApp?)
-- Installer + autostart
+- Installer + autostart (Choco?)
 - ~~Trace logging to help with debugging (log all windows)~~
