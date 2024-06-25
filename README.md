@@ -21,6 +21,10 @@ For the time being there is no UI available. You can configure the hotkeys by ed
 You can start by copying the `config.json.example` file and renaming it to `config.json`. 
 It contains a few examples of hotkeys that you can use.
 
+> Note: Configured modifier will always be suppressed and won't be passed to the active application.
+> This may have some side effects. For example if your modifier of choice is `Menu` you won't be able to open the context menu using keyboard in any application.  
+> Choose your modifier wisely.
+
 ## How to use
 
 Each hotkey can be defined as a combination of a modifier key (Ctrl, Alt, [Menu](https://en.wikipedia.org/wiki/Menu_key)) and a letter key (A-Z).

@@ -1,4 +1,5 @@
-﻿using AppSwitcher.WindowDiscovery;
+﻿using AppSwitcher.Extensions;
+using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Windows.Input;
@@ -13,8 +14,7 @@ internal class Hook : IDisposable
     private Configuration.Configuration? _config;
     private Switcher _switcher;
 
-    private readonly HashSet<Key> _keysDown = [];
-    private bool _suppressKeyUpEvents = false;
+    private bool _modifierDown = false;
 
     public Hook(ILogger<Hook> logger, WindowHelper windowHelper, Switcher switcher)
     {
@@ -49,12 +49,18 @@ internal class Hook : IDisposable
         {
             ArgumentNullException.ThrowIfNull(_config);
 
-            if (!IsLetter(e.InputEvent.Key) && !IsModifier(e.InputEvent.Key))
+            if (IsModifier(e.InputEvent.Key))
             {
+                _logger.LogTrace("Suppressing {Key} {Type}", e.InputEvent.Key, e.KeyPressType);
+                _modifierDown = e.IsKeyDown();
+                e.SuppressKeyPress = true;
                 return;
             }
 
-            HandleKeyPress(e, _config);
+            if (_modifierDown && IsLetter(e.InputEvent.Key))
+            {
+                HandleKeyPress(e, _config);
+            }
         }
         catch (Exception ex)
         {
@@ -64,37 +70,17 @@ internal class Hook : IDisposable
 
     private void HandleKeyPress(KeyboardHookEventArgs e, Configuration.Configuration config)
     {
-        var isKeyDownEvent = e.KeyPressType is KeyboardHook.KeyPressType.KeyDown or KeyboardHook.KeyPressType.SysKeyDown;
-
-        if (isKeyDownEvent)
+        if (e.IsKeyDown())
         {
-            _keysDown.Add(e.InputEvent.Key);
+            var letter = e.InputEvent.Key;
 
-            if (_keysDown.Count == 2 && _keysDown.Contains(config.Modifier))
+            var appConfig = config.Applications.FirstOrDefault(a => a.Key == letter);
+            if (appConfig is not null)
             {
-                var letter = _keysDown.Single(IsLetter);
-
-                var appConfig = config.Applications.FirstOrDefault(a => a.Key == letter);
-                if (appConfig is not null)
-                {
-                    e.SuppressKeyPress = true;
-                    _suppressKeyUpEvents = true;
-
-                    _logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
-                    _switcher.Execute(appConfig);
-                }
-            }
-        }
-        else
-        {
-            _keysDown.Remove(e.InputEvent.Key);
-            if (e.InputEvent.Key == config.Modifier && _suppressKeyUpEvents)
-            {
-                // When releasing the modifier just after the application switch, passing this event down the line to target app can cause side effects.
-                // For instance for Apps modifier it would open up context menu in the target app right after the switch.
                 e.SuppressKeyPress = true;
-                _suppressKeyUpEvents = false;
-                _logger.LogDebug("Suppressing {Key} release", e.InputEvent.Key);
+
+                _logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
+                _switcher.Execute(appConfig);
             }
         }
     }
