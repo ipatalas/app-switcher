@@ -12,6 +12,9 @@ GetWindowThreadProcessId
 EnumWindows
 IsWindowVisible
 IsWindow
+IsIconic
 OpenProcess
 CloseHandle
 QueryFullProcessImageName
+SendInput
+AttachThreadInput
