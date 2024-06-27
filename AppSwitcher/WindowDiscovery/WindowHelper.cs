@@ -33,7 +33,7 @@ internal class WindowHelper
         return result;
     }
 
-    public ApplicationWindow GetCurrentWindow()
+    public ApplicationWindow? GetCurrentWindow()
     {
         var hwnd = PInvoke.GetForegroundWindow();
 
@@ -45,7 +45,7 @@ internal class WindowHelper
             style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         }
 
-        return GetApplicationWindow(hwnd, style)!;
+        return GetApplicationWindow(hwnd, style);
     }
 
     public void LogWindows(IEnumerable<ApplicationWindow> result)

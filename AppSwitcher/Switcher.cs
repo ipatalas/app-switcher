@@ -39,7 +39,7 @@ internal class Switcher
 
         var currentWindow = _windowHelper.GetCurrentWindow();
 
-        if (currentWindow.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.Default)
+        if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.Default)
         {
             _nextWindows.Clear();
             _logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
