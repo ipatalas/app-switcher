@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.3.0] - 2024-06-28
+- Fix null ref when there is no active window
+- Fix setting foreground window to work outside debugging session as well :)
+- Improve focusable window filtering - [details](https://github.com/ipatalas/app-switcher/commit/23a5d6c)
+
 ## [1.2.0] - 2024-06-26
 - Add support to start the application if it's not running when the hotkey is pressed
 - Change allowed modifiers (Right Ctrl, Right Alt, Right Shift, Apps/Menu)
