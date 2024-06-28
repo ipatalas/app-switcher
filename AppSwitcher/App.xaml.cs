@@ -49,7 +49,7 @@ public partial class App : System.Windows.Application
 
         NotifyIcon trayIcon = new()
         {
-            Icon = ProjectResources.AppIcon,
+            Icon = ProjectResources.app_switcher,
             Visible = true,
             Text = "Click to close AppSwitcher"
         };
