@@ -13,4 +13,8 @@ internal record ApplicationWindow(HWND Handle,
                                   Point Position,
                                   Size Size,
                                   WINDOW_STYLE Style,
-                                  WindowStyleEx StyleEx);
+                                  WindowStyleEx StyleEx)
+{
+    public bool IsValidWindow =>
+        Size != Size.Empty && !string.IsNullOrEmpty(Title) && !StyleEx.HasFlag(WindowStyleEx.WS_EX_NOACTIVATE);
+}

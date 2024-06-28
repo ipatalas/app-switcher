@@ -21,9 +21,8 @@ internal class WindowHelper
         var windows = GetVisibleWindowsHandles();
 
         var result = windows
-            .Where(w => !w.Style.HasFlag(WINDOW_STYLE.WS_POPUP))
             .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
-            .Where(item => item != null && item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
+            .Where(item => item != null && item.IsValidWindow)
             .Select(item => item!)
             .ToList();
 

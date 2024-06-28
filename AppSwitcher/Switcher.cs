@@ -88,6 +88,7 @@ internal class Switcher
         var hwnd = window.Handle;
         if (PInvoke.IsIconic(hwnd))
         {
+            _logger.LogDebug("Window is minimized - restoring...");
             PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
         }
 

@@ -41,7 +41,7 @@ internal class WindowStyleHelpers
     {
         var values = Enum.GetValues<T>();
 
-        var result = new List<string>();
+        var result = new HashSet<string>();
 
         foreach (var v in values)
         {
