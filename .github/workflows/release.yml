@@ -12,7 +12,7 @@ on:
         description: 'Version'
         required: true
         type: string
-        default: v1.0.0-test
+        default: v1.0.0
 
 jobs:
   release:
@@ -26,17 +26,24 @@ jobs:
         with:
           fetch-depth: 0
  
-      - name: Set version - test branch
+      - name: Read version - test branch
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           version: ${{ inputs.version }}
         run: |
-          "ver=$env:version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ver=$($env:version -replace '^v', '')" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Set version - tag
+      - name: Read version - tag
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          "ver=$env:GITHUB_REF_NAME" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ver=$($env:GITHUB_REF_NAME -replace '^v', '')" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Set csproj version
+        id: update
+        uses: vers-one/dotnet-project-version-updater@v1.6
+        with:
+          file: "**/*.csproj"
+          version: ${{ env.ver }}
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -82,11 +89,10 @@ jobs:
         env:
           CHANGES: ${{ steps.changelog.outputs.body }}
         with:
-          name: AppSwitcher ${{ env.ver }}
+          name: AppSwitcher v${{ env.ver }}
           files: |
             AppSwitcher.zip
             AppSwitcher-selfcontained.zip
-          release_name: ${{ env.ver }}
           body: ${{ env.CHANGES }}
           make_latest: true
         

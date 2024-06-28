@@ -10,6 +10,8 @@
     <UseWindowsForms>True</UseWindowsForms>
 	<PreserveCompilationContext>false</PreserveCompilationContext>
 	<RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+	<AssemblyVersion>1.0.0</AssemblyVersion>
+	<Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

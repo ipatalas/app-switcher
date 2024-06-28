@@ -92,6 +92,7 @@ internal class Switcher
             PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
         }
 
+        // Hack for SetForegroundWindow limitations (see Remarks here: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks)
         // https://github.com/microsoft/PowerToys/blob/8b8c75b9a54a342660ce8475989ef283fe39e8fe/src/common/ManagedCommon/WindowHelpers.cs#L11
         INPUT input = new() { type = INPUT_TYPE.INPUT_MOUSE, Anonymous = new() { mi = new() } };
         INPUT[] inputs = [input];
