@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
@@ -13,4 +12,5 @@ internal record ApplicationWindow(HWND Handle,
                                   SHOW_WINDOW_CMD State,
                                   Point Position,
                                   Size Size,
-                                  WindowStyle Style);
+                                  WINDOW_STYLE Style,
+                                  WindowStyleEx StyleEx);

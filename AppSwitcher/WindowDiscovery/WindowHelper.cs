@@ -21,14 +21,14 @@ internal class WindowHelper
         var windows = GetVisibleWindowsHandles();
 
         var result = windows
-            .Where(w => !w.Style.HasFlag(WindowStyle.WS_POPUP))
-            .Select(w => GetApplicationWindow(w.Handle, w.Style))
+            .Where(w => !w.Style.HasFlag(WINDOW_STYLE.WS_POPUP))
+            .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
             .Where(item => item != null && item.Size != Size.Empty && !string.IsNullOrEmpty(item.Title))
             .Select(item => item!)
             .ToList();
 
         _logger.LogTrace($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
-        LogWindows(result);
+        LogWindows(LogLevel.Trace, result);
 
         return result;
     }
@@ -37,24 +37,27 @@ internal class WindowHelper
     {
         var hwnd = PInvoke.GetForegroundWindow();
 
-        var style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
 
-        while (style.HasFlag(WindowStyle.WS_CHILD) || style.HasFlag(WindowStyle.WS_POPUP))
+        while (style.HasFlag(WINDOW_STYLE.WS_CHILD))
         {
             hwnd = PInvoke.GetParent(hwnd);
-            style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         }
 
-        return GetApplicationWindow(hwnd, style);
+        var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
+        return GetApplicationWindow(hwnd, style, styleEx);
     }
 
-    public void LogWindows(IEnumerable<ApplicationWindow> result)
+    public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result)
     {
-        if (_logger.IsEnabled(LogLevel.Trace))
+        if (_logger.IsEnabled(level))
         {
             foreach (var item in result)
             {
-                _logger.LogTrace("PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}", item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State);
+                _logger.Log(level, "PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}, {WindowStyle}, {WindowStyleEx}",
+                item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State, WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx));
             }
         }
     }
@@ -64,20 +67,16 @@ internal class WindowHelper
         var sw = Stopwatch.StartNew();
         var windows = GetVisibleWindowsHandles();
         var result = windows
-            .Select(w => GetApplicationWindow(w.Handle, w.Style))
+            .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
             .Where(item => item != null)
             .Select(item => item!)
             .ToList();
 
         _logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
-
-        foreach (var item in result)
-        {
-            _logger.LogInformation("PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}, {WindowStyle}", item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State, WindowStyleHelpers.GetString(item.Style));
-        }
+        LogWindows(LogLevel.Information, result);
     }
 
-    private ApplicationWindow? GetApplicationWindow(HWND hwnd, WindowStyle style)
+    private ApplicationWindow? GetApplicationWindow(HWND hwnd, WINDOW_STYLE style, WindowStyleEx styleEx)
     {
         WINDOWPLACEMENT placement = new();
         PInvoke.GetWindowPlacement(hwnd, ref placement);
@@ -108,22 +107,23 @@ internal class WindowHelper
             _logger.LogWarning($"Failed to close process handle for process {processId}");
         }
 
-        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size, style);
+        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size, style, styleEx);
     }
 
-    private ISet<(HWND Handle, WindowStyle Style)> GetVisibleWindowsHandles()
+    private ISet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)> GetVisibleWindowsHandles()
     {
-        var result = new HashSet<(HWND Handle, WindowStyle Style)>();
+        var result = new HashSet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)>();
         var shellWindow = PInvoke.GetShellWindow();
 
         WNDENUMPROC enumerator = delegate (HWND hwnd, LPARAM lParam)
         {
             // exclude popup windows
-            var style = (WindowStyle)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
-            
+            var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
             if (hwnd != shellWindow && PInvoke.IsWindowVisible(hwnd) && PInvoke.IsWindow(hwnd))
             {
-                result.Add((hwnd, style));
+                result.Add((hwnd, style, styleEx));
             }
 
             return true;

@@ -18,3 +18,4 @@ CloseHandle
 QueryFullProcessImageName
 SendInput
 AttachThreadInput
+WINDOW_STYLE

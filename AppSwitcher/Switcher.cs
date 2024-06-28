@@ -64,7 +64,7 @@ internal class Switcher
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
     {
         _logger.LogTrace("Matching windows:");
-        _windowHelper.LogWindows(matchingWindows);
+        _windowHelper.LogWindows(LogLevel.Trace, matchingWindows);
 
         if (!_nextWindows.Contains(window.Handle))
         {
