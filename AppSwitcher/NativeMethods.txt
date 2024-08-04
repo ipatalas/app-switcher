@@ -14,8 +14,8 @@ IsWindowVisible
 IsWindow
 IsIconic
 OpenProcess
-CloseHandle
 QueryFullProcessImageName
 SendInput
 AttachThreadInput
 WINDOW_STYLE
+MAX_PATH

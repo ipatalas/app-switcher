@@ -3,11 +3,18 @@ using System.Diagnostics;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Windows.Win32.System.Threading;
+using System.Runtime.InteropServices;
+using System.Buffers;
 
 namespace AppSwitcher.WindowDiscovery;
 
 internal class WindowHelper
 {
+#pragma warning disable IDE1006 // Naming Styles
+    private const uint ERROR_INSUFFICIENT_BUFFER = 122;
+#pragma warning restore IDE1006 // Naming Styles
+
     private readonly ILogger<WindowHelper> _logger;
 
     public WindowHelper(ILogger<WindowHelper> logger)
@@ -87,23 +94,18 @@ internal class WindowHelper
         var position = new Point(window.left, window.top);
         var size = new Size(window.right - window.left, window.bottom - window.top);
 
-        var processHandle = PInvoke.OpenProcess(Windows.Win32.System.Threading.PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
-        if (processHandle == IntPtr.Zero)
+        using var processHandle = PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
+        if (processHandle.IsInvalid)
         {
             _logger.LogWarning($"Failed to open process {processId}");
             return null;
         }
 
-        var processImageName = GetProcessImageName(processHandle);
+        var processImageName = GetProcessImageName((HANDLE)processHandle.DangerousGetHandle());
         if (processImageName is null)
         {
             _logger.LogWarning($"Failed to get process image name for process {processId}");
             return null;
-        }
-
-        if (PInvoke.CloseHandle(processHandle) == false)
-        {
-            _logger.LogWarning($"Failed to close process handle for process {processId}");
         }
 
         return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size, style, styleEx);
@@ -133,7 +135,7 @@ internal class WindowHelper
         return result;
     }
 
-    internal unsafe static uint GetWindowThreadProcessId(HWND hwnd, out uint processId)
+    private unsafe static uint GetWindowThreadProcessId(HWND hwnd, out uint processId)
     {
         fixed (uint* lpdwProcessId = &processId)
         {
@@ -141,30 +143,65 @@ internal class WindowHelper
         }
     }
 
-    internal unsafe static string GetWindowText(HWND hwnd)
+    private string GetWindowText(HWND hwnd)
     {
         var length = PInvoke.GetWindowTextLength(hwnd);
-        string s = new('_', length + 1);
-        fixed (char* p = s)
+
+        if (length == 0)
         {
-            length = PInvoke.GetWindowText(hwnd, p, length + 1);
+            return string.Empty;
         }
 
-        return s[0..(int)length];
-    }
-
-    internal unsafe static string? GetProcessImageName(HANDLE handle)
-    {
-        string s = new('_', 256);
-        uint length = (uint)s.Length;
-        fixed (char* p = s)
+        Span<char> title = length <= 256 ? stackalloc char[256] : new char[length + 1];
+        unsafe
         {
-            if (!PInvoke.QueryFullProcessImageName(handle, 0, p, &length))
+            fixed (char* titlePtr = title)
             {
-                return null;
+                length = PInvoke.GetWindowText(hwnd, titlePtr, title.Length); // returned length does not include null terminator
             }
         }
 
-        return s[0..(int)length];
+        return title[..length].ToString();
+    }
+
+    private unsafe static string? GetProcessImageName(HANDLE handle)
+    {
+        const int startLength = (int)PInvoke.MAX_PATH;
+
+        Span<char> buffer = stackalloc char[startLength + 1];
+        char[]? rentedArray = null;
+
+        try
+        {
+            while (true)
+            {
+                uint length = (uint)buffer.Length;
+                fixed (char* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
+                {
+                    if (PInvoke.QueryFullProcessImageName(handle, 0, pinnedBuffer, &length))
+                    {
+                        return buffer[..(int)length].ToString();
+                    }
+                    else if (Marshal.GetLastPInvokeError() != ERROR_INSUFFICIENT_BUFFER)
+                    {
+                        return null;
+                    }
+                }
+
+                char[]? toReturn = rentedArray;
+                buffer = rentedArray = ArrayPool<char>.Shared.Rent(buffer.Length * 2);
+                if (toReturn is not null)
+                {
+                    ArrayPool<char>.Shared.Return(toReturn);
+                }
+            }
+        }
+        finally
+        {
+            if (rentedArray is not null)
+            {
+                ArrayPool<char>.Shared.Return(rentedArray);
+            }
+        }
     }
 }
