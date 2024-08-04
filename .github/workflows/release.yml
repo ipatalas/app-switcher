@@ -62,11 +62,16 @@ jobs:
       - name: Build self-contained application
         run: msbuild /t:Publish /p:PublishProfile=SelfContainedProfile /p:Configuration=$env:configuration
         
-      - name: Rename config file
+      - name: File modifications
+        env:
+          publish_dir: AppSwitcher/bin/publish
         run: |
-          Rename-Item AppSwitcher/bin/publish/folder/config.json config.json.example
-          Rename-Item AppSwitcher/bin/publish/selfcontained/config.json config.json.example
-        
+          # Rename config
+          Rename-Item ${{env.publish_dir}}/folder/config.json config.json.example
+          Rename-Item ${{env.publish_dir}}/selfcontained/config.json config.json.example
+          # Remove unnecessary files
+          Remove-Item ${{env.publish_dir}}/folder/AppSwitcher.deps.json
+          Remove-Item ${{env.publish_dir}}/selfcontained/AppSwitcher.deps.json
       - name: Create ZIPs
         run: |
           Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher.zip
