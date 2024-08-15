@@ -19,6 +19,7 @@ internal static class ServicesConfiguration
         services.AddTransient<Hook>();
         services.AddTransient<WindowHelper>();
         services.AddTransient<Switcher>();
+        services.AddTransient<AutoStart>();
         services.AddTransient<CliHandler>();
 
         return services.BuildServiceProvider();
