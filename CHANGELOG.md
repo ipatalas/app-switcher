@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.4.0] - 2024-08-15
+- Add CLI switch to enable application auto start
+- Clean log files older than 14 days
+- Update application icon :)
+
 ## [1.3.0] - 2024-06-28
 - Fix null ref when there is no active window
 - Fix setting foreground window to work outside debugging session as well :)

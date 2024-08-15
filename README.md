@@ -35,6 +35,22 @@ Every hotkey that is defined in the configuration file will be available system-
 That means that if you have a hotkey defined as `Ctrl+V` and you press it while working in Notepad the hotkey won't be passed to Notepad, hence nothing will be pasted.
 Bear that in mind when defining hotkeys.
 
+### CLI commands
+
+Simply run the following command:
+```shell
+AppSwitcher.exe <command>
+```
+
+Available commands:
+
+| Command               | Description                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| `--log-all-windows`   | Log all windows to the log file, might be useful when troubleshooting       |
+| `--auto-start`        | Enable application auto start on system boot                                |
+| `--help`              | Show the help message with available commands                               |
+
+
 ## Features
 
 ### Cycle mode
