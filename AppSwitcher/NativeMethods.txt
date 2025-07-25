@@ -17,5 +17,9 @@ OpenProcess
 QueryFullProcessImageName
 SendInput
 AttachThreadInput
+GetAsyncKeyState
+GetFileVersionInfoSize
+GetFileVersionInfo
+VerQueryValue
 WINDOW_STYLE
 MAX_PATH

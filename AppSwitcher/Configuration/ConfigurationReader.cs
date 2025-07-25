@@ -6,21 +6,14 @@ using System.Text.Json.Serialization;
 
 namespace AppSwitcher.Configuration;
 
-internal class ConfigurationReader
+internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
 {
-    private readonly ILogger<ConfigurationReader> _logger;
-
     private readonly JsonSerializerOptions _options = new()
     {
         ReadCommentHandling = JsonCommentHandling.Skip,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
     };
-
-    public ConfigurationReader(ILogger<ConfigurationReader> logger)
-    {
-        this._logger = logger;
-    }
 
     public bool ConfigurationExists() => File.Exists("config.json");
 
@@ -31,7 +24,7 @@ internal class ConfigurationReader
 
         if (!File.Exists(configPath))
         {
-            _logger.LogError("Configuration file not found, using default configuration");
+            logger.LogError("Configuration file not found, using default configuration");
             return null;
         }
 
@@ -42,12 +35,12 @@ internal class ConfigurationReader
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error reading configuration file");
+            logger.LogError(ex, "Error reading configuration file");
             return null;
         }
         finally
         {
-            _logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
+            logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
         }
     }
 }

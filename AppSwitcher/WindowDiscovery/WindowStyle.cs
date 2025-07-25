@@ -1,7 +1,12 @@
-﻿namespace AppSwitcher.WindowDiscovery;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AppSwitcher.WindowDiscovery;
 
 // https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
 [Flags]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "IdentifierTypo")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal enum WindowStyleEx : uint
 {
     WS_EX_ACCEPTFILES = 0x00000010,
@@ -33,7 +38,7 @@ internal enum WindowStyleEx : uint
     WS_EX_WINDOWEDGE = 0x00000100,
 }
 
-internal class WindowStyleHelpers
+internal static class WindowStyleHelpers
 {
     // Standard ToString() won't work well in this case because the enum above is not covering all window styles, hence ToString() will return the numeric value
     public static string GetString<T>(T style)

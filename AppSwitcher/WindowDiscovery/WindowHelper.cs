@@ -9,18 +9,13 @@ using System.Buffers;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowHelper
+internal class WindowHelper(ILogger<WindowHelper> logger)
 {
 #pragma warning disable IDE1006 // Naming Styles
+    // ReSharper disable InconsistentNaming
     private const uint ERROR_INSUFFICIENT_BUFFER = 122;
+    // ReSharper restore InconsistentNaming
 #pragma warning restore IDE1006 // Naming Styles
-
-    private readonly ILogger<WindowHelper> _logger;
-
-    public WindowHelper(ILogger<WindowHelper> logger)
-    {
-        this._logger = logger;
-    }
 
     public IList<ApplicationWindow> GetWindows()
     {
@@ -33,7 +28,7 @@ internal class WindowHelper
             .Select(item => item!)
             .ToList();
 
-        _logger.LogTrace($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
+        logger.LogTrace($"Found {result.Count} non-empty windows in {sw.ElapsedMilliseconds}ms");
         LogWindows(LogLevel.Trace, result);
 
         return result;
@@ -58,12 +53,12 @@ internal class WindowHelper
 
     public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result)
     {
-        if (_logger.IsEnabled(level))
+        if (logger.IsEnabled(level))
         {
             foreach (var item in result)
             {
-                _logger.Log(level, "PID/Handle: {ProcessId}/{Handle}, {ProcessName}, {Title}, {State}, {WindowStyle}, {WindowStyleEx}",
-                item.ProcessId, item.Handle, item.ProcessImageName, item.Title, item.State, WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx));
+                logger.Log(level, "PID/Handle: {ProcessId}/{Handle}, {ProcessName} ({ProductName}), {Title}, {State}, {WindowStyle}, {WindowStyleEx}",
+                item.ProcessId, item.Handle, item.ProcessImageName, item.GetProductName(), item.Title, item.State, WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx));
             }
         }
     }
@@ -78,7 +73,7 @@ internal class WindowHelper
             .Select(item => item!)
             .ToList();
 
-        _logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
+        logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
         LogWindows(LogLevel.Information, result);
     }
 
@@ -97,14 +92,14 @@ internal class WindowHelper
         using var processHandle = PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
         if (processHandle.IsInvalid)
         {
-            _logger.LogWarning($"Failed to open process {processId}");
+            logger.LogWarning($"Failed to open process {processId}");
             return null;
         }
 
         var processImageName = GetProcessImageName((HANDLE)processHandle.DangerousGetHandle());
         if (processImageName is null)
         {
-            _logger.LogWarning($"Failed to get process image name for process {processId}");
+            logger.LogWarning($"Failed to get process image name for process {processId}");
             return null;
         }
 
@@ -116,7 +111,11 @@ internal class WindowHelper
         var result = new HashSet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)>();
         var shellWindow = PInvoke.GetShellWindow();
 
-        WNDENUMPROC enumerator = delegate (HWND hwnd, LPARAM lParam)
+        PInvoke.EnumWindows(Enumerator, nint.Zero);
+
+        return result;
+
+        BOOL Enumerator(HWND hwnd, LPARAM lParam)
         {
             // exclude popup windows
             var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
@@ -128,18 +127,14 @@ internal class WindowHelper
             }
 
             return true;
-        };
-
-        PInvoke.EnumWindows(enumerator, nint.Zero);
-
-        return result;
+        }
     }
 
-    private unsafe static uint GetWindowThreadProcessId(HWND hwnd, out uint processId)
+    private static unsafe uint GetWindowThreadProcessId(HWND hwnd, out uint processId)
     {
-        fixed (uint* lpdwProcessId = &processId)
+        fixed (uint* processIdPtr = &processId)
         {
-            return PInvoke.GetWindowThreadProcessId(hwnd, lpdwProcessId);
+            return PInvoke.GetWindowThreadProcessId(hwnd, processIdPtr);
         }
     }
 
@@ -152,7 +147,7 @@ internal class WindowHelper
             return string.Empty;
         }
 
-        Span<char> title = length <= 256 ? stackalloc char[256] : new char[length + 1];
+        var title = length <= 256 ? stackalloc char[256] : new char[length + 1];
         unsafe
         {
             fixed (char* titlePtr = title)
@@ -164,7 +159,7 @@ internal class WindowHelper
         return title[..length].ToString();
     }
 
-    private unsafe static string? GetProcessImageName(HANDLE handle)
+    private static unsafe string? GetProcessImageName(HANDLE handle)
     {
         const int startLength = (int)PInvoke.MAX_PATH;
 

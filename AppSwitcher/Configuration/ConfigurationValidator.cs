@@ -3,15 +3,9 @@ using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
 
-internal class ConfigurationValidator
+internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 {
-    private readonly ILogger<ConfigurationValidator> _logger;
     private readonly Key[] _validModifiers = { Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift };
-
-    public ConfigurationValidator(ILogger<ConfigurationValidator> logger)
-    {
-        this._logger = logger;
-    }
 
     public ValidationResult ValidateAndLog(Configuration configuration)
     {
@@ -19,13 +13,13 @@ internal class ConfigurationValidator
 
         if (result.Status == ValidationResultStatus.Error)
         {
-            _logger.LogError("Config validation error: {Error}", result.Message);
+            logger.LogError("Config validation error: {Error}", result.Message);
         }
 
         return result;
     }
 
-    public ValidationResult Validate(Configuration configuration)
+    private ValidationResult Validate(Configuration configuration)
     {
         if (!_validModifiers.Contains(configuration.Modifier))
         {
