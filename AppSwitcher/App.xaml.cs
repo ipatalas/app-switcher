@@ -1,7 +1,6 @@
 ﻿using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -10,7 +9,7 @@ namespace AppSwitcher;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : System.Windows.Application
+public partial class App
 {
     private Hook? _hook;
     private Mutex? _mutex;
@@ -21,7 +20,7 @@ public partial class App : System.Windows.Application
 
         var cliHandler = serviceProvider.GetRequiredService<CliHandler>();
         if (cliHandler.Handle(e.Args))
-        {            
+        {
             Current.Shutdown(0);
             return;
         }
@@ -34,9 +33,11 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        
-        if (!GetConfiguration(serviceProvider, out var config))
+        var configManager = serviceProvider.GetRequiredService<ConfigurationManager>();
+        var config = configManager.GetConfiguration();
+        if (config == null)
         {
+            MessageBox.Show("Configuration file (config.json) not found or invalid", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
             Current.Shutdown(1);
             return;
         }
@@ -47,54 +48,25 @@ public partial class App : System.Windows.Application
         _hook = serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
 
+        configManager.ConfigurationChanged += newConfig =>
+        {
+            _hook?.UpdateConfiguration(newConfig);
+        };
+
         NotifyIcon trayIcon = new()
         {
             Icon = ProjectResources.app_switcher,
             Visible = true,
-            Text = "Click to close AppSwitcher"
+            Text = @"Click to close AppSwitcher"
         };
 
-        trayIcon.Click += (sender, e) => Current.Shutdown(0);
+        trayIcon.Click += (_, _) => Current.Shutdown(0);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         _hook?.Dispose();
         _mutex?.Dispose();
-    }
-
-    private bool GetConfiguration(IServiceProvider serviceProvider, [NotNullWhen(true)] out Configuration.Configuration? configuration)
-    {
-        configuration = null;
-        var configReader = serviceProvider.GetRequiredService<ConfigurationReader>();
-        var configValidator = serviceProvider.GetRequiredService<ConfigurationValidator>();
-
-        if (configReader.ConfigurationExists() is false)
-        {
-            MessageBox.Show("Configuration file (config.json) not found. Please create one and restart AppSwitcher\nYou can use config.json.example as an example", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            return false;
-        }
-
-        var config = configReader.ReadConfiguration();
-        if (config is null)
-        {
-            MessageBox.Show("Error reading configuration file - see logs for details", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            return false;
-        }
-        else if (configValidator.ValidateAndLog(config) is { Status: ValidationResultStatus.Error } result)
-        {
-            var message = $"{result.Message}\n\nFix the error and run AppSwitcher again";
-            if (result.Process is not null)
-            {
-                message = $"Error for application: {result.Process}\n\n{message}";
-            }
-            MessageBox.Show(message, "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
-            return false;
-        }
-
-        configuration = config;
-
-        return true;
     }
 
     [Conditional("DEBUG")]

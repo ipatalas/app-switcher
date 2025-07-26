@@ -14,7 +14,8 @@
       "items": {
         "$ref": "#/definitions/Application"
       }
-    }
+    },
+    "$schema": { "type": "string" }
   },
   "required": [
     "applications",

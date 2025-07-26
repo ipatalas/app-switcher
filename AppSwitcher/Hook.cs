@@ -1,39 +1,26 @@
 ﻿using AppSwitcher.Extensions;
-using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Windows.Input;
 
 namespace AppSwitcher;
 
-internal class Hook : IDisposable
+internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
 {
-    private readonly KeyboardHook _hook;
-    private readonly ILogger<Hook> _logger;
-    private readonly WindowHelper _windowHelper;
+    private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
-    private Switcher _switcher;
-
-    private bool _modifierDown = false;
-
-    public Hook(ILogger<Hook> logger, WindowHelper windowHelper, Switcher switcher)
-    {
-        _hook = new KeyboardHook();
-        this._logger = logger;
-        this._windowHelper = windowHelper;
-        _switcher = switcher;
-    }
+    private bool _modifierDown;
 
     public void Start(Configuration.Configuration config)
     {
-        this._config = config;
-        _logger.LogInformation("Starting hook");
+        _config = config;
+        logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
 
-    public void Stop()
+    private void Stop()
     {
-        _logger.LogInformation("Stopping hook");
+        logger.LogInformation("Stopping hook");
         _hook.KeyboardPressed -= Hook_KeyboardPressed;
     }
 
@@ -43,15 +30,22 @@ internal class Hook : IDisposable
         _hook.Dispose();
     }
 
+    public void UpdateConfiguration(Configuration.Configuration config)
+    {
+        _config = config;
+    }
+
     private void Hook_KeyboardPressed(object? sender, KeyboardHookEventArgs e)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(_config);
+            logger.LogDebug("{Key} {Type} - _modifierDown: {_modifierDown}",
+                e.InputEvent.Key, e.KeyPressType, _modifierDown);
 
             if (IsModifier(e.InputEvent.Key))
             {
-                _logger.LogTrace("Suppressing {Key} {Type}", e.InputEvent.Key, e.KeyPressType);
+                logger.LogTrace("Suppressing {Key} {Type}", e.InputEvent.Key, e.KeyPressType);
                 _modifierDown = e.IsKeyDown();
                 e.SuppressKeyPress = true;
                 return;
@@ -64,7 +58,7 @@ internal class Hook : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error handling key press");
+            logger.LogError(ex, "Unexpected error handling key press");
         }
     }
 
@@ -79,8 +73,8 @@ internal class Hook : IDisposable
             {
                 e.SuppressKeyPress = true;
 
-                _logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
-                _switcher.Execute(appConfig);
+                logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
+                switcher.Execute(appConfig);
             }
         }
     }

@@ -15,8 +15,6 @@ internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
     };
 
-    public bool ConfigurationExists() => File.Exists("config.json");
-
     public Configuration? ReadConfiguration()
     {
         var sw = Stopwatch.StartNew();
@@ -24,7 +22,7 @@ internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
 
         if (!File.Exists(configPath))
         {
-            logger.LogError("Configuration file not found, using default configuration");
+            logger.LogError("Configuration file not found: {ConfigPath}", configPath);
             return null;
         }
 
