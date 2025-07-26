@@ -11,6 +11,7 @@ internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
     private readonly JsonSerializerOptions _options = new()
     {
         ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
     };

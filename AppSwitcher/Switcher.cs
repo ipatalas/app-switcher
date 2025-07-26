@@ -14,7 +14,7 @@ internal class Switcher
 {
     private readonly ILogger<Switcher> _logger;
     private readonly WindowHelper _windowHelper;
-    private readonly List<HWND> _nextWindows = new();
+    private readonly List<HWND> _nextWindows = [];
 
     public Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
     {
@@ -25,7 +25,9 @@ internal class Switcher
     public void Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = _windowHelper.GetWindows();
-        var matchingWindows = topLevelWindows.Where(w => w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase));
+        var matchingWindows = topLevelWindows.Where(w =>
+                w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
+            .ToList();
         var window = matchingWindows.FirstOrDefault();
         if (window is null)
         {
@@ -55,7 +57,7 @@ internal class Switcher
         else if (appConfig.CycleMode == CycleMode.NextWindow)
         {
             _logger.LogDebug("Switching to next window of {ProcessName}", appConfig.NormalizedProcessName);
-            var nextWindow = GetNextWindow(matchingWindows.ToList(), currentWindow);
+            var nextWindow = GetNextWindow(matchingWindows, currentWindow);
             _logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
             ActivateWindow(nextWindow);
         }
@@ -126,7 +128,7 @@ internal class Switcher
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 
-    internal unsafe static uint GetWindowThreadProcessId(HWND hwnd)
+    private static unsafe uint GetWindowThreadProcessId(HWND hwnd)
     {
         unsafe
         {

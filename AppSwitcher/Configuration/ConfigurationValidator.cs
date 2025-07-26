@@ -5,7 +5,7 @@ namespace AppSwitcher.Configuration;
 
 internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 {
-    private readonly Key[] _validModifiers = { Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift };
+    private readonly Key[] _validModifiers = [Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift];
 
     public ValidationResult ValidateAndLog(Configuration configuration)
     {
@@ -13,7 +13,12 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 
         if (result.Status == ValidationResultStatus.Error)
         {
-            logger.LogError("Config validation error: {Error}", result.Message);
+            var message = result.Message;
+            if (result.Process is not null)
+            {
+                message = $"[{result.Process}] {message}";
+            }
+            logger.LogError("Config validation error: {Message}", message);
         }
 
         return result;

@@ -47,7 +47,7 @@ internal class ConfigurationManager : IDisposable
         _fileChangeDebounceTimer?.Dispose();
         _fileChangeDebounceTimer = new Timer(OnDebounceTimerElapsed, null, 100, Timeout.Infinite);
     }
-    
+
     private void OnDebounceTimerElapsed(object? state)
     {
         LoadConfiguration();
@@ -63,23 +63,12 @@ internal class ConfigurationManager : IDisposable
                 _logger.LogError("Configuration file could not be read");
                 return;
             }
-            
-            var result = _configValidator.ValidateAndLog(config);
-            
-            if (result.Status == ValidationResultStatus.Success)
+
+            if (_configValidator.ValidateAndLog(config).Status == ValidationResultStatus.Success)
             {
                 _currentConfiguration = config;
                 _logger.LogInformation("Configuration reloaded successfully");
                 ConfigurationChanged?.Invoke(config);
-            }
-            else
-            {
-                var message = result.Message;
-                if (result.Process is not null)
-                {
-                    message = $"[{result.Process}] {message}";
-                }
-                _logger.LogError("Configuration error: {Message}", message);
             }
         }
         catch (Exception ex)
