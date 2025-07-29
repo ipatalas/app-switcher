@@ -1,5 +1,6 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -63,7 +64,7 @@ public partial class App
         }
 
         var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-        FixMainWindowWhenDebuggerAttached(mainWindow);
+        mainWindow.Show();
 
         _hook = serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
@@ -108,22 +109,5 @@ public partial class App
             logger.LogInformation("Logging level set to {Level} via CLI options",
                 cliOptions.EnableTraceLogging ? "Trace" : "Debug");
         }
-    }
-
-    [Conditional("DEBUG")]
-    private void FixMainWindowWhenDebuggerAttached(MainWindow mainWindow)
-    {
-        if (!Debugger.IsAttached)
-        {
-            return;
-        }
-
-        // Hacky but if main window is never shown during app lifetime in debug mode, application shutdown will take 4-5 seconds
-        // Works good when debugger is not attached
-        mainWindow.WindowStartupLocation = WindowStartupLocation.Manual;
-        mainWindow.Left = -10000;
-        mainWindow.Top = -10000;
-        mainWindow.Show();
-        mainWindow.Hide();
     }
 }
