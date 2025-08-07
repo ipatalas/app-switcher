@@ -12,7 +12,9 @@ namespace AppSwitcher;
 public partial class App
 {
     private Hook? _hook;
+#if !DEBUG
     private Mutex? _mutex;
+#endif
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -25,6 +27,7 @@ public partial class App
             return;
         }
 
+#if !DEBUG
         _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
         if (!createdNew)
         {
@@ -32,6 +35,7 @@ public partial class App
             Current.Shutdown(0);
             return;
         }
+#endif
 
         var configManager = serviceProvider.GetRequiredService<ConfigurationManager>();
         var config = configManager.GetConfiguration();
@@ -66,7 +70,9 @@ public partial class App
     protected override void OnExit(ExitEventArgs e)
     {
         _hook?.Dispose();
+#if !DEBUG
         _mutex?.Dispose();
+#endif
     }
 
     [Conditional("DEBUG")]
