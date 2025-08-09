@@ -1,0 +1,21 @@
+<Page x:Class="AppSwitcher.UI.Pages.Hotkeys"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
+      xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
+      mc:Ignorable="d"
+      Title="Hotkeys"
+      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance viewModels:SettingsViewModel, IsDesignTimeCreatable=True}">
+    <Border BorderBrush="Red" BorderThickness="2">
+        <StackPanel Margin="10">
+            <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}"/>
+            <ui:Button VerticalAlignment="Top" Appearance="Primary" Content="Test Hotkeys"></ui:Button>
+            <ui:TextBlock Appearance="Primary" Text="{Binding ModifierKeyDisplay, Mode=OneWay}"></ui:TextBlock>
+        </StackPanel>
+    </Border>
+</Page>

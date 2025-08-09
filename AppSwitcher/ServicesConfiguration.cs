@@ -1,4 +1,4 @@
-﻿using AppSwitcher.CLI;
+using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.Utils;
 using AppSwitcher.ViewModels;

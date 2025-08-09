@@ -1,8 +1,8 @@
-﻿using AppSwitcher.ViewModels;
+﻿using AppSwitcher.UI.ViewModels;
 using System.Windows;
 using Application = System.Windows.Application;
 
-namespace AppSwitcher.Windows;
+namespace AppSwitcher.UI.Windows;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

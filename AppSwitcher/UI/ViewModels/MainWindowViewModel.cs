@@ -1,4 +1,4 @@
-using AppSwitcher.Windows;
+using AppSwitcher.UI.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Application = System.Windows.Application;
 
-namespace AppSwitcher.ViewModels;
+namespace AppSwitcher.UI.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -33,7 +33,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (_settings == null || !_settings.IsLoaded)
         {
             _settings = _serviceProvider.GetRequiredService<Settings>();
-            _settings.Closed += (sender, e) => _settings = null; // Clear reference when closed
+            _settings.Closed += (sender, e) => _settings = null;
             _settings.Show();
         }
         else
