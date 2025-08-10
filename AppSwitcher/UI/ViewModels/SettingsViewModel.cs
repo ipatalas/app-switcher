@@ -9,58 +9,101 @@ using System.Windows.Media;
 
 namespace AppSwitcher.UI.ViewModels;
 
-internal partial class SettingsViewModel : ObservableObject
+internal partial class SettingsViewModel : ObservableObject, IDisposable
 {
+    private readonly ConfigurationManager _configurationManager = null!;
+    private readonly IconExtractor _iconExtractor = null!;
+
+    private SettingsViewModelDirtyTracker? _dirtyTracker;
+    private SettingsSnapshot _originalSnapshot = null!;
+
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ModifierKeyDisplay))]
-    private Key _modifierKey;
+    [NotifyPropertyChangedFor(nameof(ModifierKeyDisplay), nameof(IsDirty))]
+    private Key _modifierKey = Key.Apps;
 
     public string ModifierKeyDisplay => ModifierKey.ToString();
 
     [ObservableProperty]
-    private ObservableCollection<ApplicationConfigViewModel> _applications;
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    private ObservableCollection<ApplicationShortcutViewModel> _applications = [];
+
+    public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     protected SettingsViewModel()
     {
-        // For design-time data
-        _modifierKey = Key.Apps;
-        _applications = [];
     }
 
     public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor)
     {
-        var config = configurationManager.GetConfiguration()!;
-        _modifierKey = config.Modifier;
+        _configurationManager = configurationManager;
+        _iconExtractor = iconExtractor;
+        LoadConfiguration();
+    }
+
+    private void LoadConfiguration()
+    {
+        var config = _configurationManager.GetConfiguration()!;
+        ModifierKey = config.Modifier;
+
+        _dirtyTracker?.Dispose();
 
         var defaultIcon =
-            iconExtractor.GetByProcessName(
+            _iconExtractor.GetByProcessName(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
-
-        _applications = new ObservableCollection<ApplicationConfigViewModel>(config.Applications.Select(app => new ApplicationConfigViewModel
+        Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app => new ApplicationShortcutViewModel
         {
             Key = app.Key,
             Name = app.Process,
             ProcessName = Path.GetFileName(app.NormalizedProcessName),
             StartIfNotRunning = app.StartIfNotRunning,
             CycleMode = app.CycleMode,
-            ProcessIcon = iconExtractor.GetByProcessName(app.Process) ?? defaultIcon
+            ProcessIcon = _iconExtractor.GetByProcessName(app.Process) ?? defaultIcon
         }).ToList());
+
+        _originalSnapshot = CreateCurrentSnapshot();
+        _dirtyTracker = new SettingsViewModelDirtyTracker(this, () => OnPropertyChanged(nameof(IsDirty)));
+    }
+
+    private SettingsSnapshot CreateCurrentSnapshot()
+    {
+        return new SettingsSnapshot(ModifierKey,
+            Applications.Select(app =>
+                    new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode))
+                .ToList());
     }
 
     [RelayCommand]
-    private void RemoveApplication(ApplicationConfigViewModel application)
+    private void RemoveApplication(ApplicationShortcutViewModel application)
     {
         Applications.Remove(application);
     }
+
+    [RelayCommand]
+    private void SaveAndClose()
+    {
+        // TODO: Implement save and close logic
+    }
+
+    [RelayCommand]
+    private void Reset()
+    {
+        LoadConfiguration();
+    }
+
+    public void Dispose()
+    {
+        _dirtyTracker?.Dispose();
+    }
 }
 
-internal class ApplicationConfigViewModel
+internal partial class ApplicationShortcutViewModel : ObservableObject
 {
-    public Key Key { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string ProcessName { get; set; } = string.Empty;
-    public bool StartIfNotRunning { get; set; }
-    public CycleMode CycleMode { get; set; } = CycleMode.Default;
+    [ObservableProperty] private Key _key;
 
-    public ImageSource? ProcessIcon { get; set; }
+    [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private string _processName = string.Empty;
+    [ObservableProperty] private bool _startIfNotRunning;
+    [ObservableProperty] private CycleMode _cycleMode = CycleMode.Default;
+
+    public ImageSource? ProcessIcon { get; init; }
 }

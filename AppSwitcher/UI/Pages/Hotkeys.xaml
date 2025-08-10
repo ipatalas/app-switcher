@@ -6,7 +6,6 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
-      xmlns:pages="clr-namespace:AppSwitcher.UI.Pages"
       xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       mc:Ignorable="d"
       Title="Hotkeys"
@@ -16,11 +15,18 @@
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
     <Border BorderBrush="Red" BorderThickness="0">
-        <StackPanel Margin="10" Grid.IsSharedSizeScope="True">
-            <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <Label Content="Applications:" Margin="0,20,0,10"></Label>
-            <ScrollViewer Height="400"
+            <controls:ModifierKeySelector Grid.Row="0" SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+
+            <Label Grid.Row="1" Content="Applications:" Margin="0,20,0,10"></Label>
+            <ScrollViewer Grid.Row="2"
                           CanContentScroll="True"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
@@ -34,7 +40,7 @@
                         </Style>
                     </ui:ListView.ItemContainerStyle>
                     <ui:ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:ApplicationConfigViewModel}">
+                        <DataTemplate DataType="{x:Type viewModels:ApplicationShortcutViewModel}">
                             <Grid Margin="8,8,8,12" ShowGridLines="False">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50" SharedSizeGroup="Col1" />
@@ -95,7 +101,15 @@
                 </ui:ListView>
             </ScrollViewer>
 
-            <ui:TextBlock Appearance="Secondary" Text="{Binding ModifierKeyDisplay, Mode=OneWay}"></ui:TextBlock>
-        </StackPanel>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <ui:Button Content="Reset changes"
+                          Margin="0,0,10,0"
+                          IsEnabled="{Binding IsDirty}"
+                          Command="{Binding ResetCommand}" />
+                <ui:Button Content="Save &amp; Close"
+                          Appearance="Primary"
+                          Command="{Binding SaveAndCloseCommand}" />
+            </StackPanel>
+        </Grid>
     </Border>
 </Page>
