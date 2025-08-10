@@ -1,11 +1,13 @@
+using AppSwitcher.UI.ViewModels;
 using System.Windows.Controls;
 
 namespace AppSwitcher.UI.Pages;
 
-public partial class Hotkeys : Page
+internal partial class Hotkeys : Page
 {
-    public Hotkeys()
+    public Hotkeys(SettingsViewModel viewModel)
     {
         InitializeComponent();
+        DataContext = viewModel;
     }
 }

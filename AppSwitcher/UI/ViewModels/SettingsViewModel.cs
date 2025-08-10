@@ -1,6 +1,8 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,7 +18,7 @@ internal partial class SettingsViewModel : ObservableObject
     public string ModifierKeyDisplay => ModifierKey.ToString();
 
     [ObservableProperty]
-    private List<ApplicationConfigViewModel> _applications;
+    private ObservableCollection<ApplicationConfigViewModel> _applications;
 
     protected SettingsViewModel()
     {
@@ -34,7 +36,7 @@ internal partial class SettingsViewModel : ObservableObject
             iconExtractor.GetByProcessName(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
 
-        _applications = config.Applications.Select(app => new ApplicationConfigViewModel
+        _applications = new ObservableCollection<ApplicationConfigViewModel>(config.Applications.Select(app => new ApplicationConfigViewModel
         {
             Key = app.Key,
             Name = app.Process,
@@ -42,7 +44,13 @@ internal partial class SettingsViewModel : ObservableObject
             StartIfNotRunning = app.StartIfNotRunning,
             CycleMode = app.CycleMode,
             ProcessIcon = iconExtractor.GetByProcessName(app.Process) ?? defaultIcon
-        }).ToList();
+        }).ToList());
+    }
+
+    [RelayCommand]
+    private void RemoveApplication(ApplicationConfigViewModel application)
+    {
+        Applications.Remove(application);
     }
 }
 

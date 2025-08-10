@@ -1,11 +1,16 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.UI.Pages;
+using AppSwitcher.UI.ViewModels;
+using AppSwitcher.WindowDiscovery;
+using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
 using AppSwitcher.ViewModels;
 using AppSwitcher.WindowDiscovery;
 using AppSwitcher.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Extensions.Logging;
+using Wpf.Ui.Abstractions;
 
 namespace AppSwitcher;
 
@@ -16,6 +21,8 @@ internal static class ServicesConfiguration
         var services = new ServiceCollection();
 
         services.AddLogging(logging => logging.AddNLog());
+
+        services.AddTransient<INavigationViewPageProvider, PageProviderService>();
 
         services.AddTransient<ConfigurationReader>();
         services.AddTransient<ConfigurationValidator>();
@@ -32,6 +39,10 @@ internal static class ServicesConfiguration
         // windows
         services.AddTransient<MainWindow>();
         services.AddTransient<Settings>();
+
+        // pages
+        services.AddTransient<Hotkeys>();
+        services.AddTransient<About>();
 
         // view models
         services.AddTransient<MainWindowViewModel>();
