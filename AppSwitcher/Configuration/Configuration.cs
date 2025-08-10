@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
 
-internal enum CycleMode
+public enum CycleMode
 {
     Default = 0,
     Hide,
@@ -17,7 +17,7 @@ internal record Configuration(
     IReadOnlyList<ApplicationConfiguration> Applications);
 
 [DebuggerDisplay("{Key} -> {Process} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
-internal record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode, bool StartIfNotRunning)
+public record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode, bool StartIfNotRunning)
 {
     public string NormalizedProcessName => Process.EndsWith(".exe") ? Process : $"{Process}.exe";
 

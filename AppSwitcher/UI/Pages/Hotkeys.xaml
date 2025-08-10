@@ -6,16 +6,90 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
+      xmlns:pages="clr-namespace:AppSwitcher.UI.Pages"
+      xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       mc:Ignorable="d"
       Title="Hotkeys"
+      d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DesignWidth="700"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      d:DataContext="{d:DesignInstance viewModels:SettingsViewModel, IsDesignTimeCreatable=True}">
-    <Border BorderBrush="Red" BorderThickness="2">
-        <StackPanel Margin="10">
+      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+    <Border BorderBrush="Red" BorderThickness="0">
+        <StackPanel Margin="10" Grid.IsSharedSizeScope="True">
             <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}"/>
-            <ui:Button VerticalAlignment="Top" Appearance="Primary" Content="Test Hotkeys"></ui:Button>
-            <ui:TextBlock Appearance="Primary" Text="{Binding ModifierKeyDisplay, Mode=OneWay}"></ui:TextBlock>
+
+            <Label Content="Applications:" Margin="0,20,0,10"></Label>
+            <ui:ListView ItemsSource="{Binding Applications, Mode=OneWay}">
+                <ui:ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </ui:ListView.ItemContainerStyle>
+                <ui:ListView.ItemTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:ApplicationConfigViewModel}">
+                        <Grid Margin="8,8,8,12" ShowGridLines="False" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" SharedSizeGroup="Col1"/>
+                                <ColumnDefinition Width="40" SharedSizeGroup="Col2"/>
+                                <ColumnDefinition Width="*" MinWidth="200" SharedSizeGroup="Col3"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Col4"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Col5"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ui:Button Grid.Column="0" Grid.Row="0"
+                                       Content="{Binding Key}"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,10,0"
+                                       ToolTip="Click to change shortcut key"/>
+
+                            <Image Grid.Column="1" Grid.Row="0"
+                                   Source="{Binding ProcessIcon}"
+                                   Width="24"
+                                   Height="24"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+
+                            <TextBlock Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       Text="{Binding ProcessName, Mode=OneWay}"
+                                       VerticalAlignment="Center" />
+
+                            <CheckBox Grid.Column="4" Grid.Row="0"
+                                      IsChecked="{Binding StartIfNotRunning}"
+                                      ToolTip="Start application if it's not running"/>
+
+                            <ui:Button Grid.Column="5" Grid.Row="0"
+                                       Width="24" Height="24"
+                                       Padding="0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                                       Command="{Binding DataContext.RemoveApplicationCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                       CommandParameter="{Binding}"
+                                       ToolTip="Remove application">
+                                <ui:SymbolIcon Symbol="Delete24"/>
+                            </ui:Button>
+
+                            <controls:CycleModeSelector
+                                Grid.Column="0"
+                                Grid.Row="1"
+                                Grid.ColumnSpan="6"
+                                Margin="0,10,0,0"
+                                SelectedCycleMode="{Binding CycleMode, Mode=TwoWay}" />
+                        </Grid>
+                    </DataTemplate>
+                </ui:ListView.ItemTemplate>
+            </ui:ListView>
+
+            <ui:TextBlock Appearance="Secondary" Text="{Binding ModifierKeyDisplay, Mode=OneWay}"></ui:TextBlock>
         </StackPanel>
     </Border>
 </Page>

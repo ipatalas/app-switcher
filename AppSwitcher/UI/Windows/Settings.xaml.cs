@@ -3,7 +3,7 @@ using AppSwitcher.UI.ViewModels;
 
 namespace AppSwitcher.UI.Windows;
 
-public partial class Settings
+internal partial class Settings
 {
     private readonly SettingsViewModel _viewModel;
 

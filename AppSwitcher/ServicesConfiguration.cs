@@ -24,6 +24,7 @@ internal static class ServicesConfiguration
         services.AddTransient<WindowHelper>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
+        services.AddSingleton<IconExtractor>();
         services.AddTransient<ModifierIdleTimer>();
 
         services.AddCliHandler();
