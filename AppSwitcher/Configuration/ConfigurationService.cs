@@ -6,11 +6,14 @@ using System.Text.Json.Serialization;
 
 namespace AppSwitcher.Configuration;
 
-internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
+internal class ConfigurationService(ILogger<ConfigurationService> logger)
 {
+    private const string _configPath = "config.json";
+
     private readonly JsonSerializerOptions _options = new()
     {
         ReadCommentHandling = JsonCommentHandling.Skip,
+        WriteIndented = true,
         AllowTrailingCommas = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
@@ -19,17 +22,16 @@ internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
     public Configuration? ReadConfiguration()
     {
         var sw = Stopwatch.StartNew();
-        var configPath = "config.json";
 
-        if (!File.Exists(configPath))
+        if (!File.Exists(_configPath))
         {
-            logger.LogError("Configuration file not found: {ConfigPath}", configPath);
+            logger.LogError("Configuration file not found: {ConfigPath}", _configPath);
             return null;
         }
 
         try
         {
-            using var fileStream = File.OpenRead(configPath);
+            using var fileStream = File.OpenRead(_configPath);
             return JsonSerializer.Deserialize<Configuration>(fileStream, _options)!;
         }
         catch (Exception ex)
@@ -40,6 +42,26 @@ internal class ConfigurationReader(ILogger<ConfigurationReader> logger)
         finally
         {
             logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
+        }
+    }
+
+    public void WriteConfiguration(Configuration newConfig)
+    {
+        var sw = Stopwatch.StartNew();
+
+        try
+        {
+            var json = JsonSerializer.Serialize(newConfig, _options);
+            File.WriteAllText(_configPath, json);
+            logger.LogInformation("Configuration written to file successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error writing configuration file");
+        }
+        finally
+        {
+            logger.LogDebug($"Wrote configuration in {sw.ElapsedMilliseconds}ms");
         }
     }
 }

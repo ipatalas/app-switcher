@@ -108,6 +108,7 @@
                           Command="{Binding ResetCommand}" />
                 <ui:Button Content="Save &amp; Close"
                           Appearance="Primary"
+                          IsEnabled="{Binding IsDirty}"
                           Command="{Binding SaveAndCloseCommand}" />
             </StackPanel>
         </Grid>

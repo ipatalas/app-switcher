@@ -24,7 +24,7 @@ internal static class ServicesConfiguration
 
         services.AddTransient<INavigationViewPageProvider, PageProviderService>();
 
-        services.AddTransient<ConfigurationReader>();
+        services.AddTransient<ConfigurationService>();
         services.AddTransient<ConfigurationValidator>();
         services.AddSingleton<ConfigurationManager>();
         services.AddTransient<Hook>();

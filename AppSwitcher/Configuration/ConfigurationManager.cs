@@ -6,7 +6,7 @@ namespace AppSwitcher.Configuration;
 
 internal class ConfigurationManager : IDisposable
 {
-    private readonly ConfigurationReader _configReader;
+    private readonly ConfigurationService _configService;
     private readonly ConfigurationValidator _configValidator;
     private readonly ILogger<ConfigurationManager> _logger;
     private readonly FileSystemWatcher _fileWatcher;
@@ -15,9 +15,9 @@ internal class ConfigurationManager : IDisposable
 
     public event Action<Configuration>? ConfigurationChanged;
 
-    public ConfigurationManager(ConfigurationReader configReader, ConfigurationValidator configValidator, ILogger<ConfigurationManager> logger)
+    public ConfigurationManager(ConfigurationService configService, ConfigurationValidator configValidator, ILogger<ConfigurationManager> logger)
     {
-        _configReader = configReader;
+        _configService = configService;
         _configValidator = configValidator;
         _logger = logger;
 
@@ -41,6 +41,29 @@ internal class ConfigurationManager : IDisposable
         return _currentConfiguration;
     }
 
+    public bool UpdateConfiguration(Configuration newConfig)
+    {
+        _fileWatcher.EnableRaisingEvents = false;
+
+        try
+        {
+            _configService.WriteConfiguration(newConfig);
+            _currentConfiguration = newConfig;
+            _logger.LogInformation("Configuration updated successfully");
+            ConfigurationChanged?.Invoke(newConfig);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating configuration");
+            return false;
+        }
+        finally
+        {
+            _fileWatcher.EnableRaisingEvents = true;
+        }
+    }
+
     private void OnConfigFileChanged(object sender, FileSystemEventArgs e)
     {
         // Debounce file changes (FileSystemWatcher can fire multiple events)
@@ -57,7 +80,7 @@ internal class ConfigurationManager : IDisposable
     {
         try
         {
-            var config = _configReader.ReadConfiguration();
+            var config = _configService.ReadConfiguration();
             if (config == null)
             {
                 _logger.LogError("Configuration file could not be read");

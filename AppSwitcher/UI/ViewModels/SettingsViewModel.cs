@@ -81,7 +81,18 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void SaveAndClose()
     {
-        // TODO: Implement save and close logic
+        var newConfig = new Configuration.Configuration(ModifierKey, Applications.Select(app =>
+            new ApplicationConfiguration(
+                app.Key,
+                app.ProcessName,
+                app.CycleMode,
+                app.StartIfNotRunning)).ToList());
+
+        if (_configurationManager.UpdateConfiguration(newConfig))
+        {
+            _originalSnapshot = CreateCurrentSnapshot();
+            OnPropertyChanged(nameof(IsDirty));
+        }
     }
 
     [RelayCommand]
