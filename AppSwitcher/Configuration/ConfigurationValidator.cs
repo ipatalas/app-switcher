@@ -5,7 +5,7 @@ namespace AppSwitcher.Configuration;
 
 internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 {
-    private readonly Key[] _validModifiers = [Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift];
+    private readonly Key[] _validModifiers = [Key.LeftCtrl, Key.LeftAlt, Key.RightCtrl, Key.RightAlt, Key.Apps, Key.RightShift];
 
     public ValidationResult ValidateAndLog(Configuration configuration)
     {
@@ -43,12 +43,12 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
                 return ValidationResult.Error("Application process must be set correctly");
             }
 
-            if (app.Key == Key.None || app.Key is not (>=Key.A and <= Key.Z))
+            if (app.Key is Key.None or not (>=Key.A and <= Key.Z))
             {
                 return ValidationResult.Error(app.ProcessName, "Application key was not detected correctly - is should be a single letter");
             }
 
-            if (app.StartIfNotRunning && app.HasFullProcessPath is false)
+            if (app is { StartIfNotRunning: true, HasFullProcessPath: false })
             {
                 return ValidationResult.Error(app.ProcessName, "Application process must be a full path if StartIfNotRunning is set to true");
             }

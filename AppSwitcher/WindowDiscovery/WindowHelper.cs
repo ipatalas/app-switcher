@@ -24,7 +24,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger)
 
         var result = windows
             .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
-            .Where(item => item != null && item.IsValidWindow)
+            .Where(item => item is { IsValidWindow: true })
             .Select(item => item!)
             .ToList();
 
@@ -130,11 +130,11 @@ internal class WindowHelper(ILogger<WindowHelper> logger)
         }
     }
 
-    private static unsafe uint GetWindowThreadProcessId(HWND hwnd, out uint processId)
+    private static unsafe void GetWindowThreadProcessId(HWND hwnd, out uint processId)
     {
         fixed (uint* processIdPtr = &processId)
         {
-            return PInvoke.GetWindowThreadProcessId(hwnd, processIdPtr);
+            PInvoke.GetWindowThreadProcessId(hwnd, processIdPtr);
         }
     }
 
