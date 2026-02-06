@@ -57,11 +57,16 @@ public partial class App
             _hook?.UpdateConfiguration(newConfig);
         };
 
+#if DEBUG
+        var trayIconTitle = "[DEBUG] Click to close AppSwitcher";
+#else
+        var trayIconTitle = "Click to close AppSwitcher";
+#endif
         NotifyIcon trayIcon = new()
         {
             Icon = ProjectResources.app_switcher,
             Visible = true,
-            Text = @"Click to close AppSwitcher"
+            Text = trayIconTitle
         };
 
         trayIcon.Click += (_, _) => Current.Shutdown(0);

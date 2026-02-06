@@ -46,14 +46,13 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
             if (e.IsInjected())
             {
                 // Ignore injected/synthetic events to prevent recursion
-                logger.LogDebug("Ignoring injected event for {Key} {Type}", e.InputEvent.Key, e.KeyPressType);
+                logger.LogDebug("Ignoring injected event for {Event}", e.ToFriendlyString());
                 return;
             }
 
-            logger.LogDebug("{Key} {Type} - _modifierDown: {_modifierDown}",
-                e.InputEvent.Key, e.KeyPressType, _modifierDown);
+            logger.LogDebug("{Event}, ModifierDown: {ModifierDown}", e.ToFriendlyString(), _modifierDown);
 
-            if (IsModifier(e.InputEvent.Key))
+            if (IsConfiguredModifier(e.InputEvent.Key))
             {
                 _modifierDown = e.IsKeyDown();
                 e.SuppressKeyPress = true;
@@ -94,12 +93,12 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
             {
                 e.SuppressKeyPress = true;
 
-                logger.LogDebug("{Modifier}-{Letter} detected", config.Modifier, letter);
+                logger.LogDebug("{Modifier} + {Letter} detected", config.Modifier, letter);
                 switcher.Execute(appConfig);
             }
         }
     }
 
     private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
-    private bool IsModifier(Key key) => _config!.Modifier == key;
+    private bool IsConfiguredModifier(Key key) => _config!.Modifier == key;
 }
