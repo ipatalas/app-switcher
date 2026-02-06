@@ -1,6 +1,8 @@
 ﻿using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -19,6 +21,14 @@ public partial class App
     protected override void OnStartup(StartupEventArgs e)
     {
         var serviceProvider = ServicesConfiguration.Build();
+
+        var logger = serviceProvider.GetRequiredService<ILogger<App>>();
+#if DEBUG
+        logger.LogInformation("AppSwitcher [DEBUG] starting up");
+#else
+        var version = Assembly.GetEntryAssembly()?.GetName().Version;
+        logger.LogInformation("AppSwitcher v{Version} starting up", version);
+#endif
 
         var cliHandler = serviceProvider.GetRequiredService<CliHandler>();
         if (cliHandler.Handle(e.Args))
