@@ -3,6 +3,9 @@ using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+#if !DEBUG
+using System.Reflection;
+#endif
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
