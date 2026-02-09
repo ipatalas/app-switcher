@@ -4,22 +4,26 @@ namespace AppSwitcher.Utils;
 
 internal class ModifierIdleTimer(ILogger<ModifierIdleTimer> logger) : IDisposable
 {
+    private const int _defaultTimeoutMs = 2000;
+
     private System.Threading.Timer? _timer;
-    private int _timeoutMs = 2000;
+    private int _timeoutMs = _defaultTimeoutMs;
 
-    public Action? OnExpired { get; set; }
-
-    public int TimeoutMs
-    {
-        get => _timeoutMs;
-        set
-        {
-            _timeoutMs = value;
-            Cancel();
-        }
-    }
+    private Action? OnExpired { get; set; }
 
     private bool IsDisabled => _timeoutMs == 0;
+    private bool IsDefault => _timeoutMs == _defaultTimeoutMs;
+
+    public void Configure(Action onExpired, int? timeoutMs)
+    {
+        OnExpired = onExpired;
+        _timeoutMs = timeoutMs ?? _defaultTimeoutMs;
+        if (!IsDefault)
+        {
+            logger.LogDebug("Modifier idle timer timeout: {TimeoutMs}ms (0 means disabled)", timeoutMs);
+        }
+        Cancel();
+    }
 
     public void Restart()
     {

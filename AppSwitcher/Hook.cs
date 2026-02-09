@@ -16,7 +16,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     public void Start(Configuration.Configuration config)
     {
         _config = config;
-        modifierIdleTimer.OnExpired = ResetModifierState;
+        modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }

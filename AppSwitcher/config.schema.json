@@ -4,9 +4,20 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "modifierIdleTimeoutMs": {
+      "type": "number",
+      "description": "Time in milliseconds to wait before resetting the modifier key state (e.g. if user presses and releases modifier key without pressing any letter key)"
+    },
     "modifier": {
       "type": "string",
-      "enum": [ "LeftCtrl", "LeftAlt", "RightAlt", "RightCtrl", "RightShift", "Apps" ],
+      "enum": [
+        "LeftCtrl",
+        "LeftAlt",
+        "RightAlt",
+        "RightCtrl",
+        "RightShift",
+        "Apps"
+      ],
       "description": "Modifier(s) to use with the letter to activate an application"
     },
     "applications": {
@@ -15,7 +26,9 @@
         "$ref": "#/definitions/Application"
       }
     },
-    "$schema": { "type": "string" }
+    "$schema": {
+      "type": "string"
+    }
   },
   "required": [
     "applications",
@@ -37,7 +50,11 @@
         },
         "cycleMode": {
           "type": "string",
-          "enum": [ "Default", "Hide", "NextWindow" ],
+          "enum": [
+            "Default",
+            "Hide",
+            "NextWindow"
+          ],
           "description": "Action when triggering hotkey for app which is active"
         },
         "startIfNotRunning": {

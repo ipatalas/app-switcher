@@ -11,7 +11,10 @@ internal enum CycleMode
     NextWindow
 }
 
-internal record Configuration(Key Modifier, IReadOnlyList<ApplicationConfiguration> Applications);
+internal record Configuration(
+    int? ModifierIdleTimeoutMs,
+    Key Modifier,
+    IReadOnlyList<ApplicationConfiguration> Applications);
 
 [DebuggerDisplay("{Key} -> {Process} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 internal record ApplicationConfiguration(Key Key, string Process, CycleMode CycleMode, bool StartIfNotRunning)

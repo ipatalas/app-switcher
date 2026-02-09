@@ -67,13 +67,13 @@ internal class ConfigurationManager : IDisposable
             if (_configValidator.ValidateAndLog(config).Status == ValidationResultStatus.Success)
             {
                 _currentConfiguration = config;
-                _logger.LogInformation("Configuration reloaded successfully");
+                _logger.LogInformation("Configuration (re)loaded successfully");
                 ConfigurationChanged?.Invoke(config);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error reloading configuration");
+            _logger.LogError(ex, "Error (re)loading configuration");
         }
     }
 
