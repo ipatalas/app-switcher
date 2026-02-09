@@ -1,4 +1,5 @@
-﻿using AppSwitcher.Configuration;
+using AppSwitcher.Configuration;
+using AppSwitcher.Utils;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Extensions.Logging;
@@ -22,6 +23,7 @@ internal static class ServicesConfiguration
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddTransient<CliHandler>();
+        services.AddTransient<ModifierIdleTimer>();
 
         return services.BuildServiceProvider();
     }

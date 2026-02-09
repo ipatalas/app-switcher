@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace AppSwitcher;
 
-internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
+internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer modifierIdleTimer) : IDisposable
 {
     private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
@@ -16,6 +16,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
     public void Start(Configuration.Configuration config)
     {
         _config = config;
+        modifierIdleTimer.OnExpired = ResetModifierState;
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -35,6 +36,8 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
     public void UpdateConfiguration(Configuration.Configuration config)
     {
         _config = config;
+        // Reset state when configuration changes (especially if modifier key changes)
+        ResetModifierState();
     }
 
     private void Hook_KeyboardPressed(object? sender, KeyboardHookEventArgs e)
@@ -45,7 +48,6 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
 
             if (e.IsInjected())
             {
-                // Ignore injected/synthetic events to prevent recursion
                 logger.LogDebug("Ignoring injected event for {Event}", e.ToFriendlyString());
                 return;
             }
@@ -57,23 +59,36 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
                 _modifierDown = e.IsKeyDown();
                 e.SuppressKeyPress = true;
 
-                if (e.IsKeyDown())
+                if (e.IsKeyDown()) // modifier down
                 {
                     _letterKeyPressedWithModifier = false;
+                    // Restart timer on each key repeat
+                    modifierIdleTimer.Restart();
                 }
-                else if (!_letterKeyPressedWithModifier)
+                else if (!_letterKeyPressedWithModifier) // modifier up without any letter key pressed
                 {
+                    modifierIdleTimer.Cancel();
+
                     // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
                     // This allows the modifier key to function normally when pressed and released on its own
                     // without interfering with the app switching functionality
                     var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
                     logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
                 }
+                else // modifier up after letter key was pressed
+                {
+                    modifierIdleTimer.Cancel();
+                }
             }
             else if (_modifierDown && IsLetter(e.InputEvent.Key))
             {
                 _letterKeyPressedWithModifier = true;
-                HandleLetterKeyPress(e, _config);
+                HandleLetterKeyPress(e);
+            }
+            else if (_modifierDown && !IsConfiguredModifier(e.InputEvent.Key))
+            {
+                logger.LogDebug("Unrelated key {Key} pressed while modifier down - resetting state", e.InputEvent.Key);
+                ResetModifierState();
             }
         }
         catch (Exception ex)
@@ -82,23 +97,37 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher) : IDisposable
         }
     }
 
-    private void HandleLetterKeyPress(KeyboardHookEventArgs e, Configuration.Configuration config)
+    private void HandleLetterKeyPress(KeyboardHookEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(_config);
+
         if (e.IsKeyDown())
         {
             var letter = e.InputEvent.Key;
 
-            var appConfig = config.Applications.FirstOrDefault(a => a.Key == letter);
+            var appConfig = _config.Applications.FirstOrDefault(a => a.Key == letter);
             if (appConfig is not null)
             {
                 e.SuppressKeyPress = true;
 
-                logger.LogDebug("{Modifier} + {Letter} detected", config.Modifier, letter);
+                logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                 switcher.Execute(appConfig);
+
+                modifierIdleTimer.Restart();
+            }
+            else // unbound letter key
+            {
+                modifierIdleTimer.Cancel();
             }
         }
     }
 
     private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
     private bool IsConfiguredModifier(Key key) => _config!.Modifier == key;
+
+    private void ResetModifierState()
+    {
+        _modifierDown = false;
+        modifierIdleTimer.Cancel();
+    }
 }
