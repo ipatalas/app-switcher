@@ -1,8 +1,17 @@
 # Change Log
 
+## [1.6.0] - 2026-02-09
+- Allow LeftCtrl and LeftAlt as modifiers as well
+- Fix context menu not working when only pressing the Apps key
+- Fix [#4](https://github.com/ipatalas/app-switcher/issues/4) by introducing a timer as backup when key up is not detected
+- Add --debug and --trace CLI switches to enable more verbose logging for troubleshooting purposes
+
+## [1.5.0] - 2025-07-31
+- Reload configuration automatically when file is updated
+
 ## [1.4.0] - 2024-08-15
 - Add CLI switch to enable application auto start
-- Clean log files older than 14 days
+- Automatically clean log files older than 14 days
 - Update application icon :)
 
 ## [1.3.0] - 2024-06-28
