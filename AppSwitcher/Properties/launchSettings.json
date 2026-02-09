@@ -1,7 +1,8 @@
 {
   "profiles": {
     "AppSwitcher": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "--debug"
     }
   }
 }

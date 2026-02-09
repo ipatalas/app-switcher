@@ -1,3 +1,4 @@
+using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.Utils;
 using AppSwitcher.WindowDiscovery;
@@ -22,8 +23,9 @@ internal static class ServicesConfiguration
         services.AddTransient<WindowHelper>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
-        services.AddTransient<CliHandler>();
         services.AddTransient<ModifierIdleTimer>();
+
+        services.AddCliHandler();
 
         return services.BuildServiceProvider();
     }

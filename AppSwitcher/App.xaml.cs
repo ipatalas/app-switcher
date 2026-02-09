@@ -1,4 +1,5 @@
-﻿using AppSwitcher.Configuration;
+using AppSwitcher.CLI;
+using AppSwitcher.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -35,6 +36,9 @@ public partial class App
             Current.Shutdown(0);
             return;
         }
+
+        var cliOptions = serviceProvider.GetRequiredService<CliOptions>();
+        SetupLogging(cliOptions, logger);
 
 #if !DEBUG
         _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
@@ -87,6 +91,20 @@ public partial class App
 #if !DEBUG
         _mutex?.Dispose();
 #endif
+    }
+
+    private static void SetupLogging(CliOptions cliOptions, ILogger<App> logger)
+    {
+        if (cliOptions.EnableDebugLogging || cliOptions.EnableTraceLogging)
+        {
+            foreach (var rule in NLog.LogManager.Configuration.LoggingRules)
+            {
+                rule.EnableLoggingForLevel(cliOptions.EnableTraceLogging ? NLog.LogLevel.Trace : NLog.LogLevel.Debug);
+            }
+            NLog.LogManager.ReconfigExistingLoggers();
+            logger.LogInformation("Logging level set to {Level} via CLI options",
+                cliOptions.EnableTraceLogging ? "Trace" : "Debug");
+        }
     }
 
     [Conditional("DEBUG")]
