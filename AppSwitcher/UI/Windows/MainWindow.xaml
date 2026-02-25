@@ -17,7 +17,7 @@
         Closed="MainWindow_OnClosed"
         d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <StackPanel>
-        <tray:NotifyIcon MenuOnRightClick="True" Visibility="Visible" FocusOnLeftClick="False" TooltipText="Test tooltip">
+        <tray:NotifyIcon MenuOnRightClick="True" Visibility="Visible" FocusOnLeftClick="False" TooltipText="{Binding TrayTooltipText}">
             <tray:NotifyIcon.Menu>
                 <ContextMenu Opened="ContextMenu_OnOpened">
                     <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}"></MenuItem>

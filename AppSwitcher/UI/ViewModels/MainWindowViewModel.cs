@@ -1,4 +1,5 @@
 using AppSwitcher.UI.Windows;
+using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,14 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly IServiceProvider _serviceProvider;
     private Settings? _settings;
+
+    public string TrayTooltipText
+    {
+        get
+        {
+            return "AppSwitcher " + AppVersion.Version;
+        }
+    }
 
     public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider)
     {
@@ -30,10 +39,10 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _logger.LogInformation("Opening Settings window");
 
-        if (_settings == null || !_settings.IsLoaded)
+        if (_settings is not { IsLoaded: true })
         {
             _settings = _serviceProvider.GetRequiredService<Settings>();
-            _settings.Closed += (sender, e) => _settings = null;
+            _settings.Closed += (_, _) => _settings = null;
             _settings.Show();
         }
         else

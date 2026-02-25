@@ -1,12 +1,9 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.UI.Windows;
+using AppSwitcher.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-#if !DEBUG
-using System.Reflection;
-#endif
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -27,12 +24,7 @@ public partial class App
         var serviceProvider = ServicesConfiguration.Build();
 
         var logger = serviceProvider.GetRequiredService<ILogger<App>>();
-#if DEBUG
-        logger.LogInformation("AppSwitcher [DEBUG] starting up");
-#else
-        var version = Assembly.GetEntryAssembly()?.GetName().Version;
-        logger.LogInformation("AppSwitcher v{Version} starting up", version);
-#endif
+        logger.LogInformation("AppSwitcher {Version} starting up", AppVersion.Version);
 
         var cliHandler = serviceProvider.GetRequiredService<CliHandler>();
         if (cliHandler.Handle(e.Args))
@@ -73,20 +65,6 @@ public partial class App
         {
             _hook?.UpdateConfiguration(newConfig);
         };
-
-#if DEBUG
-        var trayIconTitle = "[DEBUG] Click to close AppSwitcher";
-#else
-        var trayIconTitle = "Click to close AppSwitcher";
-#endif
-        NotifyIcon trayIcon = new()
-        {
-            Icon = ProjectResources.app_switcher,
-            Visible = true,
-            Text = trayIconTitle
-        };
-
-        trayIcon.Click += (_, _) => Current.Shutdown(0);
     }
 
     protected override void OnExit(ExitEventArgs e)
