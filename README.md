@@ -2,8 +2,8 @@
 
 AppSwitcher is a simple Windows application that allows you to switch between running applications using a hotkey. 
 Instead of using Alt-Tab you can have predefined hotkeys to switch to particular applications. 
-I've been using similar application for Mac recently and this has changed the way I work with applications. 
-I couldn't find any similar application for Windows so I've decided to create one. 
+I've been using similar application ([rCmd](https://lowtechguys.com/rcmd/)) for Mac recently and this has completely changed the way I switch between applications. 
+I couldn't find any similar application for Windows, so I've decided to create one. 
 
 ## Requirements
 
@@ -21,17 +21,17 @@ For the time being there is no UI available. You can configure the hotkeys by ed
 You can start by copying the `config.json.example` file and renaming it to `config.json`. 
 It contains a few examples of hotkeys that you can use.
 
-> Note: Configured modifier will always be suppressed and won't be passed to the active application.
-> This may have some side effects. For example if your modifier of choice is `Menu` you won't be able to open the context menu using keyboard in any application.  
-> Choose your modifier wisely.
+> Note: Configured modifier will be suppressed and won't be passed to the active application.
+> This is to avoid any side effects in foreground application. However, if modifier is pressed without any letter key it will be passed to the active application as usual.
+> That means if your modifier is `Apps` key you can still use it to open the context menu by pressing it without any letter key.
 
 ## How to use
 
-Each hotkey can be defined as a combination of a modifier key (Ctrl, Alt, [Menu](https://en.wikipedia.org/wiki/Menu_key)) and a letter key (A-Z).
-For example in the default configuration you can switch to Notepad by pressing `Menu+N` or to Windows Terminal by pressing `Menu+T`.
-If a hotkey is pressed and the application is not running it will NOT be started (it's on the roadmap). 
-Pressing a hotkey for an application that is already running will bring it to the front. Also if the application is minimized it will be restored.
-Every hotkey that is defined in the configuration file will be available system-wide and will be surpressed and won't reach active application.
+Each hotkey can be defined as a combination of a modifier key (Ctrl, Alt, [Apps](https://en.wikipedia.org/wiki/Menu_key)) and a letter key (A-Z).
+For example in the default configuration you can switch to Notepad by pressing `Apps+N` or to Windows Terminal by pressing `Apps+T`.
+If a hotkey is pressed and the application is not running it will NOT be started by default. 
+Pressing a hotkey for an application that is already running will bring it to the front. Also, if the application is minimized it will be restored.
+Every hotkey that is defined in the configuration file will be available system-wide, will be suppressed and won't reach foreground application.
 That means that if you have a hotkey defined as `Ctrl+V` and you press it while working in Notepad the hotkey won't be passed to Notepad, hence nothing will be pasted.
 Bear that in mind when defining hotkeys.
 
@@ -44,18 +44,20 @@ AppSwitcher.exe <command>
 
 Available commands:
 
-| Command               | Description                                                                 |
-|-----------------------|-----------------------------------------------------------------------------|
-| `--log-all-windows`   | Log all windows to the log file, might be useful when troubleshooting       |
-| `--auto-start`        | Enable application auto start on system boot                                |
-| `--help`              | Show the help message with available commands                               |
+| Command               | Description                                                            |
+|-----------------------|------------------------------------------------------------------------|
+| `--log-all-windows`   | Log all windows to the log file, might be useful when troubleshooting  |
+| `--enable-auto-start` | Enable application auto start on system boot                           |
+| `--debug`             | Enable debug logging, useful for troubleshooting, do not use otherwise |
+| `--trace`             | Enable trace logging, useful for troubleshooting, do not use otherwise |
+| `--help`              | Show the help message with available commands                          |
 
 
 ## Features
 
 ### Cycle mode
 
-By default the application will be brought to the front if it's running but subsequently pressing the hotkey will do nothing.
+By default, the application will be brought to the front if it's running but subsequently pressing the hotkey will do nothing.
 You can change this behavior by setting the `cycleMode` option in the configuration file per each hotkey.
 Available options are:
 
