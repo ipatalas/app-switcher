@@ -18,9 +18,6 @@
 
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>
 

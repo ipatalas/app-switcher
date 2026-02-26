@@ -1,11 +1,10 @@
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.Utils;
 
-public class IconExtractor
+public class IconExtractor(AppLocator appLocator)
 {
     private readonly Dictionary<string, ImageSource> _images = new();
 
@@ -21,7 +20,7 @@ public class IconExtractor
             return imageSource;
         }
 
-        var executablePath = FindExecutablePath(processName);
+        var executablePath = appLocator.FindExecutablePath(processName);
         if (executablePath == null)
         {
             return null;
@@ -32,37 +31,6 @@ public class IconExtractor
         {
             _images[processName] = icon;
             return icon;
-        }
-
-        return null;
-    }
-
-    private static string? FindExecutablePath(string processName)
-    {
-        // 1. Check if the process name is already a full path
-        if (Path.IsPathRooted(processName))
-        {
-            return processName;
-        }
-
-        // 2. Check if the process is running and get its main module path
-        var processNameWithoutExt = Path.GetFileNameWithoutExtension(processName);
-        var process = Process.GetProcessesByName(processNameWithoutExt)
-            .FirstOrDefault(p => p.MainModule?.FileName != null);
-        if (process != null)
-        {
-            return process.MainModule!.FileName;
-        }
-
-        // 3. Search in the PATH environment variable
-        var paths = Environment.GetEnvironmentVariable("PATH")?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? [];
-        foreach (var path in paths)
-        {
-            var fullPath = Path.Combine(path, processName);
-            if (File.Exists(fullPath))
-            {
-                return fullPath;
-            }
         }
 
         return null;

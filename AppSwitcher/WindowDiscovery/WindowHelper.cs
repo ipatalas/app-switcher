@@ -1,22 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AppSwitcher.Utils;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using Windows.Win32.System.Threading;
-using System.Runtime.InteropServices;
-using System.Buffers;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowHelper(ILogger<WindowHelper> logger)
+internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor processPathExtractor)
 {
-#pragma warning disable IDE1006 // Naming Styles
-    // ReSharper disable InconsistentNaming
-    private const uint ERROR_INSUFFICIENT_BUFFER = 122;
-    // ReSharper restore InconsistentNaming
-#pragma warning restore IDE1006 // Naming Styles
-
     public IList<ApplicationWindow> GetWindows()
     {
         var sw = Stopwatch.StartNew();
@@ -89,17 +81,9 @@ internal class WindowHelper(ILogger<WindowHelper> logger)
         var position = new Point(window.left, window.top);
         var size = new Size(window.right - window.left, window.bottom - window.top);
 
-        using var processHandle = PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
-        if (processHandle.IsInvalid)
-        {
-            logger.LogWarning($"Failed to open process {processId}");
-            return null;
-        }
-
-        var processImageName = GetProcessImageName((HANDLE)processHandle.DangerousGetHandle());
+        var processImageName = processPathExtractor.GetProcessImageName(processId);
         if (processImageName is null)
         {
-            logger.LogWarning($"Failed to get process image name for process {processId}");
             return null;
         }
 
@@ -157,46 +141,5 @@ internal class WindowHelper(ILogger<WindowHelper> logger)
         }
 
         return title[..length].ToString();
-    }
-
-    private static unsafe string? GetProcessImageName(HANDLE handle)
-    {
-        const int startLength = (int)PInvoke.MAX_PATH;
-
-        Span<char> buffer = stackalloc char[startLength + 1];
-        char[]? rentedArray = null;
-
-        try
-        {
-            while (true)
-            {
-                uint length = (uint)buffer.Length;
-                fixed (char* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
-                {
-                    if (PInvoke.QueryFullProcessImageName(handle, 0, pinnedBuffer, &length))
-                    {
-                        return buffer[..(int)length].ToString();
-                    }
-                    else if (Marshal.GetLastPInvokeError() != ERROR_INSUFFICIENT_BUFFER)
-                    {
-                        return null;
-                    }
-                }
-
-                char[]? toReturn = rentedArray;
-                buffer = rentedArray = ArrayPool<char>.Shared.Rent(buffer.Length * 2);
-                if (toReturn is not null)
-                {
-                    ArrayPool<char>.Shared.Return(toReturn);
-                }
-            }
-        }
-        finally
-        {
-            if (rentedArray is not null)
-            {
-                ArrayPool<char>.Shared.Return(rentedArray);
-            }
-        }
     }
 }
