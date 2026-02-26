@@ -16,26 +16,28 @@
         </Style>
     </UserControl.Resources>
     <StackPanel Orientation="Horizontal">
-        <Label Content="Cycle Mode:"
+        <Label Content="When focused:"
                VerticalAlignment="Center"
-               Padding="0,0,10,0"
+               Padding="0"
                Height="20"
                Margin="10,0,10,0"/>
         <ui:Button x:Name="DefaultButton"
                    Content="Default"
                    Click="CycleModeButton_Click"
                    Tag="Default"
-                   Style="{StaticResource CycleModeButtonStyle}" />
+                   Style="{StaticResource CycleModeButtonStyle}"
+                   ToolTipService.ToolTip="Subsequent hotkey will do nothing"/>
         <ui:Button x:Name="HideButton"
                    Content="Hide"
                    Click="CycleModeButton_Click"
                    Tag="Hide"
-                   Style="{StaticResource CycleModeButtonStyle}" />
+                   Style="{StaticResource CycleModeButtonStyle}"
+                   ToolTipService.ToolTip="Subsequent hotkey will toggle visibility of the application"/>
         <ui:Button x:Name="NextWindowButton"
                    Content="Next Window"
                    Click="CycleModeButton_Click"
                    Tag="NextWindow"
-                   Style="{StaticResource CycleModeButtonStyle}">
-        </ui:Button>
+                   Style="{StaticResource CycleModeButtonStyle}"
+                   ToolTipService.ToolTip="Subsequent hotkey will toggle between all windows of the application"/>
     </StackPanel>
 </UserControl>

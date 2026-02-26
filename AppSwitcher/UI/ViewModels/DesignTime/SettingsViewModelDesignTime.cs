@@ -17,7 +17,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
             {
                 Key = Key.C,
                 ProcessName = "Code.exe",
-                StartIfNotRunning = false,
+                StartIfNotRunning = true,
                 CycleMode = CycleMode.NextWindow,
                 ProcessIcon = defaultIcon,
             },
