@@ -27,6 +27,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(IsDirty))]
     private ObservableCollection<ApplicationShortcutViewModel> _applications = [];
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    private int? _modifierIdleTimeoutMs;
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     protected SettingsViewModel()
@@ -44,6 +48,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
         var config = _configurationManager.GetConfiguration()!;
         ModifierKey = config.Modifier;
+        ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs;
 
         _dirtyTracker?.Dispose();
 
@@ -81,12 +86,15 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void SaveAndClose()
     {
-        var newConfig = new Configuration.Configuration(ModifierKey, Applications.Select(app =>
-            new ApplicationConfiguration(
-                app.Key,
-                app.ProcessName,
-                app.CycleMode,
-                app.StartIfNotRunning)).ToList());
+        var newConfig = new Configuration.Configuration(
+            ModifierIdleTimeoutMs,
+            ModifierKey,
+            Applications.Select(app =>
+                new ApplicationConfiguration(
+                    app.Key,
+                    app.ProcessName,
+                    app.CycleMode,
+                    app.StartIfNotRunning)).ToList());
 
         if (_configurationManager.UpdateConfiguration(newConfig))
         {
