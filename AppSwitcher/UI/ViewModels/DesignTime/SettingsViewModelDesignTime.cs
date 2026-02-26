@@ -1,6 +1,6 @@
 using AppSwitcher.Configuration;
-using AppSwitcher.Utils;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels.DesignTime;
 
@@ -8,9 +8,9 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
 {
     public SettingsViewModelDesignTime()
     {
-        var iconExtractor = new IconExtractor();
-        ModifierKey = Key.Apps;
+        var defaultIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
 
+        ModifierKey = Key.Apps;
         Applications =
         [
             new()
@@ -19,7 +19,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "Code.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.NextWindow,
-                ProcessIcon = iconExtractor.GetByProcessName("code.exe")
+                ProcessIcon = defaultIcon,
             },
 
             new()
@@ -28,7 +28,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "qw.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Default,
-                ProcessIcon = iconExtractor.GetByProcessName("qw.exe")
+                ProcessIcon = defaultIcon,
             },
 
             new()
@@ -37,7 +37,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "WindowsTerminal.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
-                ProcessIcon = iconExtractor.GetByProcessName("WindowsTerminal.exe")
+                ProcessIcon = defaultIcon,
             },
 
             new()
@@ -46,7 +46,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "DevToys.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
-                ProcessIcon = iconExtractor.GetByProcessName("DevToys.exe")
+                ProcessIcon = defaultIcon,
             },
 
             new()
@@ -55,7 +55,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "brave.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Default,
-                ProcessIcon = iconExtractor.GetByProcessName("brave.exe")
+                ProcessIcon = defaultIcon,
             },
 
             new()
@@ -64,7 +64,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 ProcessName = "obsidian.exe",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
-                ProcessIcon = iconExtractor.GetByProcessName("obsidian.exe")
+                ProcessIcon = defaultIcon
             }
         ];
     }
