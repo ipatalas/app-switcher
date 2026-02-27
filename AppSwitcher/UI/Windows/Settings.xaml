@@ -16,6 +16,7 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="AppSwitcher Settings"
     Height="650"
+    MinWidth="750"
     Width="900" x:ClassModifier="internal">
     <Grid>
         <ui:NavigationView

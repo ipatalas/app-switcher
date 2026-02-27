@@ -12,6 +12,7 @@
       ScrollViewer.CanContentScroll="False"
       d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
+      MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
     <Border BorderBrush="Red" BorderThickness="0">
@@ -34,7 +35,7 @@
                     <ui:ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
-                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                            <Setter Property="BorderThickness" Value="0,0,0,0" />
                             <Setter Property="Margin" Value="0" />
                             <Setter Property="Padding" Value="0" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
@@ -42,13 +43,14 @@
                     </ui:ListView.ItemContainerStyle>
                     <ui:ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:ApplicationShortcutViewModel}">
-                            <StackPanel Margin="8,8,8,10">
-                                <Grid UseLayoutRounding="True" HorizontalAlignment="Stretch" ShowGridLines="False" Grid.IsSharedSizeScope="False">
+                            <ui:CardExpander>
+                                <ui:CardExpander.Header>
+                                    <Grid UseLayoutRounding="True" HorizontalAlignment="Stretch" ShowGridLines="False" Grid.IsSharedSizeScope="False">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="45" SharedSizeGroup="Col1" />
                                         <ColumnDefinition Width="30" SharedSizeGroup="Col2" />
                                         <ColumnDefinition Width="*" MinWidth="200" />
-                                        <ColumnDefinition Width="50" SharedSizeGroup="Col4" />
+                                        <ColumnDefinition Width="150" SharedSizeGroup="Col4" />
                                     </Grid.ColumnDefinitions>
 
                                     <ui:Button Grid.Column="0" Content="{Binding Key}" Width="35" Padding="1" MinWidth="0" />
@@ -63,11 +65,12 @@
                                         TextTrimming="CharacterEllipsis" />
 
                                     <ui:Button Grid.Column="3" HorizontalAlignment="Right"
+                                               Margin="0,0,20,0"
                                                Command="{Binding DataContext.RemoveApplicationCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                CommandParameter="{Binding}">
                                         <ui:Button.Style>
                                             <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorTetriaryBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
@@ -78,15 +81,45 @@
                                         <ui:SymbolIcon Symbol="Delete24" />
                                     </ui:Button>
                                 </Grid>
+                                </ui:CardExpander.Header>
+                                <Grid Margin="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <controls:CycleModeSelector SelectedCycleMode="{Binding CycleMode}" />
-                                    <ui:ToggleSwitch Margin="12,0,0,0"
-                                                     OffContent="Don't start if not running"
-                                                     OnContent="Start if not running"
-                                                     IsChecked="{Binding StartIfNotRunning}" />
-                                </StackPanel>
-                            </StackPanel>
+                                    <ui:TextBlock Grid.Row="0" Grid.Column="0"
+                                                  Text="When focused:"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Right"
+                                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                                    <controls:CycleModeSelector Grid.Row="0" Grid.Column="1"
+                                                                Margin="10,0,0,0"
+                                                                SelectedCycleMode="{Binding CycleMode}"
+                                                                HorizontalAlignment="Left" />
+
+                                    <ui:TextBlock Grid.Row="1" Grid.Column="0"
+                                                  Text="When not running:"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Right"
+                                                  Margin="0,4,0,0"
+                                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                                    <StackPanel Grid.Row="1" Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Margin="0,4,0,0">
+                                        <ui:ToggleSwitch Margin="12,0,0,0"
+                                                         OffContent="Don't start"
+                                                         OnContent="Start"
+                                                         IsChecked="{Binding StartIfNotRunning}" />
+                                    </StackPanel>
+                                </Grid>
+                            </ui:CardExpander>
                         </DataTemplate>
                     </ui:ListView.ItemTemplate>
                 </ui:ListView>
