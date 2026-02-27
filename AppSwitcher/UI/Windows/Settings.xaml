@@ -6,7 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:pages="clr-namespace:AppSwitcher.UI.Pages"
+    xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
     mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     WindowStartupLocation="CenterScreen"
@@ -19,36 +21,58 @@
     MinWidth="750"
     Width="900" x:ClassModifier="internal">
     <Grid>
-        <ui:NavigationView
-            x:Name="NavigationView"
-            Padding="20"
-            EnableDebugMessages="True"
-            FrameMargin="0"
-            Margin="10,4,10,10"
-            IsBackButtonVisible="Collapsed"
-            OpenPaneLength="200"
-            IsPaneVisible="False"
-            HeaderVisibility="Collapsed"
-            PaneDisplayMode="Left"
-            TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}"
-            Transition="FadeInWithSlide">
-            <ui:NavigationView.MenuItems>
-                <ui:NavigationViewItem Content="Settings" TargetPageType="{x:Type pages:Hotkeys}">
-                    <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Settings24" />
-                    </ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
-            </ui:NavigationView.MenuItems>
-            <ui:NavigationView.FooterMenuItems>
-                <ui:NavigationViewItem Content="About" TargetPageType="{x:Type pages:About}">
-                    <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Info24" />
-                    </ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
-            </ui:NavigationView.FooterMenuItems>
-        </ui:NavigationView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+            <ui:NavigationView
+                x:Name="NavigationView"
+                Padding="20"
+                EnableDebugMessages="True"
+                FrameMargin="0"
+                Margin="10,0,10,10"
+                BorderBrush="Red"
+                BorderThickness="2"
+                IsBackButtonVisible="Collapsed"
+                OpenPaneLength="200"
+                IsPaneVisible="False"
+                HeaderVisibility="Collapsed"
+                PaneDisplayMode="Left"
+                TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}"
+                Transition="None">
+                <ui:NavigationView.MenuItems>
+                    <ui:NavigationViewItem Content="General" TargetPageType="{x:Type pages:General}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Settings24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem Content="Applications" TargetPageType="{x:Type pages:Hotkeys}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="AppsList24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                </ui:NavigationView.MenuItems>
+                <ui:NavigationView.FooterMenuItems>
+                    <ui:NavigationViewItem Content="About" TargetPageType="{x:Type pages:About}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Info24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                </ui:NavigationView.FooterMenuItems>
+            </ui:NavigationView>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,10,10">
+            <ui:Button Content="Reset changes"
+                       Margin="0,0,10,0"
+                       IsEnabled="{Binding IsDirty}"
+                       Command="{Binding ResetCommand}" />
+            <ui:Button Content="Save &amp; Close"
+                       Appearance="Primary"
+                       IsEnabled="{Binding IsDirty}"
+                       Command="{Binding SaveAndCloseCommand}" />
+        </StackPanel>
 
         <ui:TitleBar
+            Grid.Row="0"
             x:Name="TitleBar"
             Title="AppSwitcher">
         </ui:TitleBar>

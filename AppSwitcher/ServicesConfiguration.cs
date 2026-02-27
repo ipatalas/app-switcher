@@ -6,7 +6,10 @@ using AppSwitcher.WindowDiscovery;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NLog.Extensions.Logging;
+using System.Reflection;
+using System.Windows.Controls;
 using Wpf.Ui.Abstractions;
 
 namespace AppSwitcher;
@@ -40,13 +43,26 @@ internal static class ServicesConfiguration
         services.AddTransient<Settings>();
 
         // pages
-        services.AddTransient<Hotkeys>();
-        services.AddTransient<About>();
+        services.AddImplementationsOf<Page>(ServiceLifetime.Transient);
 
         // view models
         services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<SettingsViewModel>();
+        services.AddSingleton<SettingsViewModel>();
 
         return services.BuildServiceProvider();
+    }
+
+    private static IServiceCollection AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime)
+    {
+        var interfaceType = typeof(TInterface);
+        var implementations = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => interfaceType.IsAssignableFrom(t) && t is { IsClass: true, IsAbstract: false });
+
+        foreach (var implementation in implementations)
+        {
+            services.TryAdd(new ServiceDescriptor(implementation, implementation, lifetime));
+        }
+
+        return services;
     }
 }
