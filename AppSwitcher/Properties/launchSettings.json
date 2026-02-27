@@ -3,6 +3,10 @@
     "AppSwitcher": {
       "commandName": "Project",
       "commandLineArgs": "--debug"
+    },
+    "Log all windows": {
+      "commandName": "Project",
+      "commandLineArgs": "--log-all-windows"
     }
   }
 }
