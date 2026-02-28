@@ -40,7 +40,7 @@
                                     <ColumnDefinition Width="150" SharedSizeGroup="Col4" />
                                 </Grid.ColumnDefinitions>
 
-                                <ui:Button Grid.Column="0" Content="{Binding Key}" Width="35" Padding="1" MinWidth="0" />
+                                <controls:KeyAssignmentButton Grid.Column="0"  Key="{Binding Key}" />
 
                                 <Image Grid.Column="1" Source="{Binding ProcessIcon}" Width="24" Height="24" HorizontalAlignment="Left" />
 
