@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".agents", ".agents", "{4E6A
 		.agents\architecture.md = .agents\architecture.md
 		.agents\csharp-conventions.md = .agents\csharp-conventions.md
 		.agents\windows-api.md = .agents\windows-api.md
+		.agents\wpf-patterns.md = .agents\wpf-patterns.md
 	EndProjectSection
 EndProject
 Global

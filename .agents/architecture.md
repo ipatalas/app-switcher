@@ -18,21 +18,9 @@ AppSwitcher/
 └── ServicesConfiguration.cs  # DI container setup
 ```
 
-## MVVM Pattern
+## UI Architecture
 
-Use CommunityToolkit.Mvvm source generators for ViewModels:
-
-```csharp
-[ObservableProperty]
-[NotifyPropertyChangedFor(nameof(ModifierKeyDisplay))]
-private Key _modifierKey = Key.Apps;
-
-[RelayCommand]
-private void RemoveApplication(ApplicationShortcutViewModel application)
-{
-    Applications.Remove(application);
-}
-```
+This project uses WPF with MVVM. See [WPF Patterns](wpf-patterns.md) for detailed guidance on ViewModels, UserControls, Dependency Properties, and XAML best practices.
 
 ## Dependency Injection
 
