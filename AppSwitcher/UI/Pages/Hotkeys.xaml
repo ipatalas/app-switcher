@@ -23,7 +23,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header row: section label + Add button -->
-            <Grid Grid.Row="0" Margin="12,10,12,6">
+            <Grid Grid.Row="0" Margin="12,10,12,10">
                 <ui:TextBlock Text="Applications"
                               FontTypography="BodyStrong"
                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
