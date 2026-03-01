@@ -1,5 +1,6 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.UI.Controls;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.WindowDiscovery;
@@ -35,6 +36,7 @@ internal static class ServicesConfiguration
         services.AddTransient<ModifierIdleTimer>();
         services.AddTransient<ProcessPathExtractor>();
         services.AddSingleton<AppLocator>();
+        services.AddTransient<RunningApplicationsService>();
 
         services.AddCliHandler();
 
@@ -48,6 +50,7 @@ internal static class ServicesConfiguration
         // view models
         services.AddTransient<MainWindowViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddTransient<AddApplicationFlyoutViewModel>();
 
         return services.BuildServiceProvider();
     }

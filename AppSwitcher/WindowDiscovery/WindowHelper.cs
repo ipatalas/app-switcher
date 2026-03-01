@@ -101,7 +101,6 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
 
         BOOL Enumerator(HWND hwnd, LPARAM lParam)
         {
-            // exclude popup windows
             var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
 

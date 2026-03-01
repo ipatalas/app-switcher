@@ -134,7 +134,7 @@ public partial class KeyAssignmentButton : UserControl
         ButtonAppearance = ControlAppearance.Secondary;
     }
 
-    private void StartListening()
+    internal void StartListening()
     {
         IsListening = true;
         ButtonContent = "...";

@@ -77,6 +77,31 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 .ToList());
     }
 
+    public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
+
+    public event Action<ApplicationShortcutViewModel>? ApplicationAdded;
+
+    [RelayCommand]
+    private void AddApplication(string processName)
+    {
+        var defaultIcon =
+            _iconExtractor.GetByProcessName(
+                Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
+
+        var viewModel = new ApplicationShortcutViewModel
+        {
+            Key = Key.None,
+            Name = processName,
+            ProcessName = Path.GetFileName(processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+                ? processName
+                : processName + ".exe"),
+            ProcessIcon = _iconExtractor.GetByProcessName(processName) ?? defaultIcon
+        };
+
+        Applications.Add(viewModel);
+        ApplicationAdded?.Invoke(viewModel);
+    }
+
     [RelayCommand]
     private void RemoveApplication(ApplicationShortcutViewModel application)
     {
