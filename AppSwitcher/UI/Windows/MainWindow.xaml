@@ -17,11 +17,15 @@
         Closed="MainWindow_OnClosed"
         d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <StackPanel>
-        <tray:NotifyIcon MenuOnRightClick="True" Visibility="Visible" FocusOnLeftClick="False" TooltipText="{Binding TrayTooltipText}">
+        <tray:NotifyIcon MenuOnRightClick="True"
+                         Visibility="Visible"
+                         FocusOnLeftClick="False"
+                         LeftDoubleClick="NotifyIcon_OnLeftDoubleClick"
+                         TooltipText="{Binding TrayTooltipText}">
             <tray:NotifyIcon.Menu>
                 <ContextMenu Opened="ContextMenu_OnOpened">
                     <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}"></MenuItem>
-                    <Separator/>
+                    <Separator />
                     <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}"></MenuItem>
                 </ContextMenu>
             </tray:NotifyIcon.Menu>

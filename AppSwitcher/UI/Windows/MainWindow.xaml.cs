@@ -25,4 +25,9 @@ public partial class MainWindow : Window
     {
         Application.Current.Shutdown();
     }
+
+    private void NotifyIcon_OnLeftDoubleClick(Wpf.Ui.Tray.Controls.NotifyIcon sender, RoutedEventArgs e)
+    {
+        ((MainWindowViewModel)DataContext).OpenSettingsCommand.Execute(null);
+    }
 }
