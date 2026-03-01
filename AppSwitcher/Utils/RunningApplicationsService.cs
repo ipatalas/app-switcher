@@ -12,6 +12,7 @@ internal class RunningApplicationsService(WindowHelper windowHelper, IconExtract
     {
         var excluded = excludedProcessNames
             .Select(n => Path.GetFileName(n).ToLowerInvariant())
+            .Concat(["appswitcher.exe"])
             .ToHashSet();
 
         return windowHelper.GetWindows()

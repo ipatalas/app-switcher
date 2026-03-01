@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Dwm;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
@@ -45,13 +46,18 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
 
     public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result)
     {
-        if (logger.IsEnabled(level))
+        if (!logger.IsEnabled(level))
         {
-            foreach (var item in result)
-            {
-                logger.Log(level, "PID/Handle: {ProcessId}/{Handle}, {ProcessName} ({ProductName}), {Title}, {State}, {WindowStyle}, {WindowStyleEx}",
-                item.ProcessId, item.Handle, item.ProcessImageName, item.GetProductName(), item.Title, item.State, WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx));
-            }
+            return;
+        }
+
+        foreach (var item in result)
+        {
+            logger.Log(level,
+                "PID/Handle: {ProcessId}/{Handle}, {ProcessName} ({ProductName}), {Title}, {State}, {WindowStyle}, {WindowStyleEx}, {IsCloaked}",
+                item.ProcessId, item.Handle, item.ProcessImageName, item.GetProductName(), item.Title, item.State,
+                WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx),
+                item.IsCloaked ? "Cloaked" : "Visible");
         }
     }
 
@@ -69,7 +75,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
         LogWindows(LogLevel.Information, result);
     }
 
-    private ApplicationWindow? GetApplicationWindow(HWND hwnd, WINDOW_STYLE style, WindowStyleEx styleEx)
+    private unsafe ApplicationWindow? GetApplicationWindow(HWND hwnd, WINDOW_STYLE style, WindowStyleEx styleEx)
     {
         WINDOWPLACEMENT placement = new();
         PInvoke.GetWindowPlacement(hwnd, ref placement);
@@ -87,7 +93,16 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
             return null;
         }
 
-        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size, style, styleEx);
+        var cloaked = 0;
+        var hresult = PInvoke.DwmGetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, &cloaked, sizeof(int));
+        if (hresult != 0)
+        {
+            logger.LogWarning("Failed to get cloaked attribute for window {Handle} ({ProcessName}), HRESULT: {HResult}",
+                hwnd, System.IO.Path.GetFileName(processImageName), hresult);
+        }
+
+        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size,
+            style, styleEx, cloaked != 0);
     }
 
     private ISet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)> GetVisibleWindowsHandles()

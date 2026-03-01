@@ -21,5 +21,6 @@ GetAsyncKeyState
 GetFileVersionInfoSize
 GetFileVersionInfo
 VerQueryValue
+DwmGetWindowAttribute
 WINDOW_STYLE
 MAX_PATH
