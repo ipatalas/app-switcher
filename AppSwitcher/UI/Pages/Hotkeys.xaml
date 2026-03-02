@@ -64,7 +64,7 @@
                     <ui:ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
-                            <Setter Property="BorderThickness" Value="0,0,0,0" />
+                            <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="Margin" Value="0" />
                             <Setter Property="Padding" Value="0" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -72,7 +72,19 @@
                     </ui:ListView.ItemContainerStyle>
                     <ui:ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:ApplicationShortcutViewModel}">
-                            <ui:CardExpander>
+                            <Border>
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasValidationError}" Value="True">
+                                                <Setter Property="BorderThickness" Value="6,0,0,0" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ValidationStripeBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <ui:CardExpander>
                                 <ui:CardExpander.Header>
                                     <Grid UseLayoutRounding="True" HorizontalAlignment="Stretch" ShowGridLines="False" Grid.IsSharedSizeScope="False">
                                         <Grid.ColumnDefinitions>
@@ -149,6 +161,7 @@
                                     </StackPanel>
                                 </Grid>
                             </ui:CardExpander>
+                            </Border>
                         </DataTemplate>
                     </ui:ListView.ItemTemplate>
                 </ui:ListView>

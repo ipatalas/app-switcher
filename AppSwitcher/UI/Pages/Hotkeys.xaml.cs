@@ -3,6 +3,9 @@ using AppSwitcher.UI.Controls;
 using AppSwitcher.UI.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using Color = System.Windows.Media.Color;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace AppSwitcher.UI.Pages;
 
@@ -30,9 +33,50 @@ internal partial class Hotkeys : Page
         _viewModel = viewModel;
         FlyoutViewModel = flyoutViewModel;
 
+        Resources["ValidationStripeBrush"] = CreateValidationStripeBrush();
+
         FlyoutViewModel.ApplicationSelected += OnApplicationSelected;
         _viewModel.ApplicationAdded += OnApplicationAdded;
         AddApplicationFlyout.CloseRequested += () => AddFlyoutPopup.IsOpen = false;
+    }
+
+    private DrawingBrush CreateValidationStripeBrush()
+    {
+        var color = TryFindResource("SystemFillColorCaution") is Color c
+            ? c
+            : Color.FromRgb(0xFF, 0xB9, 0x00); // Windows caution amber fallback
+
+        var stripeBrush = new SolidColorBrush(color);
+
+        var stripeDrawing = new GeometryDrawing
+        {
+            Brush = stripeBrush,
+            Geometry = new GeometryGroup
+            {
+                Children =
+                [
+                    Geometry.Parse("M 0,4 L 4,0 L 8,0 L 0,8 Z"),
+                    Geometry.Parse("M 4,8 L 8,4 L 8,8 Z"),
+                ]
+            }
+        };
+
+        var backgroundDrawing = new GeometryDrawing
+        {
+            Brush = Brushes.Transparent,
+            Geometry = new RectangleGeometry(new Rect(0, 0, 8, 8))
+        };
+
+        return new DrawingBrush
+        {
+            TileMode = TileMode.Tile,
+            ViewportUnits = BrushMappingMode.Absolute,
+            Viewport = new Rect(0, 0, 8, 8),
+            Drawing = new DrawingGroup
+            {
+                Children = [backgroundDrawing, stripeDrawing]
+            }
+        };
     }
 
     private void AddButton_Click(object sender, RoutedEventArgs e)

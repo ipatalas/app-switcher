@@ -13,25 +13,38 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
+    private readonly ApplicationsValidator _validator = new();
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
     private SettingsSnapshot _originalSnapshot = null!;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ModifierKeyDisplay), nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(ModifierKeyDisplay), nameof(IsDirty), nameof(CanSave))]
     private Key _modifierKey = Key.Apps;
 
     public string ModifierKeyDisplay => ModifierKey.ToString();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private ObservableCollection<ApplicationShortcutViewModel> _applications = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private int? _modifierIdleTimeoutMs;
 
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
+
+    public bool HasValidationErrors => Applications.Any(a => a.HasValidationError);
+
+    public bool CanSave => IsDirty && !HasValidationErrors;
+
+    public string? ValidationSummary =>
+        HasValidationErrors
+            ? string.Join(Environment.NewLine, Applications
+                .Where(a => a.ValidationError is not null)
+                .Select(a => a.ValidationError)
+                .Distinct())
+            : null;
 
     protected SettingsViewModel()
     {
@@ -66,7 +79,34 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         }).ToList());
 
         _originalSnapshot = CreateCurrentSnapshot();
-        _dirtyTracker = new SettingsViewModelDirtyTracker(this, () => OnPropertyChanged(nameof(IsDirty)));
+        _dirtyTracker = new SettingsViewModelDirtyTracker(this, OnSettingsChanged);
+        RunValidation();
+    }
+
+    private void OnSettingsChanged()
+    {
+        OnPropertyChanged(nameof(IsDirty));
+        RunValidation();
+    }
+
+    private void RunValidation()
+    {
+        var errors = _validator.Validate(Applications);
+
+        // Clear all existing error state
+        foreach (var app in Applications)
+            app.ValidationError = null;
+
+        // Apply new errors to affected VMs
+        foreach (var error in errors)
+        {
+            foreach (var app in error.AffectedApps)
+                app.ValidationError = error.Message;
+        }
+
+        OnPropertyChanged(nameof(HasValidationErrors));
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(ValidationSummary));
     }
 
     private SettingsSnapshot CreateCurrentSnapshot()
@@ -125,6 +165,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         {
             _originalSnapshot = CreateCurrentSnapshot();
             OnPropertyChanged(nameof(IsDirty));
+            OnPropertyChanged(nameof(CanSave));
         }
     }
 
@@ -148,6 +189,12 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
     [ObservableProperty] private string _processName = string.Empty;
     [ObservableProperty] private bool _startIfNotRunning;
     [ObservableProperty] private CycleMode _cycleMode = CycleMode.Default;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasValidationError))]
+    private string? _validationError;
+
+    public bool HasValidationError => ValidationError is not null;
 
     public ImageSource? ProcessIcon { get; init; }
 }

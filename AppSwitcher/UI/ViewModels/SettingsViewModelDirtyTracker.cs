@@ -57,6 +57,12 @@ internal class SettingsViewModelDirtyTracker : IDisposable
 
     private void ApplicationItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName is nameof(ApplicationShortcutViewModel.ValidationError)
+                           or nameof(ApplicationShortcutViewModel.HasValidationError))
+        {
+            return;
+        }
+
         _onChange();
     }
 
