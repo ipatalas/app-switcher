@@ -19,6 +19,9 @@ internal partial class Settings
 
     protected override void OnActivated(EventArgs e)
     {
-        NavigationView.Navigate(typeof(Hotkeys), _viewModel);
+        if (NavigationView.SelectedItem is null)
+        {
+            NavigationView.Navigate(typeof(Hotkeys), _viewModel);
+        }
     }
 }

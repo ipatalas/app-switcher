@@ -51,6 +51,7 @@ internal static class ServicesConfiguration
         services.AddTransient<MainWindowViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddTransient<AddApplicationFlyoutViewModel>();
+        services.AddTransient<AboutViewModel>();
 
         return services.BuildServiceProvider();
     }

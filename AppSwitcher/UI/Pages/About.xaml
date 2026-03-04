@@ -4,9 +4,113 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       mc:Ignorable="d"
-      Title="About" Height="450" Width="800">
-    <Grid>
-        <ui:Button Content="Test" Appearance="Primary"></ui:Button>
-    </Grid>
+      Title="About"
+      ScrollViewer.CanContentScroll="False"
+      d:DataContext="{d:DesignInstance designTime:AboutViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DesignWidth="700"
+      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      x:ClassModifier="internal">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,20">
+
+            <!-- Identity -->
+            <ui:Card Margin="0,0,0,16">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="{Binding AppIcon}"
+                           Width="52" Height="52"
+                           Margin="0,0,20,0"
+                           VerticalAlignment="Center"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <StackPanel VerticalAlignment="Center">
+                        <ui:TextBlock Text="{Binding AppName}"
+                                      FontTypography="BodyStrong"
+                                      FontSize="20"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Margin="0,0,0,4" />
+                        <ui:TextBlock Text="{Binding AppVersion}"
+                                      Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <ui:TextBlock Text="{Binding DotNetVersion}"
+                                      Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- System -->
+            <ui:TextBlock Text="System"
+                          FontTypography="BodyStrong"
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          Margin="2,0,0,8" />
+
+            <ui:CardControl Margin="0,0,0,16"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon WindowNew24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Launch at startup"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Start AppSwitcher automatically when Windows boots"
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:ToggleSwitch IsChecked="{Binding LaunchAtStartup, Mode=TwoWay}"
+                                     HorizontalContentAlignment="Left"
+                                     OffContent="Off"
+                                     OnContent="On" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
+            <!-- Support -->
+            <ui:TextBlock Text="Support"
+                          FontTypography="BodyStrong"
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          Margin="2,0,0,8" />
+
+            <ui:CardControl Margin="0,0,0,4"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon FolderOpen24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Log folder"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Open the folder containing application logs"
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:Button Content="Open"
+                               Command="{Binding OpenLogFolderCommand}" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
+            <ui:CardControl Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Globe24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Website"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:HyperlinkButton Content="www.app-switcher.com"
+                                            Padding="0"
+                                            Command="{Binding OpenWebsiteCommand}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>

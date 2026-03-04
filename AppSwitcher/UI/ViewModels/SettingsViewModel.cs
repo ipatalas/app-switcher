@@ -34,7 +34,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         ObservableCollection<ApplicationShortcutViewModel> newValue)
     {
         if (oldValue is not null)
+        {
             oldValue.CollectionChanged -= OnApplicationsCollectionChanged;
+        }
+
         newValue.CollectionChanged += OnApplicationsCollectionChanged;
         OnPropertyChanged(nameof(HasNoApplications));
     }

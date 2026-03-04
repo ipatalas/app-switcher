@@ -7,6 +7,38 @@ namespace AppSwitcher;
 
 internal class AutoStart(ILogger<AutoStart> logger)
 {
+    public bool IsEnabled()
+    {
+        var linkPath = GetLinkPath();
+        return linkPath is not null && File.Exists(linkPath);
+    }
+
+    public bool RemoveShortcut()
+    {
+        var linkPath = GetLinkPath();
+        if (linkPath is null)
+        {
+            logger.LogError("Cannot determine shortcut path.");
+            return false;
+        }
+
+        try
+        {
+            if (File.Exists(linkPath))
+            {
+                File.Delete(linkPath);
+            }
+
+            logger.LogInformation("Shortcut removed: {LinkPath}", linkPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to remove shortcut: {LinkPath}", linkPath);
+            return false;
+        }
+    }
+
     public bool CreateShortcut()
     {
         var executablePath = Environment.ProcessPath;
@@ -15,8 +47,6 @@ internal class AutoStart(ILogger<AutoStart> logger)
             logger.LogError("Cannot get current process executable path.");
             return false;
         }
-        var startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-        var fileName = Path.GetFileNameWithoutExtension(executablePath);
         var originalFileDirectory = Path.GetDirectoryName(executablePath);
 
         if (string.IsNullOrEmpty(originalFileDirectory))
@@ -25,7 +55,12 @@ internal class AutoStart(ILogger<AutoStart> logger)
             return false;
         }
 
-        var linkPath = Path.Combine(startupPath, fileName + ".lnk");
+        var linkPath = GetLinkPath();
+        if (linkPath is null)
+        {
+            logger.LogError("Cannot get current process executable path.");
+            return false;
+        }
 
         try
         {
@@ -55,7 +90,21 @@ internal class AutoStart(ILogger<AutoStart> logger)
             return false;
         }
     }
+
+    private static string? GetLinkPath()
+    {
+        var executablePath = Environment.ProcessPath;
+        if (executablePath is null)
+        {
+            return null;
+        }
+
+        var startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+        var fileName = Path.GetFileNameWithoutExtension(executablePath);
+        return Path.Combine(startupPath, fileName + ".lnk");
+    }
 }
+
 
 // Native P/Invoke interfaces for creating Windows shortcuts without COM
 [ComImport]
