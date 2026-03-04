@@ -3,6 +3,7 @@ using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,11 +29,30 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private ObservableCollection<ApplicationShortcutViewModel> _applications = [];
 
+    partial void OnApplicationsChanged(
+        ObservableCollection<ApplicationShortcutViewModel>? oldValue,
+        ObservableCollection<ApplicationShortcutViewModel> newValue)
+    {
+        if (oldValue is not null)
+            oldValue.CollectionChanged -= OnApplicationsCollectionChanged;
+        newValue.CollectionChanged += OnApplicationsCollectionChanged;
+        OnPropertyChanged(nameof(HasNoApplications));
+    }
+
+    private void OnApplicationsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(HasNoApplications));
+        OnPropertyChanged(nameof(IsDirty));
+        OnPropertyChanged(nameof(CanSave));
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private int? _modifierIdleTimeoutMs;
 
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
+
+    public bool HasNoApplications => Applications.Count == 0;
 
     public bool HasValidationErrors => Applications.Any(a => a.HasValidationError);
 
