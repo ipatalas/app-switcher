@@ -17,6 +17,7 @@ internal partial class AboutViewModel : ObservableObject
 
     public string AppName => "AppSwitcher";
     public string AppVersion => "Version " + Utils.AppVersion.Version;
+    public string AppWebsite => "www.app-switcher.com";
     public string DotNetVersion => ".NET " + Environment.Version;
     public ImageSource? AppIcon { get; }
 
@@ -66,7 +67,7 @@ internal partial class AboutViewModel : ObservableObject
     {
         try
         {
-            Process.Start(new ProcessStartInfo("https://www.app-switcher.com") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(AppWebsite) { UseShellExecute = true });
         }
         catch (Exception ex)
         {

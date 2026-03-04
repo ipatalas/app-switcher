@@ -104,7 +104,7 @@
                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                       Text="Website"
                                       TextWrapping="WrapWithOverflow" />
-                        <ui:HyperlinkButton Content="www.app-switcher.com"
+                        <ui:HyperlinkButton Content="{Binding AppWebsite}"
                                             Padding="0"
                                             Command="{Binding OpenWebsiteCommand}" />
                     </StackPanel>
