@@ -111,6 +111,27 @@
                 </ui:CardControl.Header>
             </ui:CardControl>
 
+            <ui:CardControl Margin="0,4,0,0"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon ClipboardCode24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Window diagnostics"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Copy information about all open windows to the clipboard"
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:Button Content="Copy"
+                               Command="{Binding CopyDiagnosticsCommand}" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

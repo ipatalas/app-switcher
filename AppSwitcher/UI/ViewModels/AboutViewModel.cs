@@ -1,9 +1,11 @@
 using AppSwitcher.Utils;
+using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -14,6 +16,7 @@ internal partial class AboutViewModel : ObservableObject
 {
     private readonly AutoStart _autoStart = null!;
     private readonly ILogger<AboutViewModel> _logger = null!;
+    private readonly WindowHelper _windowHelper = null!;
 
     public string AppName => "AppSwitcher";
     public string AppVersion => "Version " + Utils.AppVersion.Version;
@@ -28,10 +31,11 @@ internal partial class AboutViewModel : ObservableObject
     {
     }
 
-    public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger)
+    public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger, WindowHelper windowHelper)
     {
         _autoStart = autoStart;
         _logger = logger;
+        _windowHelper = windowHelper;
         _launchAtStartup = autoStart.IsEnabled();
         AppIcon = iconExtractor.GetByProcessName(Environment.ProcessPath ?? string.Empty);
     }
@@ -73,6 +77,52 @@ internal partial class AboutViewModel : ObservableObject
         {
             _logger.LogError(ex, "Failed to open website");
         }
+    }
+
+    [RelayCommand]
+    private void CopyDiagnostics()
+    {
+        try
+        {
+            var windows = _windowHelper.GetAllWindows();
+            var csv = BuildCsv(windows);
+            System.Windows.Clipboard.SetText(csv);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to copy diagnostics");
+        }
+    }
+
+    private static string BuildCsv(IReadOnlyList<ApplicationWindow> windows)
+    {
+        var sb = new StringBuilder(windows.Count * 500);
+        sb.AppendLine("ProcessId,Handle,ProcessImageName,ProductName,Title,State,Style,StyleEx,IsCloaked");
+        foreach (var w in windows)
+        {
+            sb.AppendLine(string.Join(",",
+                w.ProcessId,
+                w.Handle,
+                CsvEscape(w.ProcessImageName),
+                CsvEscape(w.GetProductName()),
+                CsvEscape(w.Title),
+                w.State,
+                CsvEscape(WindowStyleHelpers.GetString(w.Style)),
+                CsvEscape(WindowStyleHelpers.GetString(w.StyleEx)),
+                w.IsCloaked));
+        }
+        return sb.ToString();
+    }
+
+    private static string CsvEscape(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+        return value.Contains(',') || value.Contains('"') || value.Contains('\n')
+            ? $"\"{value.Replace("\"", "\"\"")}\""
+            : value;
     }
 
     private static string ResolveLogFolder()

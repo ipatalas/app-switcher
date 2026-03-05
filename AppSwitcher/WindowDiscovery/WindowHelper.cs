@@ -61,7 +61,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
         }
     }
 
-    public void LogAllWindows()
+    public List<ApplicationWindow> GetAllWindows()
     {
         var sw = Stopwatch.StartNew();
         var windows = GetVisibleWindowsHandles();
@@ -72,6 +72,12 @@ internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor p
             .ToList();
 
         logger.LogInformation($"Found {result.Count} windows in {sw.ElapsedMilliseconds}ms");
+        return result;
+    }
+
+    public void LogAllWindows()
+    {
+        var result = GetAllWindows();
         LogWindows(LogLevel.Information, result);
     }
 
