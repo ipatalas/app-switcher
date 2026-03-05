@@ -28,20 +28,28 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
+        <ui:TitleBar
+            Grid.Row="0"
+            Title="AppSwitcher">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Resources/app-switcher.png" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
         <ui:NavigationView
+            Grid.Row="0"
             x:Name="NavigationView"
             Padding="20"
             EnableDebugMessages="True"
             FrameMargin="0"
-            Margin="10,0,10,10"
+            Margin="10,45,10,10"
             BorderBrush="Red"
             BorderThickness="2"
             IsBackButtonVisible="Collapsed"
+            IsPaneToggleVisible="False"
             OpenPaneLength="200"
             IsPaneVisible="False"
             HeaderVisibility="Collapsed"
             PaneDisplayMode="Left"
-            TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}"
             Transition="None">
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="General" TargetPageType="{x:Type pages:General}">
@@ -103,11 +111,5 @@
                            Command="{Binding SaveAndCloseCommand}" />
             </StackPanel>
         </Grid>
-
-        <ui:TitleBar
-            Grid.Row="0"
-            x:Name="TitleBar"
-            Title="AppSwitcher">
-        </ui:TitleBar>
     </Grid>
 </ui:FluentWindow>

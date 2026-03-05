@@ -30,6 +30,7 @@
     <Resource Include="Resources\DesignTime\chrome.png" />
     <Resource Include="Resources\DesignTime\notepad.png" />
     <Resource Include="Resources\DesignTime\explorer.png" />
+    <Resource Include="Resources\app-switcher.png" />
   </ItemGroup>
 
   <ItemGroup>
