@@ -51,7 +51,7 @@
         "cycleMode": {
           "type": "string",
           "enum": [
-            "Default",
+            "NextApp",
             "Hide",
             "NextWindow"
           ],

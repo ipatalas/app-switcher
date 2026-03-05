@@ -9,7 +9,7 @@ public partial class CycleModeSelector : UserControl
 {
     public static readonly DependencyProperty SelectedCycleModeProperty =
         DependencyProperty.Register(nameof(SelectedCycleMode), typeof(CycleMode), typeof(CycleModeSelector),
-            new FrameworkPropertyMetadata(CycleMode.Default, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedCycleModeChanged));
+            new FrameworkPropertyMetadata(CycleMode.NextApp, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedCycleModeChanged));
 
     public CycleMode SelectedCycleMode
     {
@@ -46,7 +46,7 @@ public partial class CycleModeSelector : UserControl
     {
         var selectedTag = SelectedCycleMode.ToString();
 
-        DefaultButton.Appearance = GetButtonAppearance(DefaultButton.Tag?.ToString());
+        NextAppButton.Appearance = GetButtonAppearance(NextAppButton.Tag?.ToString());
         HideButton.Appearance = GetButtonAppearance(HideButton.Tag?.ToString());
         NextWindowButton.Appearance = GetButtonAppearance(NextWindowButton.Tag?.ToString());
         return;

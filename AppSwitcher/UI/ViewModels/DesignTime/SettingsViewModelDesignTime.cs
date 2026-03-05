@@ -27,7 +27,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 Key = Key.Q,
                 ProcessName = "qw.exe",
                 StartIfNotRunning = false,
-                CycleMode = CycleMode.Default,
+                CycleMode = CycleMode.NextApp,
                 ProcessIcon = defaultIcon,
             },
 
@@ -54,7 +54,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
                 Key = Key.E,
                 ProcessName = "brave.exe",
                 StartIfNotRunning = false,
-                CycleMode = CycleMode.Default,
+                CycleMode = CycleMode.NextApp,
                 ProcessIcon = defaultIcon,
             },
 

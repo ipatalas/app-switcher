@@ -105,13 +105,13 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
         {
             var letter = e.InputEvent.Key;
 
-            var appConfig = _config.Applications.FirstOrDefault(a => a.Key == letter);
-            if (appConfig is not null)
+            var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+            if (matchingApps.Count > 0)
             {
                 e.SuppressKeyPress = true;
 
                 logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
-                switcher.Execute(appConfig);
+                switcher.Execute(matchingApps);
 
                 modifierIdleTimer.Restart();
             }

@@ -14,17 +14,17 @@ internal class ApplicationsValidator
     {
         List<ApplicationValidationError> errors = [];
 
-        var nonDefaultCycleSameLetterError = applications
+        var nonNextAppCycleSameLetterError = applications
             .Where(a => a.Key != Key.None)
             .GroupBy(a => a.Key)
-            .Where(g => g.Count() > 1 && g.Any(item => item.CycleMode != CycleMode.Default))
+            .Where(g => g.Count() > 1 && g.Any(item => item.CycleMode != CycleMode.NextApp))
             .SelectMany(g => g)
             .ToList();
-        if (nonDefaultCycleSameLetterError.Count > 0)
+        if (nonNextAppCycleSameLetterError.Count > 0)
         {
             errors.Add(new ApplicationValidationError(
-                nonDefaultCycleSameLetterError,
-                "Multiple apps with the same key are only allowed if they all are in Default mode"));
+                nonNextAppCycleSameLetterError,
+                "Multiple apps with the same key are only allowed if they all are in Next App mode"));
         }
 
         return errors;

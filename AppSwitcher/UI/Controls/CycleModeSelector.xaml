@@ -16,12 +16,12 @@
         </Style>
     </UserControl.Resources>
     <StackPanel Orientation="Horizontal">
-        <ui:Button x:Name="DefaultButton"
-                   Content="Default"
+        <ui:Button x:Name="NextAppButton"
+                   Content="Next App"
                    Click="CycleModeButton_Click"
-                   Tag="Default"
+                   Tag="NextApp"
                    Style="{StaticResource CycleModeButtonStyle}"
-                   ToolTipService.ToolTip="Subsequent hotkey will do nothing"/>
+                   ToolTipService.ToolTip="Subsequent hotkey will do nothing (or cycle to next app if multiple apps share this key)"/>
         <ui:Button x:Name="HideButton"
                    Content="Hide"
                    Click="CycleModeButton_Click"

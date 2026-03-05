@@ -7,7 +7,7 @@ namespace AppSwitcher.Configuration;
 
 public enum CycleMode
 {
-    Default = 0,
+    NextApp = 0,
     Hide,
     NextWindow
 }

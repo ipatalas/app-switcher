@@ -10,21 +10,32 @@ using System.Runtime.InteropServices;
 
 namespace AppSwitcher;
 
-internal class Switcher
+internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
 {
-    private readonly ILogger<Switcher> _logger;
-    private readonly WindowHelper _windowHelper;
     private readonly List<HWND> _nextWindows = [];
 
-    public Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
+    public void Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
     {
-        _logger = logger;
-        _windowHelper = windowHelper;
+        if (appGroup.Count == 1)
+        {
+            Execute(appGroup[0]);
+            return;
+        }
+
+        var currentWindow = windowHelper.GetCurrentWindow();
+        var currentIndex = appGroup
+            .Select((app, i) => new { app, i })
+            .FirstOrDefault(x => currentWindow?.ProcessImageName.EndsWith(x.app.ProcessName, StringComparison.CurrentCultureIgnoreCase) == true)
+            ?.i ?? -1;
+
+        var nextApp = appGroup[(currentIndex + 1) % appGroup.Count];
+        logger.LogDebug("Cycling app group: current index {CurrentIndex}, next app {NextApp}", currentIndex, nextApp.NormalizedProcessName);
+        Execute(nextApp);
     }
 
-    public void Execute(ApplicationConfiguration appConfig)
+    private void Execute(ApplicationConfiguration appConfig)
     {
-        var topLevelWindows = _windowHelper.GetWindows();
+        var topLevelWindows = windowHelper.GetWindows();
         var matchingWindows = topLevelWindows.Where(w =>
                 w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
@@ -34,45 +45,45 @@ internal class Switcher
             if (appConfig.StartIfNotRunning)
             {
                 Process.Start(appConfig.Process);
-                _logger.LogInformation("Starting {ProcessName}", appConfig.NormalizedProcessName);
+                logger.LogInformation("Starting {ProcessName}", appConfig.NormalizedProcessName);
                 return;
             }
-            _logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
+            logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
             return;
         }
 
-        var currentWindow = _windowHelper.GetCurrentWindow();
+        var currentWindow = windowHelper.GetCurrentWindow();
 
-        if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.Default)
+        if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.NextApp)
         {
             _nextWindows.Clear();
-            _logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
             ActivateWindow(window);
         }
         else if (appConfig.CycleMode == CycleMode.Hide)
         {
-            _logger.LogDebug("Hiding {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Hiding {ProcessName}", appConfig.NormalizedProcessName);
             HideWindow(window);
         }
         else if (appConfig.CycleMode == CycleMode.NextWindow)
         {
-            _logger.LogDebug("Switching to next window of {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Switching to next window of {ProcessName}", appConfig.NormalizedProcessName);
             var nextWindow = GetNextWindow(matchingWindows, currentWindow);
-            _logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
+            logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
             ActivateWindow(nextWindow);
         }
     }
 
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
     {
-        _logger.LogTrace("Matching windows:");
-        _windowHelper.LogWindows(LogLevel.Trace, matchingWindows);
+        logger.LogTrace("Matching windows:");
+        windowHelper.LogWindows(LogLevel.Trace, matchingWindows);
 
         if (!_nextWindows.Contains(window.Handle))
         {
             _nextWindows.Add(window.Handle);
         }
-        _logger.LogTrace("Next windows: {Handles}", string.Join(", ", _nextWindows));
+        logger.LogTrace("Next windows: {Handles}", string.Join(", ", _nextWindows));
 
         if (matchingWindows.TrueForAll(w => _nextWindows.Contains(w.Handle)))
         {
@@ -90,7 +101,7 @@ internal class Switcher
         var hwnd = window.Handle;
         if (PInvoke.IsIconic(hwnd))
         {
-            _logger.LogDebug("Window is minimized - restoring...");
+            logger.LogDebug("Window is minimized - restoring...");
             PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
         }
 
