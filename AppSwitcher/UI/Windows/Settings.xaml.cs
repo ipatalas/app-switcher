@@ -1,5 +1,6 @@
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions;
 
 namespace AppSwitcher.UI.Windows;
@@ -8,13 +9,14 @@ internal partial class Settings
 {
     private readonly SettingsViewModel _viewModel;
 
-    public Settings(INavigationViewPageProvider pageProvider, SettingsViewModel viewModel)
+    public Settings(INavigationViewPageProvider pageProvider, SettingsViewModel viewModel, ISnackbarService snackbarService)
     {
         InitializeComponent();
         _viewModel = viewModel;
         DataContext = viewModel;
 
         NavigationView.SetPageProviderService(pageProvider);
+        snackbarService.SetSnackbarPresenter(RootSnackbarPresenter);
     }
 
     protected override void OnActivated(EventArgs e)

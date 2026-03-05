@@ -7,6 +7,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 
 namespace AppSwitcher.UI.ViewModels;
 
@@ -14,6 +16,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
+    private readonly ISnackbarService _snackbarService = null!;
     private readonly ApplicationsValidator _validator = new();
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
@@ -73,10 +76,11 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
     }
 
-    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor)
+    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService)
     {
         _configurationManager = configurationManager;
         _iconExtractor = iconExtractor;
+        _snackbarService = snackbarService;
         LoadConfiguration();
     }
 
@@ -174,28 +178,65 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void SaveAndClose()
     {
-        var newConfig = new Configuration.Configuration(
-            ModifierIdleTimeoutMs,
-            ModifierKey,
-            Applications.Select(app =>
-                new ApplicationConfiguration(
-                    app.Key,
-                    app.ProcessName,
-                    app.CycleMode,
-                    app.StartIfNotRunning)).ToList());
-
-        if (_configurationManager.UpdateConfiguration(newConfig))
+        try
         {
-            _originalSnapshot = CreateCurrentSnapshot();
-            OnPropertyChanged(nameof(IsDirty));
-            OnPropertyChanged(nameof(CanSave));
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in SaveAndClose");
+#endif
+            var newConfig = new Configuration.Configuration(
+                ModifierIdleTimeoutMs,
+                ModifierKey,
+                Applications.Select(app =>
+                    new ApplicationConfiguration(
+                        app.Key,
+                        app.ProcessName,
+                        app.CycleMode,
+                        app.StartIfNotRunning)).ToList());
+
+            if (_configurationManager.UpdateConfiguration(newConfig))
+            {
+                _originalSnapshot = CreateCurrentSnapshot();
+                OnPropertyChanged(nameof(IsDirty));
+                OnPropertyChanged(nameof(CanSave));
+
+                _snackbarService.Show(
+                    "Settings saved",
+                    "Your changes have been applied.",
+                    ControlAppearance.Success,
+                    new SymbolIcon { Symbol = SymbolRegular.Checkmark20 },
+                    TimeSpan.FromSeconds(3));
+            }
+        }
+        catch (Exception)
+        {
+            _snackbarService.Show(
+                "Failed to save settings",
+                "An error occurred while saving. Please try again.",
+                ControlAppearance.Danger,
+                new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
+                TimeSpan.FromSeconds(5));
         }
     }
 
     [RelayCommand]
     private void Reset()
     {
-        LoadConfiguration();
+        try
+        {
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in Reset");
+#endif
+            LoadConfiguration();
+        }
+        catch (Exception)
+        {
+            _snackbarService.Show(
+                "Failed to reset settings",
+                "Could not reload the configuration.",
+                ControlAppearance.Danger,
+                new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
+                TimeSpan.FromSeconds(5));
+        }
     }
 
     public void Dispose()

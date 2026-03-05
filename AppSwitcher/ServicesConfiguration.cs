@@ -1,6 +1,5 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
-using AppSwitcher.UI.Controls;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.WindowDiscovery;
@@ -11,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NLog.Extensions.Logging;
 using System.Reflection;
 using System.Windows.Controls;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions;
 
 namespace AppSwitcher;
@@ -24,6 +24,7 @@ internal static class ServicesConfiguration
         services.AddLogging(logging => logging.AddNLog());
 
         services.AddTransient<INavigationViewPageProvider, PageProviderService>();
+        services.AddSingleton<ISnackbarService, SnackbarService>();
 
         services.AddTransient<ConfigurationService>();
         services.AddTransient<ConfigurationValidator>();

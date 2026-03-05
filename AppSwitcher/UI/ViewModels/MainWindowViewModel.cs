@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace AppSwitcher.UI.ViewModels;
 
@@ -39,16 +40,31 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _logger.LogInformation("Opening Settings window");
 
-        if (_settings is not { IsLoaded: true })
+        try
         {
-            _settings = _serviceProvider.GetRequiredService<Settings>();
-            _settings.Closed += (_, _) => _settings = null;
-            _settings.Show();
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in OpenSettings");
+#endif
+            if (_settings is not { IsLoaded: true })
+            {
+                _settings = _serviceProvider.GetRequiredService<Settings>();
+                _settings.Closed += (_, _) => _settings = null;
+                _settings.Show();
+            }
+            else
+            {
+                _settings.Activate();
+                _settings.Focus();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _settings.Activate();
-            _settings.Focus();
+            _logger.LogError(ex, "Failed to open Settings window");
+            MessageBox.Show(
+                "Could not open the Settings window. Please try again.",
+                "AppSwitcher",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
         }
     }
 

@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 
 namespace AppSwitcher.UI.ViewModels;
 
@@ -18,13 +20,14 @@ internal partial class AboutViewModel : ObservableObject
 {
     private readonly AutoStart _autoStart = null!;
     private readonly ILogger<AboutViewModel> _logger = null!;
+    private readonly ISnackbarService _snackbarService = null!;
     private readonly WindowHelper _windowHelper = null!;
 
-    public string AppName { get; } = "AppSwitcher";
+    public string AppName => "AppSwitcher";
 
     public string AppVersion { get; } = "Version " + Utils.AppVersion.Version;
 
-    public string AppWebsite { get; } = "www.app-switcher.com";
+    public string AppWebsite => "www.app-switcher.com";
 
     public string DotNetVersion { get; } = ".NET " + Environment.Version;
 
@@ -41,10 +44,11 @@ internal partial class AboutViewModel : ObservableObject
         AppIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
     }
 
-    public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger, WindowHelper windowHelper)
+    public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowHelper windowHelper)
     {
         _autoStart = autoStart;
         _logger = logger;
+        _snackbarService = snackbarService;
         _windowHelper = windowHelper;
         _launchAtStartup = autoStart.IsEnabled();
         AppIcon = iconExtractor.GetByProcessName(Environment.ProcessPath ?? string.Empty);
@@ -68,11 +72,20 @@ internal partial class AboutViewModel : ObservableObject
         var folder = ResolveLogFolder();
         try
         {
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in OpenLogFolder");
+#endif
             Process.Start("explorer.exe", folder);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to open log folder: {Folder}", folder);
+            _snackbarService.Show(
+                "Could not open log folder",
+                $"The folder could not be opened: {folder}",
+                ControlAppearance.Danger,
+                new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
+                TimeSpan.FromSeconds(5));
         }
     }
 
@@ -81,11 +94,20 @@ internal partial class AboutViewModel : ObservableObject
     {
         try
         {
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in OpenWebsite");
+#endif
             Process.Start(new ProcessStartInfo(AppWebsite) { UseShellExecute = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to open website");
+            _snackbarService.Show(
+                "Could not open website",
+                $"Please navigate to {AppWebsite} manually.",
+                ControlAppearance.Danger,
+                new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
+                TimeSpan.FromSeconds(5));
         }
     }
 
@@ -94,13 +116,29 @@ internal partial class AboutViewModel : ObservableObject
     {
         try
         {
+#if DEBUG_ERROR_HANDLING
+            throw new InvalidOperationException("Simulated failure in CopyDiagnostics");
+#endif
             var windows = _windowHelper.GetAllWindows();
             var csv = BuildCsv(windows);
             System.Windows.Clipboard.SetText(csv);
+
+            _snackbarService.Show(
+                "Copied to clipboard",
+                $"Diagnostics for {windows.Count} windows copied.",
+                ControlAppearance.Success,
+                new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark20 },
+                TimeSpan.FromSeconds(3));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to copy diagnostics");
+            _snackbarService.Show(
+                "Failed to copy diagnostics",
+                "Could not copy window information to the clipboard.",
+                ControlAppearance.Danger,
+                new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
+                TimeSpan.FromSeconds(5));
         }
     }
 

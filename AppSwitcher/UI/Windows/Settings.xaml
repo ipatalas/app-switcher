@@ -111,5 +111,6 @@
                            Command="{Binding SaveAndCloseCommand}" />
             </StackPanel>
         </Grid>
+        <ui:SnackbarPresenter x:Name="RootSnackbarPresenter" Grid.Row="0" Grid.RowSpan="2" />
     </Grid>
 </ui:FluentWindow>

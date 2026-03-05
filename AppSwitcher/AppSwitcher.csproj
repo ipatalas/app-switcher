@@ -14,6 +14,8 @@
 	<Version>1.0.0</Version>
 	<ApplicationIcon>app-switcher.ico</ApplicationIcon>
 	<LangVersion>13</LangVersion>
+	<!-- Uncomment to force all relay command error handlers to fire for visual testing -->
+    <!-- <DefineConstants>$(DefineConstants);DEBUG_ERROR_HANDLING</DefineConstants> -->
   </PropertyGroup>
 
   <ItemGroup>
