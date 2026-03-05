@@ -79,10 +79,14 @@ public partial class App
     {
         if (cliOptions.EnableDebugLogging || cliOptions.EnableTraceLogging)
         {
+            if (NLog.LogManager.Configuration?.LoggingRules != null)
+            {
             foreach (var rule in NLog.LogManager.Configuration.LoggingRules)
             {
                 rule.EnableLoggingForLevel(cliOptions.EnableTraceLogging ? NLog.LogLevel.Trace : NLog.LogLevel.Debug);
             }
+            }
+
             NLog.LogManager.ReconfigExistingLoggers();
             logger.LogInformation("Logging level set to {Level} via CLI options",
                 cliOptions.EnableTraceLogging ? "Trace" : "Debug");
