@@ -94,7 +94,10 @@ public partial class KeyAssignmentButton : UserControl
 
     private void Button_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (!IsListening) return;
+        if (!IsListening)
+        {
+            return;
+        }
 
         if (e.Key == Key.Escape)
         {

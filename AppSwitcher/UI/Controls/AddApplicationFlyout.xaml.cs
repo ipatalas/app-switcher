@@ -83,7 +83,9 @@ internal partial class AddApplicationFlyout : UserControl
     {
         var count = ResultsList.Items.Count;
         if (count == 0)
+        {
             return;
+        }
 
         var next = ResultsList.SelectedIndex + delta;
 

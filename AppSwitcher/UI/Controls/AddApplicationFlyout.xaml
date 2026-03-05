@@ -8,7 +8,7 @@
              xmlns:utils="clr-namespace:AppSwitcher.Utils"
              mc:Ignorable="d"
              x:ClassModifier="internal"
-             d:DataContext="{d:DesignInstance viewModels:AddApplicationFlyoutViewModel}"
+             d:DataContext="{d:DesignInstance viewModels:AddApplicationFlyoutViewModel, IsDesignTimeCreatable=True}"
              d:DesignWidth="320"
              Width="320"
              ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"

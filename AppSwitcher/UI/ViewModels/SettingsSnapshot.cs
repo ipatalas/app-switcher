@@ -7,7 +7,11 @@ internal sealed record SettingsSnapshot(Key ModifierKey, IReadOnlyList<Applicati
 {
     public bool Equals(SettingsSnapshot? other)
     {
-        if (other is null) return false;
+        if (other is null)
+        {
+            return false;
+        }
+
         return ModifierKey == other.ModifierKey &&
                Applications.SequenceEqual(other.Applications);
     }

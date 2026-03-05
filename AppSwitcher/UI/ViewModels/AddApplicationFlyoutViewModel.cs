@@ -1,13 +1,14 @@
 using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JetBrains.Annotations;
 using System.Collections.ObjectModel;
+using System.Windows.Media.Imaging;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace AppSwitcher.UI.ViewModels;
 
-internal partial class AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService)
-    : ObservableObject
+internal partial class AddApplicationFlyoutViewModel : ObservableObject
 {
     private IReadOnlyList<RunningApplicationInfo> _allApplications = [];
 
@@ -17,12 +18,33 @@ internal partial class AddApplicationFlyoutViewModel(RunningApplicationsService 
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    private readonly RunningApplicationsService _runningApplicationsService = null!;
+
     public event Action<string>? ApplicationSelected;
+
+    [UsedImplicitly(Reason = "Design-time constructor")]
+    public AddApplicationFlyoutViewModel()
+    {
+        var chromeIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/chrome.png"));
+        var notepadIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/notepad.png"));
+        var explorerIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/explorer.png"));
+
+        _filteredApplications = new ObservableCollection<RunningApplicationInfo>([
+            new("chrome.exe", "chrome.exe", chromeIcon),
+            new("notepad.exe", "notepad.exe", notepadIcon),
+            new("explorer.exe", "explorer.exe", explorerIcon)
+        ]);
+    }
+
+    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService)
+    {
+        _runningApplicationsService = runningApplicationsService;
+    }
 
     public void Refresh(IEnumerable<string> excludedProcessNames)
     {
         SearchText = string.Empty;
-        _allApplications = runningApplicationsService.GetRunningApplications(excludedProcessNames);
+        _allApplications = _runningApplicationsService.GetRunningApplications(excludedProcessNames);
         FilteredApplications = new ObservableCollection<RunningApplicationInfo>(_allApplications);
     }
 

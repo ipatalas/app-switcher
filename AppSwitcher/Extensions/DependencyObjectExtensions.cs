@@ -11,11 +11,15 @@ public static class DependencyObjectExtensions
         {
             var child = VisualTreeHelper.GetChild(parent, i);
             if (child is T match)
+            {
                 return match;
+            }
 
             var result = child.FindVisualChild<T>();
             if (result is not null)
+            {
                 return result;
+            }
         }
 
         return null;

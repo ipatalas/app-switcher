@@ -12,8 +12,8 @@
              x:Name="Root">
     <ui:Button
         x:Name="InnerButton"
-        Content="{Binding ButtonContent, ElementName=Root}"
-        Appearance="{Binding ButtonAppearance, ElementName=Root}"
+        Content="{Binding ButtonContent, ElementName=Root, FallbackValue=A}"
+        Appearance="{Binding ButtonAppearance, ElementName=Root, FallbackValue=Secondary}"
         Width="30"
         Height="30"
         Padding="1"

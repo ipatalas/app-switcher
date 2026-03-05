@@ -2,12 +2,14 @@ using AppSwitcher.Utils;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 
 namespace AppSwitcher.UI.ViewModels;
@@ -18,17 +20,25 @@ internal partial class AboutViewModel : ObservableObject
     private readonly ILogger<AboutViewModel> _logger = null!;
     private readonly WindowHelper _windowHelper = null!;
 
-    public string AppName => "AppSwitcher";
-    public string AppVersion => "Version " + Utils.AppVersion.Version;
-    public string AppWebsite => "www.app-switcher.com";
-    public string DotNetVersion => ".NET " + Environment.Version;
+    public string AppName { get; } = "AppSwitcher";
+
+    public string AppVersion { get; } = "Version " + Utils.AppVersion.Version;
+
+    public string AppWebsite { get; } = "www.app-switcher.com";
+
+    public string DotNetVersion { get; } = ".NET " + Environment.Version;
+
     public ImageSource? AppIcon { get; }
 
     [ObservableProperty]
     private bool _launchAtStartup;
 
-    protected AboutViewModel()
+    [UsedImplicitly(Reason = "Design-time constructor")]
+    public AboutViewModel()
     {
+        AppVersion = "Version 1.2.3";
+        _launchAtStartup = true;
+        AppIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
     }
 
     public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger, WindowHelper windowHelper)
