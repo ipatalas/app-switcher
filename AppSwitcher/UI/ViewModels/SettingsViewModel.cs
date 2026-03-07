@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using Wpf.Ui;
@@ -98,11 +97,11 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app => new ApplicationShortcutViewModel
         {
             Key = app.Key,
-            Name = app.Process,
-            ProcessName = Path.GetFileName(app.NormalizedProcessName),
+            ProcessName = app.ProcessName,
+            ProcessPath = app.ProcessPath,
             StartIfNotRunning = app.StartIfNotRunning,
             CycleMode = app.CycleMode,
-            ProcessIcon = _iconExtractor.GetByProcessName(app.Process) ?? defaultIcon
+            ProcessIcon = _iconExtractor.GetByProcessName(app.ProcessPath) ?? defaultIcon
         }).ToList());
 
         _originalSnapshot = CreateCurrentSnapshot();
@@ -120,15 +119,17 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
         var errors = _validator.Validate(Applications);
 
-        // Clear all existing error state
         foreach (var app in Applications)
+        {
             app.ValidationError = null;
+        }
 
-        // Apply new errors to affected VMs
         foreach (var error in errors)
         {
             foreach (var app in error.AffectedApps)
+            {
                 app.ValidationError = error.Message;
+            }
         }
 
         OnPropertyChanged(nameof(HasValidationErrors));
@@ -149,8 +150,9 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     public event Action<ApplicationShortcutViewModel>? ApplicationAdded;
 
     [RelayCommand]
-    private void AddApplication(string processName)
+    private void AddApplication((string ProcessName, string ProcessPath) args)
     {
+        var processName = args.ProcessName;
         var defaultIcon =
             _iconExtractor.GetByProcessName(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
@@ -158,11 +160,9 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         var viewModel = new ApplicationShortcutViewModel
         {
             Key = Key.None,
-            Name = processName,
-            ProcessName = Path.GetFileName(processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
-                ? processName
-                : processName + ".exe"),
-            ProcessIcon = _iconExtractor.GetByProcessName(processName) ?? defaultIcon
+            ProcessPath = args.ProcessPath,
+            ProcessName = processName,
+            ProcessIcon = _iconExtractor.GetByProcessName(args.ProcessPath) ?? defaultIcon
         };
 
         Applications.Add(viewModel);
@@ -189,7 +189,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 Applications.Select(app =>
                     new ApplicationConfiguration(
                         app.Key,
-                        app.ProcessName,
+                        app.ProcessPath,
                         app.CycleMode,
                         app.StartIfNotRunning)).ToList());
 
@@ -249,8 +249,8 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
 {
     [ObservableProperty] private Key _key;
 
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private string _processName = string.Empty;
+    [ObservableProperty] private string _processName = null!;
+    [ObservableProperty] private string _processPath = null!;
     [ObservableProperty] private bool _startIfNotRunning;
     [ObservableProperty] private CycleMode _cycleMode = CycleMode.NextApp;
 

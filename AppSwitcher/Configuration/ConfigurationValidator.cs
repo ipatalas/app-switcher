@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
@@ -31,26 +32,21 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
             return ValidationResult.Error($"Invalid modifier key ({configuration.Modifier}) - must be one of: {string.Join(", ", _validModifiers)}");
         }
 
-        if (configuration.Applications.Count == 0)
-        {
-            return ValidationResult.Error("No applications configured - AppSwitcher will do nothing");
-        }
-
         foreach (var app in configuration.Applications)
         {
-            if (string.IsNullOrWhiteSpace(app.Process))
+            if (string.IsNullOrWhiteSpace(app.ProcessPath))
             {
                 return ValidationResult.Error("Application process must be set correctly");
+            }
+
+            if (!File.Exists(app.ProcessPath))
+            {
+                return ValidationResult.Error("Application process path invalid - file does not exist");
             }
 
             if (app.Key is Key.None or not (>=Key.A and <= Key.Z))
             {
                 return ValidationResult.Error(app.ProcessName, "Application key was not detected correctly - is should be a single letter");
-            }
-
-            if (app is { StartIfNotRunning: true, HasFullProcessPath: false })
-            {
-                return ValidationResult.Error(app.ProcessName, "Application process must be a full path if StartIfNotRunning is set to true");
             }
         }
 

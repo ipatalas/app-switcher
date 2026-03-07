@@ -1,27 +1,36 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.Extensions;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.WindowDiscovery;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
+using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NLog.Extensions.Logging;
+using System.IO;
 using System.Reflection;
 using System.Windows.Controls;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions;
+using Wpf.Ui.Controls;
 
 namespace AppSwitcher;
 
 internal static class ServicesConfiguration
 {
-    public static IServiceProvider Build()
+    public static IServiceProvider? Build()
     {
         var services = new ServiceCollection();
 
         services.AddLogging(logging => logging.AddNLog());
+
+        if (!SetupLiteDb(services))
+        {
+            return null;
+        }
 
         services.AddTransient<INavigationViewPageProvider, PageProviderService>();
         services.AddSingleton<ISnackbarService, SnackbarService>();
@@ -55,6 +64,30 @@ internal static class ServicesConfiguration
         services.AddTransient<AboutViewModel>();
 
         return services.BuildServiceProvider();
+    }
+
+    private static bool SetupLiteDb(ServiceCollection services)
+    {
+        BsonMapper.Global.EnumAsInteger = true;
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "settings.db");
+        try
+        {
+            var db = new LiteDatabase(new ConnectionString(dbPath) { Connection = ConnectionType.Direct });
+            services.AddSingleton(db);
+            return true;
+        }
+        catch (Exception)
+        {
+            new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Database error",
+                Content = $"An error occurred while reading the settings.\nFile might be corrupted. Please remove it and start over.\n\nPath:\n{dbPath}",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                CloseButtonText = "Quit",
+                CloseButtonAppearance = ControlAppearance.Danger,
+            }.ShowSync();
+            return false;
+        }
     }
 
     private static IServiceCollection AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime)

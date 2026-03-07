@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JetBrains.Annotations;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Media.Imaging;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
@@ -20,7 +21,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
     private readonly RunningApplicationsService _runningApplicationsService = null!;
 
-    public event Action<string>? ApplicationSelected;
+    public event Action<string, string>? ApplicationSelected;
 
     [UsedImplicitly(Reason = "Design-time constructor")]
     public AddApplicationFlyoutViewModel()
@@ -60,7 +61,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     [RelayCommand]
     private void SelectApplication(RunningApplicationInfo application)
     {
-        ApplicationSelected?.Invoke(application.ProcessName);
+        ApplicationSelected?.Invoke(application.ProcessName, application.ProcessImageName);
     }
 
     [RelayCommand]
@@ -75,7 +76,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-            ApplicationSelected?.Invoke(dialog.FileName);
+            ApplicationSelected?.Invoke(Path.GetFileName(dialog.FileName), dialog.FileName);
         }
     }
 }

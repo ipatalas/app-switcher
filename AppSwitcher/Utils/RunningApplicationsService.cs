@@ -16,14 +16,14 @@ internal class RunningApplicationsService(WindowHelper windowHelper, IconExtract
             .ToHashSet();
 
         return windowHelper.GetWindows()
-            .Select(w => Path.GetFileName(w.ProcessImageName))
-            .DistinctBy(name => name.ToLowerInvariant())
-            .Where(name => !excluded.Contains(name.ToLowerInvariant()))
-            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-            .Select(name => new RunningApplicationInfo(
-                ProcessName: name,
-                ProcessImageName: name,
-                Icon: iconExtractor.GetByProcessName(name)))
+            .Select(w => (Name: Path.GetFileName(w.ProcessImageName), ImagePath: w.ProcessImageName))
+            .DistinctBy(item => item.Name.ToLowerInvariant())
+            .Where(item => !excluded.Contains(item.Name.ToLowerInvariant()))
+            .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(item => new RunningApplicationInfo(
+                ProcessName: item.Name,
+                ProcessImageName: item.ImagePath,
+                Icon: iconExtractor.GetByProcessName(item.ImagePath)))
             .ToList();
     }
 }

@@ -1,11 +1,12 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.Extensions;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Windows;
-using MessageBox = System.Windows.MessageBox;
+using Wpf.Ui.Controls;
 
 namespace AppSwitcher;
 
@@ -15,25 +16,31 @@ namespace AppSwitcher;
 public partial class App
 {
     private Hook? _hook;
+    private IServiceProvider? _serviceProvider;
 #if !DEBUG
     private Mutex? _mutex;
 #endif
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        var serviceProvider = ServicesConfiguration.Build();
+        _serviceProvider = ServicesConfiguration.Build();
+        if (_serviceProvider == null)
+        {
+            Current.Shutdown(1);
+            return;
+        }
 
-        var logger = serviceProvider.GetRequiredService<ILogger<App>>();
+        var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
         logger.LogInformation("AppSwitcher {Version} starting up", AppVersion.Version);
 
-        var cliHandler = serviceProvider.GetRequiredService<CliHandler>();
+        var cliHandler = _serviceProvider.GetRequiredService<CliHandler>();
         if (cliHandler.Handle(e.Args))
         {
             Current.Shutdown(0);
             return;
         }
 
-        var cliOptions = serviceProvider.GetRequiredService<CliOptions>();
+        var cliOptions = _serviceProvider.GetRequiredService<CliOptions>();
         SetupLogging(cliOptions, logger);
 
 #if !DEBUG
@@ -46,19 +53,27 @@ public partial class App
         }
 #endif
 
-        var configManager = serviceProvider.GetRequiredService<ConfigurationManager>();
+        var configManager = _serviceProvider.GetRequiredService<ConfigurationManager>();
         var config = configManager.GetConfiguration();
         if (config == null)
         {
-            MessageBox.Show("Configuration file (config.json) not found or invalid", "Configuration error", MessageBoxButton.OK, MessageBoxImage.Error);
+            new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Configuration error",
+                Content =
+                    "Configuration could not be loaded or is invalid. Please check the logs for more details.",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                CloseButtonText = "Quit",
+                CloseButtonAppearance = ControlAppearance.Danger,
+            }.ShowSync();
             Current.Shutdown(1);
             return;
         }
 
-        var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+        var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
 
-        _hook = serviceProvider.GetRequiredService<Hook>();
+        _hook = _serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
 
         configManager.ConfigurationChanged += newConfig =>
@@ -69,7 +84,11 @@ public partial class App
 
     protected override void OnExit(ExitEventArgs e)
     {
+        var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
+        logger?.LogInformation("AppSwitcher shutting down");
+
         _hook?.Dispose();
+        (_serviceProvider as ServiceProvider)?.Dispose();
 #if !DEBUG
         _mutex?.Dispose();
 #endif
@@ -81,10 +100,11 @@ public partial class App
         {
             if (NLog.LogManager.Configuration?.LoggingRules != null)
             {
-            foreach (var rule in NLog.LogManager.Configuration.LoggingRules)
-            {
-                rule.EnableLoggingForLevel(cliOptions.EnableTraceLogging ? NLog.LogLevel.Trace : NLog.LogLevel.Debug);
-            }
+                foreach (var rule in NLog.LogManager.Configuration.LoggingRules)
+                {
+                    rule.EnableLoggingForLevel(
+                        cliOptions.EnableTraceLogging ? NLog.LogLevel.Trace : NLog.LogLevel.Debug);
+                }
             }
 
             NLog.LogManager.ReconfigExistingLoggers();

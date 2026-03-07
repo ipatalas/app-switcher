@@ -1,67 +1,78 @@
-﻿using Microsoft.Extensions.Logging;
+using AppSwitcher.Configuration.Storage;
+using LiteDB;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
 
-internal class ConfigurationService(ILogger<ConfigurationService> logger)
+internal class ConfigurationService(LiteDatabase database, ILogger<ConfigurationService> logger)
 {
-    private const string _configPath = "config.json";
+    private const string CollectionName = "settings";
+    private const int SettingsDocumentId = 1;
 
-    private readonly JsonSerializerOptions _options = new()
-    {
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        WriteIndented = true,
-        AllowTrailingCommas = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
-    };
-
-    public Configuration? ReadConfiguration()
+    public Configuration ReadConfiguration()
     {
         var sw = Stopwatch.StartNew();
 
-        if (!File.Exists(_configPath))
-        {
-            logger.LogError("Configuration file not found: {ConfigPath}", _configPath);
-            return null;
-        }
-
         try
         {
-            using var fileStream = File.OpenRead(_configPath);
-            return JsonSerializer.Deserialize<Configuration>(fileStream, _options)!;
+            var collection = database.GetCollection<SettingsDocument>(CollectionName);
+            var document = collection.FindById(SettingsDocumentId);
+
+            if (document is null)
+            {
+                logger.LogInformation("No configuration found - seeding defaults");
+                document = SeedDefaults(collection);
+            }
+
+            return document.ToConfiguration();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error reading configuration file");
-            return null;
+            logger.LogError(ex, "Error reading configuration from database");
+            throw;
         }
         finally
         {
-            logger.LogDebug($"Read configuration in {sw.ElapsedMilliseconds}ms");
+            logger.LogDebug("Read configuration in {ElapsedMs}ms", sw.ElapsedMilliseconds);
         }
     }
 
-    public void WriteConfiguration(Configuration newConfig)
+    public void WriteConfiguration(Configuration config)
     {
         var sw = Stopwatch.StartNew();
 
         try
         {
-            var json = JsonSerializer.Serialize(newConfig, _options);
-            File.WriteAllText(_configPath, json);
-            logger.LogInformation("Configuration written to file successfully");
+            var collection = database.GetCollection<SettingsDocument>(CollectionName);
+            var document = SettingsDocument.FromConfiguration(config, SettingsDocumentId);
+            collection.Upsert(document);
+            logger.LogInformation("Configuration written to database successfully");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error writing configuration file");
+            logger.LogError(ex, "Error writing configuration to database");
+            throw;
         }
         finally
         {
-            logger.LogDebug($"Wrote configuration in {sw.ElapsedMilliseconds}ms");
+            logger.LogDebug("Wrote configuration in {ElapsedMs}ms", sw.ElapsedMilliseconds);
         }
+    }
+
+    private SettingsDocument SeedDefaults(ILiteCollection<SettingsDocument> collection)
+    {
+        var defaults = new SettingsDocument
+        {
+            Id = SettingsDocumentId,
+            ModifierIdleTimeoutMs = null,
+            Modifier = Key.RightCtrl,
+            Applications = []
+        };
+
+        collection.Insert(defaults);
+        logger.LogInformation("Default configuration seeded successfully");
+        return defaults;
     }
 }

@@ -29,7 +29,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
             ?.i ?? -1;
 
         var nextApp = appGroup[(currentIndex + 1) % appGroup.Count];
-        logger.LogDebug("Cycling app group: current index {CurrentIndex}, next app {NextApp}", currentIndex, nextApp.NormalizedProcessName);
+        logger.LogDebug("Cycling app group: current index {CurrentIndex}, next app {NextApp}", currentIndex, nextApp.ProcessName);
         Execute(nextApp);
     }
 
@@ -44,11 +44,11 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
         {
             if (appConfig.StartIfNotRunning)
             {
-                Process.Start(appConfig.Process);
-                logger.LogInformation("Starting {ProcessName}", appConfig.NormalizedProcessName);
+                Process.Start(appConfig.ProcessPath);
+                logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
                 return;
             }
-            logger.LogWarning("{ProcessName} process not found", appConfig.NormalizedProcessName);
+            logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);
             return;
         }
 
@@ -57,17 +57,17 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
         if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.NextApp)
         {
             _nextWindows.Clear();
-            logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
             ActivateWindow(window);
         }
         else if (appConfig.CycleMode == CycleMode.Hide)
         {
-            logger.LogDebug("Hiding {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Hiding {ProcessName}", appConfig.ProcessName);
             HideWindow(window);
         }
         else if (appConfig.CycleMode == CycleMode.NextWindow)
         {
-            logger.LogDebug("Switching to next window of {ProcessName}", appConfig.NormalizedProcessName);
+            logger.LogDebug("Switching to next window of {ProcessName}", appConfig.ProcessName);
             var nextWindow = GetNextWindow(matchingWindows, currentWindow);
             logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
             ActivateWindow(nextWindow);
