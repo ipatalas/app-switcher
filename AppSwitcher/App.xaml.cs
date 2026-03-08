@@ -47,7 +47,13 @@ public partial class App
         _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
         if (!createdNew)
         {
-            MessageBox.Show("AppSwitcher is already running", "AppSwitcher", MessageBoxButton.OK, MessageBoxImage.Information);
+            new MessageBox
+            {
+                Title = "AppSwitcher",
+                Content = "AppSwitcher is already running",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.Info24),
+                CloseButtonText = "OK",
+            }.ShowSync();
             Current.Shutdown(0);
             return;
         }
@@ -57,7 +63,7 @@ public partial class App
         var config = configManager.GetConfiguration();
         if (config == null)
         {
-            new Wpf.Ui.Controls.MessageBox
+            new MessageBox
             {
                 Title = "Configuration error",
                 Content =

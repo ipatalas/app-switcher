@@ -1,5 +1,9 @@
+using AppSwitcher.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using Wpf.Ui.Controls;
+using FontFamily = System.Windows.Media.FontFamily;
+using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace AppSwitcher.CLI;
 
@@ -44,7 +48,14 @@ internal class CliHandler(
             {
                 if (i + 1 >= args.Length)
                 {
-                    MessageBox.Show($"Option {arg} requires a value.", "AppSwitcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    new MessageBox
+                    {
+                        Title = "AppSwitcher",
+                        Content = $"Option {arg} requires a value.",
+                        CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                        CloseButtonText = "OK",
+                        CloseButtonAppearance = ControlAppearance.Danger,
+                    }.ShowSync();
                     return true;
                 }
 
@@ -71,7 +82,14 @@ internal class CliHandler(
         if (matchedCommands.Count > 1)
         {
             var commandNames = string.Join(", ", matchedCommands.Select(c => c.Name));
-            MessageBox.Show($"Multiple commands specified: {commandNames}\nOnly one command is allowed at a time.", "AppSwitcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            new MessageBox
+            {
+                Title = "AppSwitcher",
+                Content = $"Multiple commands specified: {commandNames}\nOnly one command is allowed at a time.",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                CloseButtonText = "OK",
+                CloseButtonAppearance = ControlAppearance.Danger,
+            }.ShowSync();
             return true;
         }
 
@@ -98,9 +116,9 @@ internal class CliHandler(
             message.AppendLine("Commands:");
             foreach (var cmd in builder.Commands)
             {
-                message.AppendLine($"  {cmd.Name,-30} {cmd.Description}");
+                message.AppendLine($"  {cmd.Name,-20} {cmd.Description}");
             }
-            message.AppendLine($"  {"--help",-30} Show this help message");
+            message.AppendLine($"  {"--help",-20} Show this help message");
             message.AppendLine();
         }
 
@@ -109,14 +127,23 @@ internal class CliHandler(
             message.AppendLine("Options:");
             foreach (var opt in builder.FlagOptions)
             {
-                message.AppendLine($"  {opt.Name,-30} {opt.Description}");
+                message.AppendLine($"  {opt.Name,-20} {opt.Description}");
             }
             foreach (var opt in builder.ValuedOptions)
             {
-                message.AppendLine($"  {opt.Name,-30} {opt.Description}");
+                message.AppendLine($"  {opt.Name,-20} {opt.Description}");
             }
         }
 
-        MessageBox.Show(message.ToString(), "AppSwitcher", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        new MessageBox
+        {
+            FontFamily = new FontFamily("Consolas, Courier New, Monospace"),
+            MinWidth = 300,
+            MaxWidth = 600,
+            Title = "AppSwitcher",
+            Content = message.ToString(),
+            CloseButtonIcon = new SymbolIcon(SymbolRegular.Info24),
+            CloseButtonText = "OK",
+        }.ShowSync();
     }
 }

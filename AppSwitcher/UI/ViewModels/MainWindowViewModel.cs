@@ -1,3 +1,4 @@
+using AppSwitcher.Extensions;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -5,8 +6,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Wpf.Ui.Controls;
 using Application = System.Windows.Application;
-using MessageBox = System.Windows.MessageBox;
+using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace AppSwitcher.UI.ViewModels;
 
@@ -60,11 +62,14 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to open Settings window");
-            MessageBox.Show(
-                "Could not open the Settings window. Please try again.",
-                "AppSwitcher",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
+            new MessageBox
+            {
+                Title = "AppSwitcher",
+                Content = "Could not open the Settings window. Please try again.",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                CloseButtonText = "OK",
+                CloseButtonAppearance = ControlAppearance.Danger,
+            }.ShowSync();
         }
     }
 

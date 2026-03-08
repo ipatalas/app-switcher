@@ -1,5 +1,8 @@
+using AppSwitcher.Extensions;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.DependencyInjection;
+using Wpf.Ui.Controls;
+using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace AppSwitcher.CLI;
 
@@ -16,9 +19,14 @@ internal static class ServiceCollectionExtensions
                 {
                     if (!sp.GetRequiredService<AutoStart>().CreateShortcut())
                     {
-                        MessageBox.Show(
-                            "There was an error while trying to create auto start shortcut. See log file for details.",
-                            "AppSwitcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        new MessageBox
+                        {
+                            Title = "AppSwitcher",
+                            Content = "There was an error while trying to create auto start shortcut. See log file for details.",
+                            CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                            CloseButtonText = "OK",
+                            CloseButtonAppearance = ControlAppearance.Danger,
+                        }.ShowSync();
                     }
                 })
             .AddOption("--debug", "Enable debug logging", opts => opts.EnableDebugLogging = true)
