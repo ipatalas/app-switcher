@@ -128,7 +128,7 @@ internal partial class AboutViewModel : ObservableObject
                 $"Diagnostics for {windows.Count} windows copied.",
                 ControlAppearance.Success,
                 new SymbolIcon { Symbol = SymbolRegular.ClipboardCheckmark20 },
-                TimeSpan.FromSeconds(3));
+                TimeSpan.FromSeconds(2));
         }
         catch (Exception ex)
         {

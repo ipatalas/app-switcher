@@ -204,7 +204,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                     "Your changes have been applied.",
                     ControlAppearance.Success,
                     new SymbolIcon { Symbol = SymbolRegular.Checkmark20 },
-                    TimeSpan.FromSeconds(3));
+                    TimeSpan.FromSeconds(2));
             }
         }
         catch (Exception)
