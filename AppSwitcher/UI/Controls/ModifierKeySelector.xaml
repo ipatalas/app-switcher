@@ -7,38 +7,163 @@
              mc:Ignorable="d"
              ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
              ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-             d:DesignHeight="100" d:DesignWidth="500">
+             d:DesignHeight="160" d:DesignWidth="600">
     <UserControl.Resources>
-        <Style x:Key="ModifierButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-            <Setter Property="Margin" Value="0,0,5,0"/>
+
+        <!-- Selectable key: bottom-left label -->
+        <Style x:Key="KeyCapStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="5,0,0,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Bottom"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Appearance" Value="Secondary"/>
         </Style>
+
+        <!-- Selectable key: bottom-right label (right-side keys) -->
+        <Style x:Key="RightKeyCapStyle" TargetType="ui:Button" BasedOn="{StaticResource KeyCapStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="0,0,5,5"/>
+        </Style>
+
+        <!-- Decorative key: non-interactive, dimmed -->
+        <Style x:Key="DecorativeKeyCapStyle" TargetType="ui:Button" BasedOn="{StaticResource KeyCapStyle}">
+            <Setter Property="IsEnabled" Value="False"/>
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+
+        <!-- Letter key (Z–/ row): centered, dimmed -->
+        <Style x:Key="LetterKeyCapStyle" TargetType="ui:Button" BasedOn="{StaticResource DecorativeKeyCapStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
     </UserControl.Resources>
-    <StackPanel Orientation="Horizontal">
-        <Label Content="Modifier Key:"
-               VerticalAlignment="Center"
-               Margin="0,0,10,0"/>
-        <ui:Button x:Name="RightAltButton"
-                   Content="Right Alt"
-                   Click="ModifierButton_Click"
-                   Tag="RightAlt"
-                   Style="{StaticResource ModifierButtonStyle}" />
-        <ui:Button x:Name="RightCtrlButton"
-                   Content="Right Ctrl"
-                   Click="ModifierButton_Click"
-                   Tag="RightCtrl"
-                   Style="{StaticResource ModifierButtonStyle}" />
-        <ui:Button x:Name="RightShiftButton"
-                   Content="Right Shift"
-                   Click="ModifierButton_Click"
-                   Tag="RightShift"
-                   Style="{StaticResource ModifierButtonStyle}" />
-        <ui:Button x:Name="AppsButton"
-                   Content="Apps"
-                   Click="ModifierButton_Click"
-                   Tag="Apps">
-            <ui:Button.Icon>
-                <ui:SymbolIcon Symbol="CalendarAgenda24"/>
-            </ui:Button.Icon>
-        </ui:Button>
-    </StackPanel>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Label above the cluster -->
+        <TextBlock Grid.Row="0"
+                   Text="Modifier Key:"
+                   Margin="2,0,0,6"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+        <!-- Row 1: Shift row — proportional widths: 80* | 36*×10 | 100* -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="100*"/>
+            </Grid.ColumnDefinitions>
+            <ui:Button Grid.Column="0"
+                       x:Name="LeftShiftButton"
+                       Content="Shift"
+                       Tag="LeftShift"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource KeyCapStyle}"/>
+            <ui:Button Grid.Column="1"  Content="Z" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="2"  Content="X" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="3"  Content="C" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="4"  Content="V" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="5"  Content="B" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="6"  Content="N" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="7"  Content="M" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="8"  Content="," Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="9"  Content="." Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="10" Content="/" Style="{StaticResource LetterKeyCapStyle}"/>
+            <ui:Button Grid.Column="11"
+                       x:Name="RightShiftButton"
+                       Content="Shift"
+                       Tag="RightShift"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource RightKeyCapStyle}"/>
+        </Grid>
+
+        <!-- Row 2: Space bar row — proportional widths: 44* | 44* | 44* | 304* | 44* | 36* | 44* -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="44*"/>
+                <ColumnDefinition Width="44*"/>
+                <ColumnDefinition Width="44*"/>
+                <ColumnDefinition Width="304*"/>
+                <ColumnDefinition Width="44*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="44*"/>
+            </Grid.ColumnDefinitions>
+            <ui:Button Grid.Column="0"
+                       x:Name="LeftCtrlButton"
+                       Content="Ctrl"
+                       Tag="LeftCtrl"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource KeyCapStyle}"/>
+            <ui:Button Grid.Column="1"
+                       x:Name="LeftWinButton"
+                       Tag="LWin"
+                       Click="ModifierButton_Click"
+                       Padding="5,0,0,7"
+                       Style="{StaticResource KeyCapStyle}">
+                <Viewbox Width="16" Height="16">
+                    <Canvas Width="10" Height="11">
+                        <Canvas.RenderTransform>
+                            <MatrixTransform Matrix="0.947, 0, 0, 0.949, -0.19, 0.354"/>
+                        </Canvas.RenderTransform>
+
+                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 10.7,5.95 V 10.8 L 5.13,9.93 V 5.95 Z" />
+                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 5.13,1.13 10.7,0.326 V 5.1 H 5.13 Z" />
+                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 4.39,5.91 V 9.86 L 0.264,9.29 V 5.91 Z" />
+                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 0.261,1.77 4.39,1.2 V 5.15 H 0.263 Z" />
+                    </Canvas>
+                </Viewbox>
+            </ui:Button>
+            <ui:Button Grid.Column="2"
+                       x:Name="LeftAltButton"
+                       Content="Alt"
+                       Tag="LeftAlt"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource KeyCapStyle}"/>
+            <!-- Space bar: blank decorative -->
+            <ui:Button Grid.Column="3"
+                       Style="{StaticResource DecorativeKeyCapStyle}"/>
+            <ui:Button Grid.Column="4"
+                       x:Name="RightAltButton"
+                       Content="Alt"
+                       Tag="RightAlt"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource RightKeyCapStyle}"/>
+            <!-- Apps key: icon right-aligned -->
+            <ui:Button Grid.Column="5"
+                       x:Name="AppsButton"
+                       Tag="Apps"
+                       Click="ModifierButton_Click"
+                       Padding="0,0,5,7"
+                       Style="{StaticResource RightKeyCapStyle}">
+                <ui:SymbolIcon Symbol="AppsList24" FontSize="16"/>
+            </ui:Button>
+            <ui:Button Grid.Column="6"
+                       x:Name="RightCtrlButton"
+                       Content="Ctrl"
+                       Tag="RightCtrl"
+                       Click="ModifierButton_Click"
+                       Style="{StaticResource RightKeyCapStyle}"/>
+        </Grid>
+
+    </Grid>
 </UserControl>

@@ -21,6 +21,7 @@ public partial class ModifierKeySelector : UserControl
     public ModifierKeySelector()
     {
         InitializeComponent();
+        UpdateButtonStates();
     }
 
     private void ModifierButton_Click(object sender, RoutedEventArgs e)
@@ -41,10 +42,14 @@ public partial class ModifierKeySelector : UserControl
 
     private void UpdateButtonStates()
     {
+        LeftShiftButton.Appearance = GetButtonAppearance(Key.LeftShift);
+        LeftCtrlButton.Appearance = GetButtonAppearance(Key.LeftCtrl);
+        LeftAltButton.Appearance = GetButtonAppearance(Key.LeftAlt);
+        LeftWinButton.Appearance = GetButtonAppearance(Key.LWin);
         RightAltButton.Appearance = GetButtonAppearance(Key.RightAlt);
+        AppsButton.Appearance = GetButtonAppearance(Key.Apps);
         RightCtrlButton.Appearance = GetButtonAppearance(Key.RightCtrl);
         RightShiftButton.Appearance = GetButtonAppearance(Key.RightShift);
-        AppsButton.Appearance = GetButtonAppearance(Key.Apps);
         return;
 
         ControlAppearance GetButtonAppearance(Key key) =>
