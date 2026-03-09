@@ -139,7 +139,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     private SettingsSnapshot CreateCurrentSnapshot()
     {
-        return new SettingsSnapshot(ModifierKey,
+        return new SettingsSnapshot(ModifierIdleTimeoutMs, ModifierKey,
             Applications.Select(app =>
                     new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode))
                 .ToList());

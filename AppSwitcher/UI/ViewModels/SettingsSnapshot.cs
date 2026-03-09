@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace AppSwitcher.UI.ViewModels;
 
-internal sealed record SettingsSnapshot(Key ModifierKey, IReadOnlyList<ApplicationShortcutSnapshot> Applications)
+internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key ModifierKey, IReadOnlyList<ApplicationShortcutSnapshot> Applications)
 {
     public bool Equals(SettingsSnapshot? other)
     {
@@ -12,13 +12,14 @@ internal sealed record SettingsSnapshot(Key ModifierKey, IReadOnlyList<Applicati
             return false;
         }
 
-        return ModifierKey == other.ModifierKey &&
+        return ModifierIdleTimeoutMs == other.ModifierIdleTimeoutMs &&
+               ModifierKey == other.ModifierKey &&
                Applications.SequenceEqual(other.Applications);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(ModifierKey, Applications.Count);
+        return HashCode.Combine(ModifierIdleTimeoutMs, ModifierKey, Applications.Count);
     }
 }
 

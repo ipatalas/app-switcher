@@ -14,7 +14,76 @@
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
-    <Grid Margin="0" VerticalAlignment="Top">
-        <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+    <Grid Margin="10,10,12,10" VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <controls:ModifierKeySelector Grid.Row="0"
+                                      SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+
+        <!-- Modifier idle timeout -->
+        <Grid Grid.Row="1"  Margin="12,24,12,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="Modifier idle timeout"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+            <ui:NumberBox Grid.Column="1"
+                          Value="{Binding ModifierIdleTimeoutMs, Mode=TwoWay}"
+                          Minimum="0"
+                          PlaceholderText="2000"
+                          AcceptsExpression="False"
+                          PreviewTextInput="UIElement_OnPreviewTextInput"
+                          HorizontalContentAlignment="Right"
+                          SpinButtonPlacementMode="Compact"
+                          SmallChange="100"
+                          LargeChange="1000"/>
+
+            <TextBlock Grid.Column="2"
+                       Text="ms"
+                       VerticalAlignment="Center"
+                       Margin="6,0,8,0"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+            <ui:SymbolIcon Grid.Column="3"
+                           Symbol="Info24"
+                           FontSize="16"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                           Cursor="Hand"
+                           ToolTipService.ShowDuration="30000">
+                <ui:SymbolIcon.ToolTip>
+                    <ToolTip>
+                        <StackPanel MaxWidth="280">
+                            <TextBlock Text="Modifier idle timeout"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6"/>
+                            <TextBlock TextWrapping="Wrap"
+                                       TextAlignment="Left"
+                                       Text="Resets stuck modifier state if the key-up event is blocked by the switched-to app — common with games or apps that aggressively capture input."/>
+                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,8,0,0">
+                                <Run FontWeight="SemiBold">Increase</Run>
+                                <Run Text=" if you notice unintended switches after releasing the modifier key."/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,4,0,0">
+                                <Run FontWeight="SemiBold">Set to 0</Run>
+                                <Run Text=" to disable. Leave empty for the default (2000 ms)."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </ui:SymbolIcon.ToolTip>
+            </ui:SymbolIcon>
+        </Grid>
+
     </Grid>
 </Page>

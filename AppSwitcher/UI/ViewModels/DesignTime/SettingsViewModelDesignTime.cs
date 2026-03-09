@@ -11,6 +11,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
         var defaultIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
 
         ModifierKey = Key.Apps;
+        ModifierIdleTimeoutMs = 2000;
         Applications =
         [
             new()
