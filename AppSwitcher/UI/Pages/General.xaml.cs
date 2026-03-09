@@ -13,7 +13,7 @@ internal partial class General : Page
         DataContext = viewModel;
     }
 
-    private void UIElement_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
+    private void ModifierIdleTimeout_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (e is { Source: NumberBox numberBox, Text: "\r" })
         {

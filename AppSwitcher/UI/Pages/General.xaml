@@ -55,7 +55,7 @@
                           Minimum="0"
                           PlaceholderText="2000"
                           AcceptsExpression="False"
-                          PreviewTextInput="UIElement_OnPreviewTextInput"
+                          PreviewTextInput="ModifierIdleTimeout_OnPreviewTextInput"
                           HorizontalContentAlignment="Right"
                           SpinButtonPlacementMode="Compact"
                           SmallChange="100"
