@@ -6,6 +6,7 @@ using AppSwitcher.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Windows;
+using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 using MessageBox = Wpf.Ui.Controls.MessageBox;
 
@@ -77,6 +78,8 @@ public partial class App
             return;
         }
 
+        ApplyTheme(config.Theme);
+
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
 
@@ -86,6 +89,7 @@ public partial class App
         configManager.ConfigurationChanged += newConfig =>
         {
             _hook?.UpdateConfiguration(newConfig);
+            ApplyTheme(newConfig.Theme);
         };
     }
 
@@ -99,6 +103,21 @@ public partial class App
 #if !DEBUG
         _mutex?.Dispose();
 #endif
+    }
+
+    private static void ApplyTheme(AppThemeSetting theme)
+    {
+        if (theme == AppThemeSetting.System)
+        {
+            ApplicationThemeManager.ApplySystemTheme();
+        }
+        else
+        {
+            var applicationTheme = theme == AppThemeSetting.Dark
+                ? ApplicationTheme.Dark
+                : ApplicationTheme.Light;
+            ApplicationThemeManager.Apply(applicationTheme);
+        }
     }
 
     private static void SetupLogging(CliOptions cliOptions, ILogger<App> logger)

@@ -61,6 +61,17 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     public static bool IsPulseBorderSupported { get; } = OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000);
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private AppThemeSetting _theme = AppThemeSetting.System;
+
+    public static IReadOnlyList<ThemeOption> AvailableThemes { get; } =
+    [
+        new(AppThemeSetting.System, "System (follow Windows)"),
+        new(AppThemeSetting.Dark, "Dark"),
+        new(AppThemeSetting.Light, "Light"),
+    ];
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
@@ -95,6 +106,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         ModifierKey = config.Modifier;
         ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs;
         PulseBorderEnabled = config.PulseBorderEnabled;
+        Theme = config.Theme;
 
         _dirtyTracker?.Dispose();
 
@@ -150,7 +162,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             Applications.Select(app =>
                     new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode))
                 .ToList(),
-            PulseBorderEnabled);
+            PulseBorderEnabled,
+            Theme);
     }
 
     public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
@@ -200,7 +213,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                         app.ProcessPath,
                         app.CycleMode,
                         app.StartIfNotRunning)).ToList(),
-                PulseBorderEnabled);
+                PulseBorderEnabled,
+                Theme);
 
             if (_configurationManager.UpdateConfiguration(newConfig))
             {
@@ -271,3 +285,5 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
 
     public ImageSource? ProcessIcon { get; init; }
 }
+
+internal record ThemeOption(AppThemeSetting Value, string DisplayName);

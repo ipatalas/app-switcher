@@ -68,7 +68,9 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
             Id = SettingsDocumentId,
             ModifierIdleTimeoutMs = null,
             Modifier = Key.RightCtrl,
-            Applications = []
+            Applications = [],
+            PulseBorderEnabled = true,
+            Theme = AppThemeSetting.System
         };
 
         collection.Insert(defaults);

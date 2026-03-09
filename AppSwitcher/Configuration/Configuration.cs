@@ -15,7 +15,8 @@ internal record Configuration(
     int? ModifierIdleTimeoutMs,
     Key Modifier,
     IReadOnlyList<ApplicationConfiguration> Applications,
-    bool PulseBorderEnabled = true);
+    bool PulseBorderEnabled = true,
+    AppThemeSetting Theme = AppThemeSetting.System);
 
 [DebuggerDisplay("{Key} -> {ProcessPath} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(

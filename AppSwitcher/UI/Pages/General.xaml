@@ -15,7 +15,38 @@
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="0,6,0,20">
+        <StackPanel Margin="0,5,0,20">
+
+            <!-- Appearance -->
+            <ui:TextBlock Text="Appearance"
+                          FontTypography="BodyStrong"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          Margin="2,0,0,7" />
+
+            <ui:CardControl Margin="0,8,0,10"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon PaintBrush24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Theme"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Choose the application color theme."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ComboBox ItemsSource="{Binding AvailableThemes, Mode=OneTime}"
+                              SelectedValue="{Binding Theme, Mode=TwoWay}"
+                              SelectedValuePath="Value"
+                              DisplayMemberPath="DisplayName"
+                              MinWidth="180" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
 
             <!-- Modifier Key -->
             <ui:TextBlock Text="Modifier Key"
@@ -23,7 +54,7 @@
                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                           Margin="2,0,0,8" />
 
-            <ui:Card Margin="0,8,0,16" Padding="12,12,12,12">
+            <ui:Card Margin="0,0,0,10" Padding="12,12,12,12">
                 <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
             </ui:Card>
 

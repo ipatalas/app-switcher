@@ -25,6 +25,7 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             case nameof(_model.ModifierKey):
             case nameof(_model.PulseBorderEnabled):
             case nameof(_model.ModifierIdleTimeoutMs):
+            case nameof(_model.Theme):
                 _onChange();
                 break;
             case nameof(_model.Applications):

@@ -16,12 +16,15 @@ internal class SettingsDocument
 
     public bool PulseBorderEnabled { get; init; } = true;
 
+    public AppThemeSetting Theme { get; init; } = AppThemeSetting.System;
+
     public Configuration ToConfiguration() =>
         new(
             ModifierIdleTimeoutMs,
             Modifier,
             Applications.Select(a => a.ToApplicationConfiguration()).ToList(),
-            PulseBorderEnabled);
+            PulseBorderEnabled,
+            Theme);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -32,6 +35,7 @@ internal class SettingsDocument
             Applications = config.Applications
                 .Select(ApplicationConfigurationDocument.FromApplicationConfiguration)
                 .ToList(),
-            PulseBorderEnabled = config.PulseBorderEnabled
+            PulseBorderEnabled = config.PulseBorderEnabled,
+            Theme = config.Theme
         };
 }
