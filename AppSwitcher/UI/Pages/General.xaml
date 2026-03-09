@@ -14,14 +14,25 @@
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
-    <Grid Margin="10,10,12,10" VerticalAlignment="Top">
+    <Grid  VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <controls:ModifierKeySelector Grid.Row="0"
-                                      SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ui:TextBlock  Text="Modifier Key:"
+                          FontTypography="BodyStrong"
+                          Margin="12,16,12,10"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            <controls:ModifierKeySelector Grid.Row="1"
+                                          SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+        </Grid>
 
         <!-- Modifier idle timeout -->
         <Grid Grid.Row="1"  Margin="12,24,12,10">
@@ -32,8 +43,9 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0"
+            <ui:TextBlock Grid.Column="0"
                        Text="Modifier idle timeout"
+                       FontTypography="BodyStrong"
                        VerticalAlignment="Center"
                        Margin="0,0,8,0"
                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>

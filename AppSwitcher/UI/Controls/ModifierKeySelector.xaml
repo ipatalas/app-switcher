@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
              ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-             d:DesignHeight="160" d:DesignWidth="600">
+             d:DesignHeight="100" d:DesignWidth="600">
     <UserControl.Resources>
         <!-- Selectable key: bottom-left label -->
         <Style x:Key="KeyCapStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
@@ -47,19 +47,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Label above the cluster -->
-        <Grid Grid.Row="0" Margin="12,16,12,10">
-            <ui:TextBlock Text="Modifier Key:"
-                       FontTypography="BodyStrong"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-        </Grid>
-
         <!-- Row 1: Shift row — proportional widths: 80* | 36*×10 | 100* -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80*"/>
                 <ColumnDefinition Width="36*"/>
@@ -99,7 +90,7 @@
         </Grid>
 
         <!-- Row 2: Space bar row — proportional widths: 44* | 44* | 44* | 304* | 44* | 36* | 44* -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="44*"/>
                 <ColumnDefinition Width="44*"/>
