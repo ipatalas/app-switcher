@@ -7,143 +7,90 @@
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
       xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       mc:Ignorable="d"
-      Title="Hotkeys"
+      Title="General"
       ScrollViewer.CanContentScroll="False"
       d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
-    <Grid  VerticalAlignment="Top">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,6,0,20">
 
-        <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <ui:TextBlock  Text="Modifier Key:"
+            <!-- Modifier Key -->
+            <ui:TextBlock Text="Modifier Key"
                           FontTypography="BodyStrong"
-                          Margin="12,16,12,10"
-                          VerticalAlignment="Center"
-                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            <controls:ModifierKeySelector Grid.Row="1"
-                                          SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
-        </Grid>
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          Margin="2,0,0,8" />
 
-        <!-- Modifier idle timeout -->
-        <Grid Grid.Row="1"  Margin="12,24,12,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <ui:Card Margin="0,8,0,16" Padding="12,12,12,12">
+                <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+            </ui:Card>
 
-            <ui:TextBlock Grid.Column="0"
-                       Text="Modifier idle timeout"
-                       FontTypography="BodyStrong"
-                       VerticalAlignment="Center"
-                       Margin="0,0,8,0"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-
-            <ui:NumberBox Grid.Column="1"
-                          Value="{Binding ModifierIdleTimeoutMs, Mode=TwoWay}"
-                          Minimum="0"
-                          PlaceholderText="2000"
-                          AcceptsExpression="False"
-                          PreviewTextInput="ModifierIdleTimeout_OnPreviewTextInput"
-                          HorizontalContentAlignment="Right"
-                          SpinButtonPlacementMode="Compact"
-                          SmallChange="100"
-                          LargeChange="1000"/>
-
-            <TextBlock Grid.Column="2"
-                       Text="ms"
-                       VerticalAlignment="Center"
-                       Margin="6,0,8,0"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-
-            <ui:SymbolIcon Grid.Column="3"
-                           Symbol="Info24"
-                           FontSize="16"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                           Cursor="Hand"
-                           ToolTipService.ShowDuration="30000">
-                <ui:SymbolIcon.ToolTip>
-                    <ToolTip>
-                        <StackPanel MaxWidth="280">
-                            <TextBlock Text="Modifier idle timeout"
-                                       FontWeight="SemiBold"
-                                       Margin="0,0,0,6"/>
-                            <TextBlock TextWrapping="Wrap"
-                                       TextAlignment="Left"
-                                       Text="Resets stuck modifier state if the key-up event is blocked by the switched-to app — common with games or apps that aggressively capture input."/>
-                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,8,0,0">
-                                <Run FontWeight="SemiBold">Increase</Run>
-                                <Run Text=" if you notice unintended switches after releasing the modifier key."/>
-                            </TextBlock>
-                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,4,0,0">
-                                <Run FontWeight="SemiBold">Set to 0</Run>
-                                <Run Text=" to disable. Leave empty for the default (2000 ms)."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ToolTip>
-                </ui:SymbolIcon.ToolTip>
-            </ui:SymbolIcon>
-        </Grid>
-
-        <!-- Pulse border effect -->
-        <Grid Grid.Row="2" Margin="12,24,12,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <ui:TextBlock Grid.Column="0"
-                          Text="Pulse border effect"
+            <!-- Behavior -->
+            <ui:TextBlock Text="Behavior"
                           FontTypography="BodyStrong"
-                          VerticalAlignment="Center"
-                          Margin="0,0,8,0"
-                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          Margin="2,0,0,8" />
 
-            <ui:ToggleSwitch Grid.Column="1"
-                             IsChecked="{Binding PulseBorderEnabled, Mode=TwoWay}"
-                             IsEnabled="{Binding IsPulseBorderSupported}"
-                             Margin="0,0,8,0"
-                             VerticalAlignment="Center"/>
+            <ui:CardControl Margin="0,0,0,4"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Timer24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Modifier idle timeout"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Resets stuck modifier state if the key-up event is blocked by the switched-to app. Increase if you notice unintended switches after releasing the modifier key. Set to 0 to disable."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:NumberBox Value="{Binding ModifierIdleTimeoutMs, Mode=TwoWay}"
+                                      Minimum="0"
+                                      PlaceholderText="2000"
+                                      AcceptsExpression="False"
+                                      PreviewTextInput="ModifierIdleTimeout_OnPreviewTextInput"
+                                      HorizontalContentAlignment="Right"
+                                      SpinButtonPlacementMode="Compact"
+                                      Width="100"
+                                      SmallChange="100"
+                                      LargeChange="1000" />
+                        <TextBlock Text="ms"
+                                   VerticalAlignment="Center"
+                                   Margin="6,0,0,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ui:CardControl.Content>
+            </ui:CardControl>
 
-            <ui:SymbolIcon Grid.Column="2"
-                           Symbol="Info24"
-                           FontSize="16"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                           Cursor="Hand"
-                           ToolTipService.ShowDuration="10000">
-                <ui:SymbolIcon.ToolTip>
-                    <ToolTip>
-                        <StackPanel MaxWidth="280">
-                            <TextBlock Text="Pulse border effect"
-                                       FontWeight="SemiBold"
-                                       Margin="0,0,0,6"/>
-                            <TextBlock TextWrapping="Wrap"
-                                       TextAlignment="Left"
-                                       Text="Briefly highlights the window border with a gold pulse when switching focus to a window."/>
-                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,8,0,0">
-                                <Run FontWeight="SemiBold">Requires Windows 11</Run>
-                                <Run Text=" (build 22000 or later). The toggle is disabled on older Windows versions."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ToolTip>
-                </ui:SymbolIcon.ToolTip>
-            </ui:SymbolIcon>
-        </Grid>
+            <ui:CardControl Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Sparkle24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Pulse border effect"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Briefly highlights the window border with a gold pulse when focusing new window. Requires Windows 11 (build 22000+)."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:ToggleSwitch IsChecked="{Binding PulseBorderEnabled, Mode=TwoWay}"
+                                     IsEnabled="{Binding IsPulseBorderSupported}"
+                                     HorizontalContentAlignment="Left"
+                                     OffContent="Off"
+                                     OnContent="On" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
 
-    </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

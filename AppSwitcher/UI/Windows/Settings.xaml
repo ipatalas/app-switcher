@@ -19,6 +19,7 @@
     Title="AppSwitcher Settings"
     Height="650"
     MinWidth="750"
+    MaxWidth="1200"
     Width="900" x:ClassModifier="internal">
     <ui:FluentWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
