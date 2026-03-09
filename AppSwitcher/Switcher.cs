@@ -7,6 +7,7 @@ using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Windows.Win32.Graphics.Dwm;
 
 namespace AppSwitcher;
 
@@ -130,6 +131,38 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
             {
                 PInvoke.SetForegroundWindow(hwnd);
             }
+
+            // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
+            _ = PulseBorder(hwnd, Color.Gold, 100);
+        }
+    }
+
+    private async Task PulseBorder(IntPtr hwnd, Color highlightColor, int durationMs = 400)
+    {
+        var color = highlightColor.R | (highlightColor.G << 8) | (highlightColor.B << 16);
+        // ReSharper disable once InconsistentNaming
+        var DWMWA_COLOR_DEFAULT = -1;
+
+        await Task.Run(async () =>
+        {
+            SetDwmColor(color);
+            await Task.Delay(durationMs);
+            SetDwmColor(DWMWA_COLOR_DEFAULT);
+            await Task.Delay(durationMs);
+            SetDwmColor(color);
+            await Task.Delay(durationMs);
+            SetDwmColor(DWMWA_COLOR_DEFAULT);
+        });
+
+        unsafe void SetDwmColor(int colorRef)
+        {
+            // The pointer is only "alive" for the duration of this specific call
+            PInvoke.DwmSetWindowAttribute(
+                new HWND(hwnd),
+                DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR,
+                &colorRef,
+                sizeof(int)
+            );
         }
     }
 
@@ -141,9 +174,6 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
 
     private static unsafe uint GetWindowThreadProcessId(HWND hwnd)
     {
-        unsafe
-        {
-            return PInvoke.GetWindowThreadProcessId(hwnd, null);
-        }
+        return PInvoke.GetWindowThreadProcessId(hwnd, null);
     }
 }

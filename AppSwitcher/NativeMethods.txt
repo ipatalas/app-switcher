@@ -22,5 +22,6 @@ GetFileVersionInfoSize
 GetFileVersionInfo
 VerQueryValue
 DwmGetWindowAttribute
+DwmSetWindowAttribute
 WINDOW_STYLE
 MAX_PATH
