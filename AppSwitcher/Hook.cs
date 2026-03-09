@@ -12,6 +12,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     private Configuration.Configuration? _config;
     private bool _modifierDown;
     private bool _letterKeyPressedWithModifier;
+    private readonly HashSet<Key> _suppressedLetterKeys = [];
 
     public void Start(Configuration.Configuration config)
     {
@@ -80,10 +81,18 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
                     modifierIdleTimer.Cancel();
                 }
             }
-            else if (_modifierDown && IsLetter(e.InputEvent.Key))
+            else if (IsLetter(e.InputEvent.Key))
             {
-                _letterKeyPressedWithModifier = true;
-                HandleLetterKeyPress(e);
+                if (!e.IsKeyDown() && _suppressedLetterKeys.Remove(e.InputEvent.Key))
+                {
+                    e.SuppressKeyPress = true;
+                    logger.LogDebug("Suppressing key up for previously suppressed letter {Key}", e.InputEvent.Key);
+                }
+                else if (_modifierDown)
+                {
+                    _letterKeyPressedWithModifier = true;
+                    HandleLetterKeyPress(e);
+                }
             }
             else if (_modifierDown && !IsConfiguredModifier(e.InputEvent.Key))
             {
@@ -109,6 +118,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
             if (matchingApps.Count > 0)
             {
                 e.SuppressKeyPress = true;
+                _suppressedLetterKeys.Add(letter);
 
                 logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                 switcher.Execute(matchingApps);
@@ -128,6 +138,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     private void ResetModifierState()
     {
         _modifierDown = false;
+        _suppressedLetterKeys.Clear();
         modifierIdleTimer.Cancel();
     }
 }
