@@ -11,7 +11,7 @@ using Windows.Win32.Graphics.Dwm;
 
 namespace AppSwitcher;
 
-internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
+internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, ConfigurationManager configurationManager)
 {
     private readonly List<HWND> _nextWindows = [];
 
@@ -132,8 +132,11 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper)
                 PInvoke.SetForegroundWindow(hwnd);
             }
 
-            // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
-            _ = PulseBorder(hwnd, Color.Gold, 100);
+            if (configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
+            {
+                // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
+                _ = PulseBorder(hwnd, Color.Gold, 100);
+            }
         }
     }
 

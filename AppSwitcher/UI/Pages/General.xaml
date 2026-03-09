@@ -18,6 +18,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
@@ -90,6 +91,53 @@
                             <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,4,0,0">
                                 <Run FontWeight="SemiBold">Set to 0</Run>
                                 <Run Text=" to disable. Leave empty for the default (2000 ms)."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </ui:SymbolIcon.ToolTip>
+            </ui:SymbolIcon>
+        </Grid>
+
+        <!-- Pulse border effect -->
+        <Grid Grid.Row="2" Margin="12,24,12,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ui:TextBlock Grid.Column="0"
+                          Text="Pulse border effect"
+                          FontTypography="BodyStrong"
+                          VerticalAlignment="Center"
+                          Margin="0,0,8,0"
+                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+            <ui:ToggleSwitch Grid.Column="1"
+                             IsChecked="{Binding PulseBorderEnabled, Mode=TwoWay}"
+                             IsEnabled="{Binding IsPulseBorderSupported}"
+                             Margin="0,0,8,0"
+                             VerticalAlignment="Center"/>
+
+            <ui:SymbolIcon Grid.Column="2"
+                           Symbol="Info24"
+                           FontSize="16"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                           Cursor="Hand"
+                           ToolTipService.ShowDuration="10000">
+                <ui:SymbolIcon.ToolTip>
+                    <ToolTip>
+                        <StackPanel MaxWidth="280">
+                            <TextBlock Text="Pulse border effect"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6"/>
+                            <TextBlock TextWrapping="Wrap"
+                                       TextAlignment="Left"
+                                       Text="Briefly highlights the window border with a gold pulse when switching focus to a window."/>
+                            <TextBlock TextWrapping="Wrap" TextAlignment="Left" Margin="0,8,0,0">
+                                <Run FontWeight="SemiBold">Requires Windows 11</Run>
+                                <Run Text=" (build 22000 or later). The toggle is disabled on older Windows versions."/>
                             </TextBlock>
                         </StackPanel>
                     </ToolTip>

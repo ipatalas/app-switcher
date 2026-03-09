@@ -14,11 +14,14 @@ internal class SettingsDocument
 
     public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
 
+    public bool PulseBorderEnabled { get; init; } = true;
+
     public Configuration ToConfiguration() =>
         new(
             ModifierIdleTimeoutMs,
             Modifier,
-            Applications.Select(a => a.ToApplicationConfiguration()).ToList());
+            Applications.Select(a => a.ToApplicationConfiguration()).ToList(),
+            PulseBorderEnabled);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -28,6 +31,7 @@ internal class SettingsDocument
             Modifier = config.Modifier,
             Applications = config.Applications
                 .Select(ApplicationConfigurationDocument.FromApplicationConfiguration)
-                .ToList()
+                .ToList(),
+            PulseBorderEnabled = config.PulseBorderEnabled
         };
 }

@@ -55,6 +55,12 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private int? _modifierIdleTimeoutMs;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private bool _pulseBorderEnabled = true;
+
+    public static bool IsPulseBorderSupported { get; } = OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000);
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
@@ -88,6 +94,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         var config = _configurationManager.GetConfiguration()!;
         ModifierKey = config.Modifier;
         ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs;
+        PulseBorderEnabled = config.PulseBorderEnabled;
 
         _dirtyTracker?.Dispose();
 
@@ -142,7 +149,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         return new SettingsSnapshot(ModifierIdleTimeoutMs, ModifierKey,
             Applications.Select(app =>
                     new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode))
-                .ToList());
+                .ToList(),
+            PulseBorderEnabled);
     }
 
     public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
@@ -191,7 +199,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                         app.Key,
                         app.ProcessPath,
                         app.CycleMode,
-                        app.StartIfNotRunning)).ToList());
+                        app.StartIfNotRunning)).ToList(),
+                PulseBorderEnabled);
 
             if (_configurationManager.UpdateConfiguration(newConfig))
             {

@@ -23,6 +23,8 @@ internal class SettingsViewModelDirtyTracker : IDisposable
         switch (e.PropertyName)
         {
             case nameof(_model.ModifierKey):
+            case nameof(_model.PulseBorderEnabled):
+            case nameof(_model.ModifierIdleTimeoutMs):
                 _onChange();
                 break;
             case nameof(_model.Applications):

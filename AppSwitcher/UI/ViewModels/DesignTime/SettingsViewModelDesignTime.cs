@@ -12,6 +12,7 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
 
         ModifierKey = Key.Apps;
         ModifierIdleTimeoutMs = 2000;
+        PulseBorderEnabled = true;
         Applications =
         [
             new()

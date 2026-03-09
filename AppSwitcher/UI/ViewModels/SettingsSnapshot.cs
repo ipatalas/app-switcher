@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace AppSwitcher.UI.ViewModels;
 
-internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key ModifierKey, IReadOnlyList<ApplicationShortcutSnapshot> Applications)
+internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key ModifierKey, IReadOnlyList<ApplicationShortcutSnapshot> Applications, bool PulseBorderEnabled)
 {
     public bool Equals(SettingsSnapshot? other)
     {
@@ -14,12 +14,13 @@ internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key Modifier
 
         return ModifierIdleTimeoutMs == other.ModifierIdleTimeoutMs &&
                ModifierKey == other.ModifierKey &&
+               PulseBorderEnabled == other.PulseBorderEnabled &&
                Applications.SequenceEqual(other.Applications);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(ModifierIdleTimeoutMs, ModifierKey, Applications.Count);
+        return HashCode.Combine(ModifierIdleTimeoutMs, ModifierKey, PulseBorderEnabled, Applications.Count);
     }
 }
 

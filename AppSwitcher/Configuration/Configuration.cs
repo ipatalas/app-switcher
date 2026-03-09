@@ -14,7 +14,8 @@ public enum CycleMode
 internal record Configuration(
     int? ModifierIdleTimeoutMs,
     Key Modifier,
-    IReadOnlyList<ApplicationConfiguration> Applications);
+    IReadOnlyList<ApplicationConfiguration> Applications,
+    bool PulseBorderEnabled = true);
 
 [DebuggerDisplay("{Key} -> {ProcessPath} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(
