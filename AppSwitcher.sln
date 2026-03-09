@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		resume.ps1 = resume.ps1
 		suspend.ps1 = suspend.ps1
 		AGENTS.md = AGENTS.md
+		LICENSE = LICENSE
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".agents", ".agents", "{4E6A554F-ECB0-4469-89D7-64FC52C38E8E}"
