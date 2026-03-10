@@ -44,7 +44,7 @@ internal static class ServicesConfiguration
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
         services.AddTransient<ModifierIdleTimer>();
-        services.AddTransient<ProcessPathExtractor>();
+        services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddSingleton<AppLocator>();
         services.AddTransient<RunningApplicationsService>();
 

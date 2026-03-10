@@ -3,7 +3,7 @@ using System.IO;
 
 namespace AppSwitcher.Utils;
 
-public class AppLocator(ProcessPathExtractor processPathExtractor)
+public class AppLocator(IProcessPathExtractor processPathExtractor)
 {
     private readonly string[] _envPaths =
         Environment.GetEnvironmentVariable("PATH")?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? [];

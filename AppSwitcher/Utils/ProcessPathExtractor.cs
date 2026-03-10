@@ -9,7 +9,7 @@ using Windows.Win32.System.Threading;
 
 namespace AppSwitcher.Utils;
 
-public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger)
+public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProcessPathExtractor
 {
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable InconsistentNaming

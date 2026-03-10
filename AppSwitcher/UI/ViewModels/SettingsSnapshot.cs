@@ -3,7 +3,12 @@ using System.Windows.Input;
 
 namespace AppSwitcher.UI.ViewModels;
 
-internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key ModifierKey, IReadOnlyList<ApplicationShortcutSnapshot> Applications, bool PulseBorderEnabled, AppThemeSetting Theme)
+internal sealed record SettingsSnapshot(
+    int? ModifierIdleTimeoutMs,
+    Key ModifierKey,
+    IReadOnlyList<ApplicationShortcutSnapshot> Applications,
+    bool PulseBorderEnabled,
+    AppThemeSetting Theme)
 {
     public bool Equals(SettingsSnapshot? other)
     {
@@ -25,4 +30,8 @@ internal sealed record SettingsSnapshot(int? ModifierIdleTimeoutMs, Key Modifier
     }
 }
 
-internal sealed record ApplicationShortcutSnapshot(Key Key, string ProcessName, bool StartIfNotRunning, CycleMode CycleMode);
+internal sealed record ApplicationShortcutSnapshot(
+    Key Key,
+    string ProcessName,
+    bool StartIfNotRunning,
+    CycleMode CycleMode);

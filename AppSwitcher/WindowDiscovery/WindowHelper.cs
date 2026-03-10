@@ -8,7 +8,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowHelper(ILogger<WindowHelper> logger, ProcessPathExtractor processPathExtractor)
+internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor processPathExtractor)
 {
     public IList<ApplicationWindow> GetWindows()
     {

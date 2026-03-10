@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".agents", ".agents", "{4E6A
 		.agents\wpf-patterns.md = .agents\wpf-patterns.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSwitcher.Tests", "AppSwitcher.Tests\AppSwitcher.Tests.csproj", "{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,14 +56,30 @@ Global
 		{1E0EB0DA-0174-4649-9F16-221ECD0939EE}.Release|x64.Build.0 = Release|Any CPU
 		{1E0EB0DA-0174-4649-9F16-221ECD0939EE}.Release|x86.ActiveCfg = Release|Any CPU
 		{1E0EB0DA-0174-4649-9F16-221ECD0939EE}.Release|x86.Build.0 = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|x64.Build.0 = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Debug|x86.Build.0 = Debug|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|ARM64.Build.0 = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|x64.ActiveCfg = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|x64.Build.0 = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|x86.ActiveCfg = Release|Any CPU
+		{CED26FF1-445F-405C-8CAB-2E8BAD57A41B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1DA3FF38-A6F1-43CD-8F9E-EA285219F9C8}
-	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4E6A554F-ECB0-4469-89D7-64FC52C38E8E} = {6810B6C6-8CBF-4D53-97F8-58CE8E06D13C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DA3FF38-A6F1-43CD-8F9E-EA285219F9C8}
 	EndGlobalSection
 EndGlobal
