@@ -11,11 +11,7 @@ namespace AppSwitcher.Utils;
 
 public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProcessPathExtractor
 {
-#pragma warning disable IDE1006 // Naming Styles
-    // ReSharper disable InconsistentNaming
     private const uint ERROR_INSUFFICIENT_BUFFER = 122;
-    // ReSharper restore InconsistentNaming
-#pragma warning restore IDE1006 // Naming Styles
 
     public string ? GetProcessImageName(uint processId)
     {
