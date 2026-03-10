@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.7.0] - 2026-03-10
+- Add UI for settings management
+- Add new NextApp cycle mode to have single letter cycle between different apps
+- Add subtle effect when switching windows to make it more clear which window is being switched to (Win11 only)
+- Change storage from JSON to LiteDB
+- Change allowed modifiers (Left Ctrl, Left Alt, Left Shift, Left Win, Right Ctrl, Right Alt, Apps/Menu, Right Shift)
+
 ## [1.6.0] - 2026-02-09
 - Allow LeftCtrl and LeftAlt as modifiers as well
 - Fix context menu not working when only pressing the Apps key
