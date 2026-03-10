@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
- 
+
       - name: Read version - test branch
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.302'
-      
+
       - name: Restore NuGet packages
         run: msbuild /t:Restore /p:Configuration=$env:configuration
 
@@ -62,14 +62,11 @@ jobs:
 
       - name: Build self-contained application
         run: msbuild /t:Publish /p:PublishProfile=SelfContainedProfile /p:Configuration=$env:configuration
-        
+
       - name: File modifications
         env:
           publish_dir: AppSwitcher/bin/publish
         run: |
-          # Rename config
-          Rename-Item ${{env.publish_dir}}/folder/config.json config.json.example
-          Rename-Item ${{env.publish_dir}}/selfcontained/config.json config.json.example
           # Remove unnecessary files
           Remove-Item ${{env.publish_dir}}/folder/AppSwitcher.deps.json
       - name: Create ZIPs
@@ -100,4 +97,4 @@ jobs:
             AppSwitcher-selfcontained.zip
           body: ${{ env.CHANGES }}
           make_latest: true
-        
+
