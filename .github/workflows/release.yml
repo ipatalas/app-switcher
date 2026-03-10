@@ -13,6 +13,11 @@ on:
         required: true
         type: string
         default: v1.0.0
+      draft:
+        description: 'Create draft release'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   release:
@@ -92,6 +97,7 @@ jobs:
           CHANGES: ${{ steps.changelog.outputs.body }}
         with:
           name: AppSwitcher v${{ env.ver }}
+          draft: ${{ inputs.draft }}
           files: |
             AppSwitcher.zip
             AppSwitcher-selfcontained.zip
