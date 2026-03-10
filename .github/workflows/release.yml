@@ -56,6 +56,9 @@ jobs:
       - name: Restore NuGet packages
         run: msbuild /t:Restore /p:Configuration=$env:configuration
 
+      - name: Test
+        run: dotnet test --no-restore
+
       - name: Build unpackaged application
         run: msbuild /t:Publish /p:PublishProfile=FolderProfile /p:Configuration=$env:configuration
 
