@@ -22,9 +22,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
  
       - name: Read version - test branch
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -49,7 +47,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.302'
       
@@ -80,7 +78,7 @@ jobs:
           Compress-Archive AppSwitcher/bin/publish/selfcontained/* AppSwitcher-selfcontained.zip
 
       - name: Upload ZIP
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           path: |
             AppSwitcher.zip
