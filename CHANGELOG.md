@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.7.1] - 2026-03-11
+- Change mutex to be checked at the very beginning of application startup
+
 ## [1.7.0] - 2026-03-10
 - Add UI for settings management
 - Add new NextApp cycle mode to have single letter cycle between different apps
