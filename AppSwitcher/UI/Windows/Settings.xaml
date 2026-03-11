@@ -106,7 +106,7 @@
                            Margin="0,0,10,0"
                            IsEnabled="{Binding IsDirty}"
                            Command="{Binding ResetCommand}" />
-                <ui:Button Content="Save &amp; Close"
+                <ui:Button Content="Save &amp; Apply"
                            Appearance="Primary"
                            IsEnabled="{Binding CanSave}"
                            Command="{Binding SaveAndCloseCommand}" />
