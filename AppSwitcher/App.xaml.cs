@@ -25,6 +25,22 @@ public partial class App
 
     protected override void OnStartup(StartupEventArgs e)
     {
+#if !DEBUG
+        _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
+        if (!createdNew)
+        {
+            new MessageBox
+            {
+                Title = "AppSwitcher",
+                Content = "Another instance of AppSwitcher is already running",
+                CloseButtonIcon = new SymbolIcon(SymbolRegular.Info24),
+                CloseButtonText = "OK",
+            }.ShowSync();
+            Current.Shutdown(0);
+            return;
+        }
+#endif
+
         _serviceProvider = ServicesConfiguration.Build();
         if (_serviceProvider == null)
         {
@@ -44,22 +60,6 @@ public partial class App
 
         var cliOptions = _serviceProvider.GetRequiredService<CliOptions>();
         SetupLogging(cliOptions, logger);
-
-#if !DEBUG
-        _mutex = new Mutex(true, "AppSwitcherMutex", out var createdNew);
-        if (!createdNew)
-        {
-            new MessageBox
-            {
-                Title = "AppSwitcher",
-                Content = "AppSwitcher is already running",
-                CloseButtonIcon = new SymbolIcon(SymbolRegular.Info24),
-                CloseButtonText = "OK",
-            }.ShowSync();
-            Current.Shutdown(0);
-            return;
-        }
-#endif
 
         var configManager = _serviceProvider.GetRequiredService<ConfigurationManager>();
         var config = configManager.GetConfiguration();
