@@ -83,7 +83,9 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: AppSwitcher/installer.iss
-          options: /DProfileName=selfcontained /DAppVersion=${{ env.ver }}
+          options: |
+            /DProfileName=selfcontained
+            /DAppVersion=${{ env.ver }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
