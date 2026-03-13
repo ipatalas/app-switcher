@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.7.2] - 2026-03-13
+- Add installer (both installer and portable versions) to the release assets
+- Fix Settings window not showing up in foreground when opened with double-click on the tray icon
+- Other minor fixes and improvements
+
 ## [1.7.1] - 2026-03-11
 - Change mutex to be checked at the very beginning of application startup
 

@@ -8,12 +8,28 @@ I couldn't find any similar application for Windows, so I've decided to create o
 ## Requirements
 
 - Windows 10 or newer
-- .NET 8 Desktop Runtime ([link](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)) is recommended but there is also a self-contained version available in the releases
+- .NET 8(or higher) Desktop Runtime — required unless using a self-contained release (see [Installation](#installation))
 
 ## Installation
 
+### Choosing a release
+
+| Release | Requires .NET installed | Installer |
+|---|---|---|
+| **Installer** | Yes | Yes |
+| **Installer self-contained** | No | Yes |
+| **Portable** | Yes | No |
+| **Portable self-contained** | No | No |
+
+- **Installer** — recommended for most users. Runs a setup wizard and adds AppSwitcher to Programs. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+- **Installer self-contained** — same as above but bundles the .NET runtime, so no separate install is needed. Larger download (~55 MB vs ~1 MB).
+- **Portable** — just a ZIP, no setup. Extract anywhere and run `AppSwitcher.exe`. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+- **Portable self-contained** — ZIP with the .NET runtime bundled. Extract and run, no dependencies.
+
+### Steps
+
 1. Download the latest release from the [releases page](https://github.com/ipatalas/app-switcher/releases)
-2. Unzip the archive
+2. Run the installer or unzip the archive
 3. Run `AppSwitcher.exe`
 
 The application will start in the background. You can see it by checking the icon in the system tray.
