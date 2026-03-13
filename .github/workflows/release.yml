@@ -55,7 +55,6 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.302'
-          cache: true
 
       - name: Restore NuGet packages
         run: msbuild /t:Restore /p:Configuration=$env:configuration
