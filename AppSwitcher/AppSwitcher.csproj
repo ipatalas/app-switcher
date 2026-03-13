@@ -19,6 +19,10 @@
     <!-- <DefineConstants>$(DefineConstants);DEBUG_ERROR_HANDLING</DefineConstants> -->
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
     <AdditionalFiles Include="NativeMethods.txt" />
