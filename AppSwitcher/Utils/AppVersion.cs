@@ -12,7 +12,8 @@ public static class AppVersion
 #if DEBUG
         Version = "v[DEBUG]";
 #else
-        Version = "v" + Assembly.GetEntryAssembly()?.GetName().Version;
+        var ver = Assembly.GetEntryAssembly()?.GetName().Version!;
+        Version = $"v{ver.Major}.{ver.Minor}.{ver.Build}";
 #endif
     }
 }
