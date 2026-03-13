@@ -52,6 +52,7 @@ public partial class MainWindowViewModel : ObservableObject
                 _settings = _serviceProvider.GetRequiredService<Settings>();
                 _settings.Closed += (_, _) => _settings = null;
                 _settings.Show();
+                _settings.Activate();
             }
             else
             {
