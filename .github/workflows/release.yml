@@ -59,7 +59,7 @@ jobs:
       - name: Restore NuGet packages
         run: msbuild /t:Restore /p:Configuration=$env:configuration
 
-      - name: Test
+      - name: Run tests
         run: dotnet test --no-restore
 
       - name: Build unpackaged application
@@ -70,15 +70,29 @@ jobs:
 
       - name: Create ZIPs
         run: |
-          Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher.zip
-          Compress-Archive AppSwitcher/bin/publish/selfcontained/* AppSwitcher-selfcontained.zip
+          Compress-Archive AppSwitcher/bin/publish/folder/* AppSwitcher-portable.zip
+          Compress-Archive AppSwitcher/bin/publish/selfcontained/* AppSwitcher-portable-selfcontained.zip
 
-      - name: Upload ZIP
+      - name: Build installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1
+        with:
+          filepath: AppSwitcher/installer.iss
+          options: /DAppVersion=${{ env.ver }}
+
+      - name: Build self-contained installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1
+        with:
+          filepath: AppSwitcher/installer.iss
+          options: /DProfileName=selfcontained /DAppVersion=${{ env.ver }}
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           path: |
-            AppSwitcher.zip
-            AppSwitcher-selfcontained.zip
+            AppSwitcher-portable.zip
+            AppSwitcher-portable-selfcontained.zip
+            AppSwitcher/Inno_Files/AppSwitcher Installer.exe
+            AppSwitcher/Inno_Files/AppSwitcher Standalone Installer.exe
 
       - name: Read changelog
         id: changelog
@@ -93,8 +107,10 @@ jobs:
           name: AppSwitcher v${{ env.ver }}
           draft: ${{ inputs.draft }}
           files: |
-            AppSwitcher.zip
-            AppSwitcher-selfcontained.zip
+            AppSwitcher-portable.zip
+            AppSwitcher-portable-selfcontained.zip
+            AppSwitcher/Inno_Files/AppSwitcher Installer.exe
+            AppSwitcher/Inno_Files/AppSwitcher Standalone Installer.exe
           body: ${{ env.CHANGES }}
           make_latest: true
 
