@@ -21,13 +21,13 @@ namespace AppSwitcher;
 
 internal static class ServicesConfiguration
 {
-    public static IServiceProvider? Build()
+    public static IServiceProvider? Build(bool isPortableMode)
     {
         var services = new ServiceCollection();
 
         services.AddLogging(logging => logging.AddNLog());
 
-        if (!SetupLiteDb(services))
+        if (!services.SetupLiteDb(isPortableMode))
         {
             return null;
         }
@@ -66,10 +66,15 @@ internal static class ServicesConfiguration
         return services.BuildServiceProvider();
     }
 
-    private static bool SetupLiteDb(ServiceCollection services)
+    private static bool SetupLiteDb(this ServiceCollection services, bool isPortableMode)
     {
         BsonMapper.Global.EnumAsInteger = true;
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "settings.db");
+
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var dbPath = isPortableMode
+            ? Path.Combine(AppContext.BaseDirectory, "settings.db")
+            : Path.Combine(appData, "AppSwitcher", "settings.db");
+
         try
         {
             var db = new LiteDatabase(new ConnectionString(dbPath) { Connection = ConnectionType.Direct });

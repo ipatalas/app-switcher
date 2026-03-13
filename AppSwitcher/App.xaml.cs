@@ -5,6 +5,7 @@ using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Windows;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -17,6 +18,7 @@ namespace AppSwitcher;
 /// </summary>
 public partial class App
 {
+    private readonly string _portableFilePath = Path.Combine(AppContext.BaseDirectory, ".portable");
     private Hook? _hook;
     private IServiceProvider? _serviceProvider;
 #if !DEBUG
@@ -40,16 +42,24 @@ public partial class App
             return;
         }
 #endif
+        bool isPortableMode = File.Exists(_portableFilePath);
 
-        _serviceProvider = ServicesConfiguration.Build();
+        _serviceProvider = ServicesConfiguration.Build(isPortableMode);
         if (_serviceProvider == null)
         {
             Current.Shutdown(1);
             return;
         }
 
+        var configuration = NLog.LogManager.Configuration;
+        if (configuration != null)
+        {
+            configuration.Variables["logDir"] = GetLogDir(isPortableMode);
+        }
+
         var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
-        logger.LogInformation("AppSwitcher {Version} starting up", AppVersion.Version);
+        logger.LogInformation("AppSwitcher {Version} starting up (Portable mode = {Portable})", AppVersion.Version,
+            isPortableMode);
 
         var cliHandler = _serviceProvider.GetRequiredService<CliHandler>();
         if (cliHandler.Handle(e.Args))
@@ -137,5 +147,16 @@ public partial class App
             logger.LogInformation("Logging level set to {Level} via CLI options",
                 cliOptions.EnableTraceLogging ? "Trace" : "Debug");
         }
+    }
+
+    private static string GetLogDir(bool isPortableMode)
+    {
+        if (isPortableMode)
+        {
+            return Path.Combine(AppContext.BaseDirectory, "logs");
+        }
+
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Combine(localAppData, "AppSwitcher", "logs");
     }
 }

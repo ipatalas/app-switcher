@@ -1,0 +1,2 @@
+Keep this file for portable mode.
+That way settings and logs will be stored in the same directory as the executable, instead of in the user's AppData folder.
