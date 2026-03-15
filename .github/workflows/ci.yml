@@ -6,6 +6,7 @@ on:
       - "**"
     paths-ignore:
       - "website/**"
+      - ".github/workflows/website.yml"
 
 jobs:
   build-and-test:
