@@ -1,2 +1,916 @@
-Hello world!
-Version: {{VERSION}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AppSwitcher — Switch smarter. Work faster.</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f9f9fb;
+            --surface: #ffffff;
+            --border: #e4e4e8;
+            --text: #1a1a1f;
+            --muted: #6b6b7a;
+            --accent: #2563eb;
+            --accent-dark: #1d4ed8;
+            --accent-light: #eff6ff;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* NAV */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(249, 249, 251, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-logo span {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .nav-download {
+            background: var(--accent);
+            color: #fff;
+            padding: 0.45rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+
+        .nav-download:hover {
+            background: var(--accent-dark);
+        }
+
+        /* HERO */
+        .hero {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 2.5rem 2rem 1.5rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 3.4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 1.1rem;
+        }
+
+        .hero h1 em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 0.85rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            padding: 0.75rem 1.8rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.15s, transform 0.1s;
+            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .dl-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dl-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            min-width: 100%;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .dl-dropdown.open {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .dl-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.75rem 1.1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            transition: background 0.1s;
+        }
+
+        .dl-dropdown a:hover {
+            background: var(--bg);
+        }
+
+        .dl-dropdown a span.dl-sub {
+            font-size: 0.78rem;
+            font-weight: 400;
+            color: var(--muted);
+            margin-left: auto;
+            padding-left: 1rem;
+        }
+
+        .dl-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0;
+        }
+
+        .dl-chevron {
+            transition: transform 0.2s;
+        }
+
+        .dl-chevron.open {
+            transform: rotate(180deg);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            padding: 0.75rem 1.8rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: border-color 0.15s, transform 0.1s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #aaa;
+            transform: translateY(-1px);
+        }
+
+        .hero-meta {
+            margin-top: 1.2rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        /* DEMO GIF */
+        .demo {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0.5rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .demo-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+        }
+
+        .demo-frame {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: #111;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 180px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-frame img {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .demo-frame-bar {
+            background: #1e1e1e;
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .demo-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .demo-dot:nth-child(1) {
+            background: #ff5f57;
+        }
+
+        .demo-dot:nth-child(2) {
+            background: #febc2e;
+        }
+
+        .demo-dot:nth-child(3) {
+            background: #28c840;
+        }
+
+        .demo-placeholder {
+            background: #1a1a2e;
+            height: min(220px, 30vh);
+            /* Remove this rule once GIF is added */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .demo-placeholder svg {
+            opacity: 0.3;
+        }
+
+        .demo-placeholder strong {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .demo-caption {
+            margin-top: 0.85rem;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        /* FEATURES */
+        section {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.6rem, 3vw, 2.1rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-size: 1.02rem;
+            max-width: 480px;
+            margin-bottom: 2.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.6rem;
+            transition: box-shadow 0.15s, transform 0.15s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--accent-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.02rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        /* HOW IT WORKS */
+        .how {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .how-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+            position: relative;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 0.97rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .step p {
+            font-size: 0.87rem;
+            color: var(--muted);
+        }
+
+        /* FAQ */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 2.5rem;
+        }
+
+        .faq-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .faq-q {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 1.1rem 1.4rem;
+            font-size: 0.97rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text);
+            transition: background 0.1s;
+        }
+
+        .faq-q:hover {
+            background: var(--bg);
+        }
+
+        .faq-q .chevron {
+            transition: transform 0.2s;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .faq-q.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, padding 0.2s;
+            padding: 0 1.4rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .faq-a.open {
+            max-height: 200px;
+            padding: 0 1.4rem 1.1rem;
+        }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #fff;
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .cta h2 {
+            font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta p {
+            font-size: 1.05rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .btn-white {
+            background: #fff;
+            color: var(--accent);
+            padding: 0.85rem 2.2rem;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.1s, box-shadow 0.15s;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-meta {
+            margin-top: 1rem;
+            font-size: 0.82rem;
+            opacity: 0.6;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-logo">
+            <span>AS</span>
+            AppSwitcher
+        </div>
+        <a href="#download" class="nav-download">⬇ Download</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-badge">Free for Windows</div>
+        <h1>Switch apps in an <em>instant</em>.<br>No more Alt+Tab.</h1>
+        <p>Most people have 5–6 apps open at any time. AppSwitcher gives each one its own key — jump to exactly what you
+            need, instantly.</p>
+        <div class="hero-actions">
+            <div class="dl-wrapper">
+                <button class="btn-primary" onclick="toggleDl('hero-dl', this)">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                        <path
+                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                    </svg>
+                    Download for Windows
+                    <svg class="dl-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="dl-dropdown" id="hero-dl">
+                    <a
+                        href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher.Installer.exe">📦
+                        Installer <span class="dl-sub">Recommended</span></a>
+                    <div class="dl-divider"></div>
+                    <a
+                        href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher-portable.zip">🗜️
+                        Portable (.zip) <span class="dl-sub">No install needed</span></a>
+                    <div class="dl-divider"></div>
+                    <a href="https://github.com/ipatalas/app-switcher/releases"
+                        style="color:var(--muted);font-weight:500;">All releases on GitHub →</a>
+                </div>
+            </div>
+            <a href="#demo" class="btn-secondary">See it in action</a>
+        </div>
+        <p class="hero-meta">Windows 10 / 11 · Free · <strong>{{VERSION}}</strong></p>
+    </section>
+
+    <!-- DEMO GIF -->
+    <div class="demo" id="demo">
+        <div class="demo-label">See it in action</div>
+        <div class="demo-frame">
+            <!-- Replace the placeholder below with: <img src="your-demo.gif" alt="AppSwitcher demo" style="width:100%;display:block;" /> -->
+            <div class="demo-placeholder">
+                <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="14" rx="2" />
+                    <path d="M9 10l3 3 3-3M12 13V7" />
+                </svg>
+                <strong>Your demo GIF goes here</strong>
+                <span>Replace the placeholder in the HTML with your GIF</span>
+            </div>
+        </div>
+        <div class="demo-caption">AppSwitcher in action — switch to any app in under a second</div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features">
+        <div class="section-label">Features</div>
+        <div class="section-title">Everything you need,<br>nothing you don't.</div>
+        <p class="section-sub">AppSwitcher is built to stay out of your way and just work.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Instant Keyboard-Driven Window Switching</h3>
+                <p>Stop hunting through Alt+Tab — assign any key combination and land on the right window immediately.
+                    Every app gets its own hotkey (e.g., <code
+                        style="background:var(--accent-light);color:var(--accent);padding:0.1em 0.4em;border-radius:4px;font-size:0.85em;">Apps+C</code>
+                    → VS Code, <code
+                        style="background:var(--accent-light);color:var(--accent);padding:0.1em 0.4em;border-radius:4px;font-size:0.85em;">Apps+T</code>
+                    → Terminal). Press it, you're there — no menus, no mouse, no cycling through unrelated windows.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Three Intelligent Cycle Modes per App</h3>
+                <p>Configure exactly how each hotkey behaves. Choose from three modes:</p>
+                <ul
+                    style="margin-top:0.6rem;list-style:none;display:flex;flex-direction:column;gap:0.4rem;font-size:0.9rem;color:var(--muted);">
+                    <li><strong style="color:var(--text);">NextApp</strong> — round-robins between multiple apps on the
+                        same key</li>
+                    <li><strong style="color:var(--text);">Hide</strong> — minimizes the focused window when pressed
+                        again</li>
+                    <li><strong style="color:var(--text);">NextWindow</strong> — cycles through every open window of a
+                        single app</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🪶</div>
+                <h3>Lightweight & Quiet</h3>
+                <p>AppSwitcher runs silently in your system tray, using virtually no resources. You'll forget it's there
+                    — until you need it.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <div class="how">
+        <div class="how-inner">
+            <div class="section-label">How it works</div>
+            <div class="section-title">Up and running in seconds.</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Download & Install</h3>
+                    <p>Grab the installer, run it, and AppSwitcher appears in your system tray.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>Assign Hotkeys</h3>
+                    <p>Right-click the tray icon, pick your apps, and set the hotkeys you want.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Switch Instantly</h3>
+                    <p>Press your hotkey, land in your app. Every time, without thinking.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRUST & TRANSPARENCY -->
+    <div class="how">
+        <div class="how-inner">
+            <div class="section-label">Trust & Transparency</div>
+            <div class="section-title">Nothing to hide.</div>
+            <p style="color:var(--muted);font-size:1.02rem;max-width:620px;margin-bottom:2rem;">AppSwitcher uses a
+                system-wide keyboard hook to detect your hotkeys — which can sound alarming. Here's why you can trust
+                it.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Open Source</h3>
+                    <p>The full source code is publicly available. You don't have to take our word for it — read every
+                        line yourself and see exactly what the app does.</p>
+                    <a href="https://github.com/ipatalas/app-switcher" target="_blank"
+                        style="display:inline-block;margin-top:0.85rem;font-size:0.88rem;font-weight:600;color:var(--accent);">View
+                        on GitHub →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📵</div>
+                    <h3>100% Offline</h3>
+                    <p>AppSwitcher never connects to the internet. There are no auto-updates, no telemetry, no servers.
+                        Feel free to block it in your firewall — it will work just fine.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Minimal Privileges</h3>
+                    <p>The app runs without administrator rights by default and requests only the minimum permissions it
+                        needs to do its job — nothing more.</p>
+                </div>
+            </div>
+            <div
+                style="margin-top:1.5rem;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:var(--radius);padding:1.1rem 1.4rem;display:flex;gap:1rem;align-items:flex-start;">
+                <span style="font-size:1.3rem;line-height:1.3;">⚠️</span>
+                <div>
+                    <p style="font-size:0.95rem;font-weight:700;color:#92400e;margin-bottom:0.25rem;">Windows
+                        SmartScreen may appear on first launch</p>
+                    <p style="font-size:0.88rem;color:#a16207;line-height:1.6;">As an independent release, AppSwitcher
+                        hasn't built up a reputation with Microsoft yet. It's completely safe — click <strong>More
+                            info</strong> then <strong>Run anyway</strong> to proceed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <section id="faq">
+        <div class="section-label">FAQ</div>
+        <div class="section-title">Common questions.</div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Does AppSwitcher work with all Windows applications?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">Yes, but there may be issues with apps running as Administrator. When an elevated app
+                    is in focus, AppSwitcher's keyboard hook can't intercept events. The workaround is to also run
+                    AppSwitcher as Administrator — this can be configured in the settings.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Will AppSwitcher work with apps running as Administrator?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">Not by default. Windows prevents a non-elevated app from controlling elevated windows
+                    (like Task Manager or an admin terminal). Since AppSwitcher runs without admin rights by default,
+                    switching to those windows will silently fail. The fix is simple: run AppSwitcher as Administrator
+                    in the settings.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    How do I change or remove a hotkey?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">Open the settings by double-clicking the tray icon, or right-clicking it for the
+                    menu. All hotkey management is done from there.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Does AppSwitcher run on startup?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">Not by default, but it's easy to enable. Head to the settings and toggle the startup
+                    option — that's all it takes.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Does AppSwitcher require .NET to be installed separately?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">No. The recommended download is self-contained and bundles everything it needs — just
+                    run the installer and you're good to go. AppSwitcher supports Windows 10 and Windows 11 (64-bit and
+                    32-bit). Note: one minor visual effect (window border pulse) is exclusive to Windows 11 and won't
+                    appear on Windows 10.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    Why is Windows SmartScreen blocking the app?
+                    <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div class="faq-a">As an independent developer, AppSwitcher hasn't built up a "reputation" with
+                    Microsoft yet, which triggers SmartScreen. It's safe to run — just click <strong>More info</strong>
+                    then <strong>Run anyway</strong> to proceed.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOWNLOAD CTA -->
+    <div class="cta" id="download">
+        <h2>Ready to ditch Alt+Tab?</h2>
+        <p>Download AppSwitcher for free and switch apps the smart way.</p>
+        <div class="dl-wrapper" style="display:inline-block;">
+            <button class="btn-white" onclick="toggleDl('cta-dl', this)">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path
+                        d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                    <path
+                        d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                </svg>
+                Download for Windows — Free
+                <svg class="dl-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                    viewBox="0 0 24 24">
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+            </button>
+            <div class="dl-dropdown" id="cta-dl">
+                <a href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher.Installer.exe">📦
+                    Installer <span class="dl-sub">Recommended</span></a>
+                <div class="dl-divider"></div>
+                <a href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher-portable.zip">🗜️
+                    Portable (.zip) <span class="dl-sub">No install needed</span></a>
+                <div class="dl-divider"></div>
+                <a href="https://github.com/ipatalas/app-switcher/releases"
+                    style="color:var(--muted);font-weight:500;">All releases on GitHub →</a>
+            </div>
+        </div>
+        <p class="cta-meta">Windows 10 / 11 · No account required</p>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>AppSwitcher · {{VERSION}} · Built with C# / .NET · <a href="https://github.com/ipatalas/app-switcher"
+                target="_blank">GitHub</a></p>
+        <p style="margin-top:0.4rem;">Inspired by <a href="https://lowtechguys.com/rcmd/" target="_blank">rCmd</a> for
+            Mac</p>
+    </footer>
+
+    <script>
+        function toggleDl(id, btn) {
+            const dd = document.getElementById(id);
+            const chevron = btn.querySelector('.dl-chevron');
+            const isOpen = dd.classList.contains('open');
+            document.querySelectorAll('.dl-dropdown.open').forEach(d => d.classList.remove('open'));
+            document.querySelectorAll('.dl-chevron.open').forEach(c => c.classList.remove('open'));
+            if (!isOpen) { dd.classList.add('open'); chevron.classList.add('open'); }
+        }
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.dl-wrapper')) {
+                document.querySelectorAll('.dl-dropdown.open').forEach(d => d.classList.remove('open'));
+                document.querySelectorAll('.dl-chevron.open').forEach(c => c.classList.remove('open'));
+            }
+        });
+
+        function toggleFaq(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = btn.classList.contains('open');
+            document.querySelectorAll('.faq-q.open').forEach(b => {
+                b.classList.remove('open');
+                b.nextElementSibling.classList.remove('open');
+            });
+            if (!isOpen) {
+                btn.classList.add('open');
+                answer.classList.add('open');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
