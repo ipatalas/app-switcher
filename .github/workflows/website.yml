@@ -33,6 +33,20 @@ jobs:
         run: |
           sed -i "s/{{VERSION}}/${{ env.VERSION }}/g" website/*.html
 
+      - name: Minify HTML
+        run: |
+          npx html-minifier-terser \
+            --input-dir website \
+            --output-dir website \
+            --file-ext html \
+            --collapse-whitespace \
+            --remove-comments \
+            --remove-redundant-attributes \
+            --remove-script-type-attributes \
+            --remove-style-link-type-attributes \
+            --minify-css true \
+            --minify-js true
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
