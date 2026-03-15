@@ -1,0 +1,41 @@
+name: Deploy Website
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+    paths:
+      - "website/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            # Triggered by a tag push — use it directly
+            echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          else
+            # Triggered by a website/ file change — fetch latest release tag
+            LATEST=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+              | jq -r '.tag_name')
+            echo "VERSION=${LATEST}" >> $GITHUB_ENV
+          fi
+
+      - name: Inject version into HTML
+        run: |
+          sed -i "s/{{VERSION}}/${{ env.VERSION }}/g" website/*.html
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website --project-name=app-switcher
