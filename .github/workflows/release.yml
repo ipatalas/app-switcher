@@ -55,9 +55,11 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.302'
+          cache: true
+          cache-dependency-path: 'AppSwitcher/packages.lock.json'
 
       - name: Restore NuGet packages
-        run: msbuild /t:Restore /p:Configuration=$env:configuration
+        run: dotnet restore --locked-mode
 
       - name: Run tests
         run: dotnet test --no-restore
