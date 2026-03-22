@@ -33,11 +33,6 @@
       line-height: 1.6;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
     /* NAV */
     nav {
       position: sticky;
@@ -70,13 +65,25 @@
       justify-content: center;
     }
 
-    nav-links a {
+    .nav-logo img {
+      width: 100%;
+      display: block;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
       color: var(--muted);
       font-weight: 500;
+      text-decoration: none;
       transition: color 0.15s;
     }
 
-    nav-links a:hover {
+    .nav-links a:hover {
       color: var(--text);
     }
 
@@ -184,6 +191,7 @@
       font-size: 0.9rem;
       font-weight: 600;
       color: var(--text);
+      text-decoration: none;
       white-space: nowrap;
       transition: background 0.1s;
     }
@@ -222,6 +230,7 @@
       border-radius: 10px;
       font-size: 1rem;
       font-weight: 600;
+      text-decoration: none;
       transition: border-color 0.15s, transform 0.1s;
     }
 
@@ -264,38 +273,12 @@
       flex-direction: column;
     }
 
-    .demo-frame img {
+    .demo-img {
       flex: 1;
       min-height: 0;
       width: 100%;
       object-fit: contain;
       display: block;
-    }
-
-    .demo-frame-bar {
-      background: #1e1e1e;
-      padding: 0.6rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .demo-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-    }
-
-    .demo-dot:nth-child(1) {
-      background: #ff5f57;
-    }
-
-    .demo-dot:nth-child(2) {
-      background: #febc2e;
-    }
-
-    .demo-dot:nth-child(3) {
-      background: #28c840;
     }
 
     .demo-caption {
@@ -375,6 +358,82 @@
       font-size: 0.9rem;
       color: var(--muted);
       line-height: 1.55;
+    }
+
+    .code-inline {
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    .feature-list {
+      margin-top: 0.6rem;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .feature-list strong {
+      color: var(--text);
+    }
+
+    .section-copy {
+      color: var(--muted);
+      font-size: 1.02rem;
+      max-width: 620px;
+      margin-bottom: 2rem;
+    }
+
+    .feature-link {
+      display: inline-block;
+      margin-top: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .feature-link:hover {
+      text-decoration: underline;
+    }
+
+    .alert-warning {
+      margin-top: 1.5rem;
+      background: #fffbeb;
+      border: 1.5px solid #fcd34d;
+      border-radius: var(--radius);
+      padding: 1.1rem 1.4rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .alert-icon {
+      font-size: 1.3rem;
+      line-height: 1.3;
+    }
+
+    .alert-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 0.25rem;
+    }
+
+    .alert-copy {
+      font-size: 0.88rem;
+      color: #a16207;
+      line-height: 1.6;
+    }
+
+    .dl-dropdown a.muted-link {
+      color: var(--muted);
+      font-weight: 500;
     }
 
     /* HOW IT WORKS */
@@ -514,7 +573,7 @@
 
     .cta p {
       font-size: 1.05rem;
-      opacity: 0.8;
+      opacity: 0.9;
       margin-bottom: 2rem;
     }
 
@@ -560,22 +619,26 @@
     footer a:hover {
       text-decoration: underline;
     }
+
+    .footer-note {
+      margin-top: 0.4rem;
+    }
   </style>
 </head>
 
 <body>
 
   <!-- NAV -->
-  <nav>
+  <nav aria-label="Primary navigation">
     <div class="nav-logo">
-      <span><img src="app-switcher.png" alt="AppSwitcher" style="width:100%;" /></span>
+      <span><img src="app-switcher.png" alt="AppSwitcher" /></span>
       AppSwitcher
     </div>
-    <nav-links style="display:flex;align-items: center;gap:1.5rem;">
+    <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#faq">FAQ</a>
       <a href="#download">Download</a>
-    </nav-links>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -586,7 +649,8 @@
       need, instantly.</p>
     <div class="hero-actions">
       <div class="dl-wrapper">
-        <button class="btn-primary" onclick="toggleDl('hero-dl', this)">
+        <button class="btn-primary" type="button" aria-expanded="false" aria-controls="hero-dl" aria-haspopup="true"
+          onclick="toggleDl('hero-dl', this)">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
             <path
               d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
@@ -606,7 +670,7 @@
           <a href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher-portable.zip">🗜️
             Portable (.zip) <span class="dl-sub">No install needed</span></a>
           <div class="dl-divider"></div>
-          <a href="https://github.com/ipatalas/app-switcher/releases" style="color:var(--muted);font-weight:500;">All
+          <a class="muted-link" href="https://github.com/ipatalas/app-switcher/releases">All
             releases on GitHub →</a>
         </div>
       </div>
@@ -619,7 +683,7 @@
   <div class="demo" id="demo">
     <div class="demo-label">See it in action</div>
     <div class="demo-frame">
-      <img src="app-switcher.gif" alt="AppSwitcher demo" style="width:100%;display:block;" />
+      <img class="demo-img" src="app-switcher.gif" alt="AppSwitcher demo" />
     </div>
     <div class="demo-caption">AppSwitcher in action — switch to any app in under a second</div>
   </div>
@@ -634,23 +698,20 @@
         <div class="feature-icon">🚀</div>
         <h3>Instant Keyboard-Driven Window Switching</h3>
         <p>Stop hunting through Alt+Tab — assign any key combination and land on the right window immediately.
-          Every app gets its own hotkey (e.g., <code
-            style="background:var(--accent-light);color:var(--accent);padding:0.1em 0.4em;border-radius:4px;font-size:0.85em;">Apps+C</code>
-          → VS Code, <code
-            style="background:var(--accent-light);color:var(--accent);padding:0.1em 0.4em;border-radius:4px;font-size:0.85em;">Apps+T</code>
+          Every app gets its own hotkey (e.g., <code class="code-inline">Apps+C</code>
+          → VS Code, <code class="code-inline">Apps+T</code>
           → Terminal). Press it, you're there — no menus, no mouse, no cycling through unrelated windows.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔄</div>
         <h3>Three Intelligent Cycle Modes per App</h3>
         <p>Configure exactly how each hotkey behaves. Choose from three modes:</p>
-        <ul
-          style="margin-top:0.6rem;list-style:none;display:flex;flex-direction:column;gap:0.4rem;font-size:0.9rem;color:var(--muted);">
-          <li><strong style="color:var(--text);">NextApp</strong> — round-robins between multiple apps on the
+        <ul class="feature-list">
+          <li><strong>NextApp</strong> — round-robins between multiple apps on the
             same key</li>
-          <li><strong style="color:var(--text);">Hide</strong> — minimizes the focused window when pressed
+          <li><strong>Hide</strong> — minimizes the focused window when pressed
             again</li>
-          <li><strong style="color:var(--text);">NextWindow</strong> — cycles through every open window of a
+          <li><strong>NextWindow</strong> — cycles through every open window of a
             single app</li>
         </ul>
       </div>
@@ -696,7 +757,7 @@
     <div class="how-inner">
       <div class="section-label">Trust & Transparency</div>
       <div class="section-title">Nothing to hide.</div>
-      <p style="color:var(--muted);font-size:1.02rem;max-width:620px;margin-bottom:2rem;">AppSwitcher uses a
+      <p class="section-copy">AppSwitcher uses a
         system-wide keyboard hook to detect your hotkeys — which can sound alarming. Here's why you can trust
         it.</p>
       <div class="features-grid">
@@ -705,8 +766,7 @@
           <h3>Open Source</h3>
           <p>The full source code is publicly available. You don't have to take our word for it — read every
             line yourself and see exactly what the app does.</p>
-          <a href="https://github.com/ipatalas/app-switcher" target="_blank"
-            style="display:inline-block;margin-top:0.85rem;font-size:0.88rem;font-weight:600;color:var(--accent);">View
+          <a class="feature-link" href="https://github.com/ipatalas/app-switcher" target="_blank" rel="noreferrer">View
             on GitHub →</a>
         </div>
         <div class="feature-card">
@@ -722,13 +782,12 @@
             needs to do its job — nothing more.</p>
         </div>
       </div>
-      <div
-        style="margin-top:1.5rem;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:var(--radius);padding:1.1rem 1.4rem;display:flex;gap:1rem;align-items:flex-start;">
-        <span style="font-size:1.3rem;line-height:1.3;">⚠️</span>
+      <div class="alert-warning">
+        <span class="alert-icon">⚠️</span>
         <div>
-          <p style="font-size:0.95rem;font-weight:700;color:#92400e;margin-bottom:0.25rem;">Windows
+          <p class="alert-title">Windows
             SmartScreen may appear on first launch</p>
-          <p style="font-size:0.88rem;color:#a16207;line-height:1.6;">As an independent release, AppSwitcher
+          <p class="alert-copy">As an independent release, AppSwitcher
             hasn't built up a reputation with Microsoft yet. It's completely safe — click <strong>More
               info</strong> then <strong>Run anyway</strong> to proceed.</p>
         </div>
@@ -742,72 +801,84 @@
     <div class="section-title">Common questions.</div>
     <div class="faq-list">
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-1"
+          onclick="toggleFaq(this)">
           Does AppSwitcher work with all Windows applications?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">Yes, but there may be issues with apps running as Administrator. When an elevated app
+        <div class="faq-a" id="faq-answer-1" aria-hidden="true">Yes, but there may be issues with apps running as
+          Administrator. When an elevated app
           is in focus, AppSwitcher's keyboard hook can't intercept events. The workaround is to also run
           AppSwitcher as Administrator.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-2"
+          onclick="toggleFaq(this)">
           Will AppSwitcher work with apps running as Administrator?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">Not by default. Windows prevents a non-elevated app from controlling elevated windows
+        <div class="faq-a" id="faq-answer-2" aria-hidden="true">Not by default. Windows prevents a non-elevated app from
+          controlling elevated windows
           (like Task Manager or an admin terminal). Since AppSwitcher runs without admin rights by default,
           switching to those windows will silently fail. The fix is simple: run AppSwitcher as Administrator.
         </div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-3"
+          onclick="toggleFaq(this)">
           How do I change or remove a hotkey?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">Open the settings by double-clicking the tray icon, or right-clicking it for the
+        <div class="faq-a" id="faq-answer-3" aria-hidden="true">Open the settings by double-clicking the tray icon, or
+          right-clicking it for the
           menu. All hotkey management is done from there.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-4"
+          onclick="toggleFaq(this)">
           Does AppSwitcher run on startup?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">Not by default, but it's easy to enable. Head to the settings and toggle the startup
+        <div class="faq-a" id="faq-answer-4" aria-hidden="true">Not by default, but it's easy to enable. Head to the
+          settings and toggle the startup
           option — that's all it takes.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-5"
+          onclick="toggleFaq(this)">
           Does AppSwitcher require .NET to be installed separately?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">No. See <a href="https://github.com/ipatalas/app-switcher#choosing-a-release"
-            target="_blank">Choosing a Release</a> for more information.</div>
+        <div class="faq-a" id="faq-answer-5" aria-hidden="true">No. See <a
+            href="https://github.com/ipatalas/app-switcher#choosing-a-release" target="_blank" rel="noreferrer">Choosing
+            a Release</a> for more information.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-6"
+          onclick="toggleFaq(this)">
           Why is Windows SmartScreen blocking the app?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a">As an independent developer, AppSwitcher hasn't built up a "reputation" with
+        <div class="faq-a" id="faq-answer-6" aria-hidden="true">As an independent developer, AppSwitcher hasn't built up
+          a "reputation" with
           Microsoft yet, which triggers SmartScreen. It's safe to run — just click <strong>More info</strong>
           then <strong>Run anyway</strong> to proceed.</div>
       </div>
@@ -818,8 +889,9 @@
   <div class="cta" id="download">
     <h2>Ready to ditch Alt+Tab?</h2>
     <p>Download AppSwitcher for free and switch apps the smart way.</p>
-    <div class="dl-wrapper" style="display:inline-block;">
-      <button class="btn-white" onclick="toggleDl('cta-dl', this)">
+    <div class="dl-wrapper">
+      <button class="btn-white" type="button" aria-expanded="false" aria-controls="cta-dl" aria-haspopup="true"
+        onclick="toggleDl('cta-dl', this)">
         <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
           <path
             d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
@@ -839,7 +911,7 @@
         <a href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher-portable.zip">🗜️
           Portable (.zip) <span class="dl-sub">No install needed</span></a>
         <div class="dl-divider"></div>
-        <a href="https://github.com/ipatalas/app-switcher/releases" style="color:var(--muted);font-weight:500;">All
+        <a class="muted-link" href="https://github.com/ipatalas/app-switcher/releases">All
           releases on GitHub →</a>
       </div>
     </div>
@@ -848,37 +920,63 @@
   <!-- FOOTER -->
   <footer>
     <p>AppSwitcher · {{VERSION}} · Built with C# / .NET · <a href="https://github.com/ipatalas/app-switcher"
-        target="_blank">GitHub</a></p>
-    <p style="margin-top:0.4rem;">Inspired by <a href="https://lowtechguys.com/rcmd/" target="_blank">rCmd</a> for
+        target="_blank" rel="noreferrer">GitHub</a></p>
+    <p class="footer-note">Inspired by <a href="https://lowtechguys.com/rcmd/" target="_blank" rel="noreferrer">rCmd</a>
+      for
       Mac</p>
   </footer>
 
   <script>
-    function toggleDl(id, btn) {
-      const dd = document.getElementById(id);
-      const chevron = btn.querySelector('.dl-chevron');
-      const isOpen = dd.classList.contains('open');
-      document.querySelectorAll('.dl-dropdown.open').forEach(d => d.classList.remove('open'));
-      document.querySelectorAll('.dl-chevron.open').forEach(c => c.classList.remove('open'));
-      if (!isOpen) { dd.classList.add('open'); chevron.classList.add('open'); }
+    function closeDownloadMenus() {
+      document.querySelectorAll('.dl-dropdown.open, .dl-chevron.open').forEach(el => {
+        el.classList.remove('open');
+      });
+
+      document.querySelectorAll('.dl-wrapper button[aria-expanded="true"]').forEach(button => {
+        button.setAttribute('aria-expanded', 'false');
+      });
     }
+
+    function toggleDl(id, btn) {
+      const dropdown = document.getElementById(id);
+      const chevron = btn.querySelector('.dl-chevron');
+      const isOpen = dropdown.classList.contains('open');
+
+      closeDownloadMenus();
+
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        chevron.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
     document.addEventListener('click', e => {
       if (!e.target.closest('.dl-wrapper')) {
-        document.querySelectorAll('.dl-dropdown.open').forEach(d => d.classList.remove('open'));
-        document.querySelectorAll('.dl-chevron.open').forEach(c => c.classList.remove('open'));
+        closeDownloadMenus();
       }
     });
+
+    function closeFaqItems() {
+      document.querySelectorAll('.faq-q.open').forEach(button => {
+        button.classList.remove('open');
+        button.setAttribute('aria-expanded', 'false');
+        button.nextElementSibling.classList.remove('open');
+        button.nextElementSibling.setAttribute('aria-hidden', 'true');
+      });
+    }
 
     function toggleFaq(btn) {
       const answer = btn.nextElementSibling;
       const isOpen = btn.classList.contains('open');
-      document.querySelectorAll('.faq-q.open').forEach(b => {
-        b.classList.remove('open');
-        b.nextElementSibling.classList.remove('open');
-      });
+
+      closeFaqItems();
+
       if (!isOpen) {
         btn.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
         answer.classList.add('open');
+        answer.setAttribute('aria-hidden', 'false');
       }
     }
   </script>
