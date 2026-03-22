@@ -4,13 +4,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Targets;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Xml.Linq;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -175,47 +175,14 @@ internal partial class AboutViewModel : ObservableObject
 
     private static string ResolveLogFolder()
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        var configPath = Path.Combine(baseDir, "nlog.config");
-        if (!File.Exists(configPath))
-        {
-            return baseDir;
-        }
+        var fileTarget = LogManager.Configuration?.AllTargets
+            .OfType<FileTarget>().FirstOrDefault();
 
-        try
-        {
-            var doc = XDocument.Load(configPath);
-            XNamespace nlogNs = "http://www.nlog-project.org/schemas/NLog.xsd";
-            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+        var logEventInfo = new LogEventInfo { TimeStamp = DateTime.Now };
+        var fileName = fileTarget?.FileName.Render(logEventInfo);
 
-            var fileTarget = doc.Descendants(nlogNs + "target")
-                .FirstOrDefault(t => (string?)t.Attribute(xsi + "type") == "File");
-
-            if (fileTarget is null)
-            {
-                return baseDir;
-            }
-
-            var fileName = (string?)fileTarget.Attribute("fileName");
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return baseDir;
-            }
-
-            // Strip NLog layout variables (${...}) to get a plain path skeleton
-            var cleanPath = Regex.Replace(fileName, @"\$\{[^}]+\}", string.Empty);
-            var dir = Path.GetDirectoryName(cleanPath);
-
-            if (string.IsNullOrEmpty(dir))
-            {
-                return baseDir;
-            }
-
-            return Path.IsPathRooted(dir) ? dir : Path.Combine(baseDir, dir);
-        }
-        catch
-        {
-            return baseDir;
-        }
+        return string.IsNullOrEmpty(fileName)
+            ? AppDomain.CurrentDomain.BaseDirectory
+            : Path.GetDirectoryName(fileName)!;
     }
 }
