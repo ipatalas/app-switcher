@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version'
+        description: "Version"
         required: true
         type: string
         default: v1.0.0
       draft:
-        description: 'Create draft release'
+        description: "Create draft release"
         required: false
         type: boolean
         default: false
@@ -54,9 +54,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.302'
+          dotnet-version: "8.0.302"
           cache: true
-          cache-dependency-path: 'AppSwitcher/packages.lock.json'
+          cache-dependency-path: "AppSwitcher/packages.lock.json"
 
       - name: Restore NuGet packages
         run: dotnet restore --locked-mode
@@ -96,12 +96,12 @@ jobs:
             AppSwitcher-portable.zip
             AppSwitcher-portable-selfcontained.zip
             AppSwitcher/Inno_Files/AppSwitcher Installer.exe
-            AppSwitcher/Inno_Files/AppSwitcher Standalone Installer.exe
+            AppSwitcher/Inno_Files/AppSwitcher SelfContained Installer.exe
 
       - name: Read changelog
         id: changelog
         run: |
-            "body<<EOF`n$(.\\extract-changelog.ps1 $env:ver)`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "body<<EOF`n$(.\\extract-changelog.ps1 $env:ver)`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -114,7 +114,6 @@ jobs:
             AppSwitcher-portable.zip
             AppSwitcher-portable-selfcontained.zip
             AppSwitcher/Inno_Files/AppSwitcher Installer.exe
-            AppSwitcher/Inno_Files/AppSwitcher Standalone Installer.exe
+            AppSwitcher/Inno_Files/AppSwitcher SelfContained Installer.exe
           body: ${{ env.CHANGES }}
           make_latest: true
-

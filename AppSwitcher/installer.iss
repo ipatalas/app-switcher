@@ -14,7 +14,7 @@ Compression=lzma2
 SolidCompression=yes
 OutputDir=Inno_Files
 #if ProfileName == "selfcontained"
-  OutputBaseFilename=AppSwitcher Standalone Installer
+  OutputBaseFilename=AppSwitcher SelfContained Installer
 #else
   OutputBaseFilename=AppSwitcher Installer
 #endif
@@ -71,11 +71,11 @@ var
   Major: Integer;
   HighestMajor: Integer;
   Output: TExecOutput;
-  IsStandalone: Boolean;
+  IsSelfContained: Boolean;
 begin
   Result := False;
-  IsStandalone := '{#ProfileName}' = 'selfcontained';
-  if IsStandalone then
+  IsSelfContained := '{#ProfileName}' = 'selfcontained';
+  if IsSelfContained then
   begin
     Result := True;
     Exit;
