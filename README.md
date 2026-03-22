@@ -22,7 +22,7 @@ I couldn't find any similar application for Windows, so I've decided to create o
 | **Portable self-contained** | No | No |
 
 - **Installer** — recommended for most users. Runs a setup wizard and adds AppSwitcher to Programs. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
-- **Installer self-contained** — same as above but bundles the .NET runtime, so no separate install is needed. Larger download (~55 MB vs ~1 MB).
+- **Installer self-contained** — same as above but bundles the .NET runtime, so no separate install is needed. Larger download (~45 MB vs ~5 MB).
 - **Portable** — just a ZIP, no setup. Extract anywhere and run `AppSwitcher.exe`. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
 - **Portable self-contained** — ZIP with the .NET runtime bundled. Extract and run, no dependencies.
 
