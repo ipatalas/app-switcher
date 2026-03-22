@@ -275,7 +275,7 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
     [ObservableProperty] private string _processName = null!;
     [ObservableProperty] private string _processPath = null!;
     [ObservableProperty] private bool _startIfNotRunning;
-    [ObservableProperty] private CycleMode _cycleMode = CycleMode.NextApp;
+    [ObservableProperty] private CycleMode _cycleMode = CycleMode.NextWindow;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasValidationError))]
