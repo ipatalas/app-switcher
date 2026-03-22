@@ -27,7 +27,7 @@ internal partial class AboutViewModel : ObservableObject
 
     public string AppVersion { get; } = "Version " + Utils.AppVersion.Version;
 
-    public string AppWebsite => "www.app-switcher.com";
+    public string AppWebsite => "https://app-switcher.com";
 
     public string DotNetVersion { get; } = ".NET " + Environment.Version;
 
