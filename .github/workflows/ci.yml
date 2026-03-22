@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - "website/**"
       - ".github/workflows/website.yml"
+      - "*.md"
 
 jobs:
   build-and-test:
@@ -19,9 +20,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.302'
+          dotnet-version: "8.0.302"
           cache: true
-          cache-dependency-path: 'AppSwitcher/packages.lock.json'
+          cache-dependency-path: "AppSwitcher/packages.lock.json"
 
       - name: Restore NuGet packages
         run: dotnet restore --locked-mode
