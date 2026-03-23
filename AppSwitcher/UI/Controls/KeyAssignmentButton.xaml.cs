@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
 using UserControl = System.Windows.Controls.UserControl;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -144,11 +146,39 @@ public partial class KeyAssignmentButton : UserControl
         ButtonAppearance = ControlAppearance.Primary;
         InnerButton.Focus();
         Keyboard.Focus(InnerButton);
+        StartScaleAnimation();
     }
 
     private void StopListening()
     {
+        StopScaleAnimation();
         IsListening = false;
         UpdateDisplay(Key); // Refresh display with current key
+    }
+
+    private void StartScaleAnimation()
+    {
+        // Cache the button as a GPU bitmap so the compositor scales the texture each frame
+        // rather than re-rendering vector graphics — eliminates per-frame redraw jitter.
+        // RenderAtScale=1.5 keeps the cached bitmap sharp when scaled up to 1.15×.
+        InnerButton.CacheMode = new BitmapCache { RenderAtScale = 1.5 };
+
+        var easing = new SineEase { EasingMode = EasingMode.EaseInOut };
+        var animation = new DoubleAnimation(1.0, 1.15, TimeSpan.FromMilliseconds(400))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = easing
+        };
+
+        ButtonScaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
+        ButtonScaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
+    }
+
+    private void StopScaleAnimation()
+    {
+        ButtonScaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        ButtonScaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        InnerButton.CacheMode = null;
     }
 }
