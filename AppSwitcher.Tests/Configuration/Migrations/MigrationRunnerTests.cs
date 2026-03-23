@@ -92,9 +92,9 @@ public class MigrationRunnerTests : IDisposable
         var failing = new FakeMigration(version: 1, throws: true);
         var sut = CreateRunner(failing);
 
-        var act = () => sut.RunPending();
+        var result = sut.RunPending();
 
-        act.Should().ThrowExactly<InvalidOperationException>();
+        result.Should().BeFalse();
         _db.GetCollection<MigrationRecord>("_migrations").FindAll().Should().BeEmpty();
     }
 
@@ -105,9 +105,9 @@ public class MigrationRunnerTests : IDisposable
         var m2 = new FakeMigration(version: 2);
         var sut = CreateRunner(m1, m2);
 
-        var act = () => sut.RunPending();
+        var result = sut.RunPending();
 
-        act.Should().ThrowExactly<InvalidOperationException>();
+        result.Should().BeFalse();
         m2.RunCount.Should().Be(0);
     }
 }
