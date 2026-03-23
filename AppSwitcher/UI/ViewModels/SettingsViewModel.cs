@@ -102,7 +102,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         LoadConfiguration();
     }
 
-    private void LoadConfiguration()
+    public void LoadConfiguration()
     {
         var config = _configurationManager.GetConfiguration()!;
         ModifierKey = config.Modifier;
@@ -115,16 +115,28 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         var defaultIcon =
             _iconExtractor.GetByProcessName(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
-        Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app => new ApplicationShortcutViewModel
+        Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app =>
         {
-            Key = app.Key,
-            ProcessName = app.ProcessName,
-            ProcessPath = app.ProcessPath,
-            StartIfNotRunning = app.StartIfNotRunning,
-            CycleMode = app.CycleMode,
-            Type = app.Type,
-            Aumid = app.Aumid,
-            ProcessIcon = _iconExtractor.GetByProcessName(app.ProcessPath) ?? defaultIcon
+            var isPackaged = app.Type == ApplicationType.Packaged;
+            var packagedApp = isPackaged
+                ? _packagedAppsService.GetByAumid(app.Aumid!)
+                : null;
+
+            var processIcon = isPackaged
+                ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
+                : _iconExtractor.GetByProcessName(app.ProcessPath);
+
+            return new ApplicationShortcutViewModel
+            {
+                Key = app.Key,
+                ProcessName = app.ProcessName,
+                ProcessPath = app.ProcessPath,
+                StartIfNotRunning = app.StartIfNotRunning,
+                CycleMode = app.CycleMode,
+                Type = app.Type,
+                Aumid = app.Aumid,
+                ProcessIcon = processIcon ?? defaultIcon
+            };
         }).ToList());
 
         _originalSnapshot = CreateCurrentSnapshot();

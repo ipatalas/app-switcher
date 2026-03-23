@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 
 namespace AppSwitcher.Utils;
@@ -29,6 +30,25 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
             return null;
         }
 
+        return GetPackagedAppInfo(package);
+    }
+
+    public PackagedAppInfo? GetByAumid(string aumid)
+    {
+        var packageManager = new PackageManager();
+        var packageFamilyName = aumid.Split('!')[0];
+
+        var package = packageManager.FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
+        if (package == null)
+        {
+            return null;
+        }
+
+        return GetPackagedAppInfo(package);
+    }
+
+    private static PackagedAppInfo? GetPackagedAppInfo(Package package)
+    {
         var appListEntry = package.GetAppListEntries().FirstOrDefault();
         if (appListEntry == null)
         {
