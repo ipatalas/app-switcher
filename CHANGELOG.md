@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.7.3] - 2026-03-23
+- Fix support for Packaged Apps (e.g. Windows Terminal) - Windows 10 version 2004 (May 2020 Update, build 19041) or newer is required
+- Improve hotkey assignment appearance ("breathing" animation when assigning hotkey)
+- Change default cycle mode to NextWindow
+- Minor fixes
+
 ## [1.7.2] - 2026-03-13
 - Add installer (both installer and portable versions) to the release assets
 - Fix Settings window not showing up in foreground when opened with double-click on the tray icon
