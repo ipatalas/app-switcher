@@ -40,7 +40,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenSettings()
     {
-        _logger.LogInformation("Opening Settings window");
+        _logger.LogDebug("Opening Settings window");
 
         try
         {
@@ -77,7 +77,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ExitApplication()
     {
-        _logger.LogInformation("Exiting application");
+        _logger.LogInformation("Application exit requested");
         Application.Current.Shutdown();
     }
 }

@@ -108,7 +108,6 @@ public partial class App
         var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
         logger?.LogInformation("AppSwitcher shutting down");
 
-        _hook?.Dispose();
         (_serviceProvider as ServiceProvider)?.Dispose();
 #if !DEBUG
         _mutex?.Dispose();
