@@ -2,32 +2,29 @@ name: Deploy Website
 
 on:
   push:
-    tags:
-      - "v*"
     branches:
       - main
     paths:
       - "website/**"
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
 
 jobs:
   deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
       - name: Resolve version
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            # Triggered by a tag push — use it directly
-            echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
-          else
-            # Triggered by a website/ file change — fetch latest release tag
-            LATEST=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
-              | jq -r '.tag_name')
-            echo "VERSION=${LATEST}" >> $GITHUB_ENV
-          fi
+          LATEST=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+            | jq -r '.tag_name')
+          echo "VERSION=${LATEST}" >> $GITHUB_ENV
 
       - name: Inject version into HTML
         run: |
