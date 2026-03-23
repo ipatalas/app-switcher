@@ -828,33 +828,18 @@
       <div class="faq-item">
         <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-2"
           onclick="toggleFaq(this)">
-          Will AppSwitcher work with apps running as Administrator?
-          <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </button>
-        <div class="faq-a" id="faq-answer-2" aria-hidden="true">Not by default. Windows prevents a non-elevated app from
-          controlling elevated windows
-          (like Task Manager or an admin terminal). Since AppSwitcher runs without admin rights by default,
-          switching to those windows will silently fail. The fix is simple: run AppSwitcher as Administrator.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-3"
-          onclick="toggleFaq(this)">
           How do I change or remove a hotkey?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a" id="faq-answer-3" aria-hidden="true">Open the settings by double-clicking the tray icon, or
+        <div class="faq-a" id="faq-answer-2" aria-hidden="true">Open the settings by double-clicking the tray icon, or
           right-clicking it for the
           menu. All hotkey management is done from there.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-4"
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-3"
           onclick="toggleFaq(this)">
           Does AppSwitcher run on startup?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
@@ -862,12 +847,11 @@
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a" id="faq-answer-4" aria-hidden="true">Not by default, but it's easy to enable. Head to the
-          settings and toggle the startup
-          option — that's all it takes.</div>
+        <div class="faq-a" id="faq-answer-3" aria-hidden="true">Not by default, but it's easy to enable. Head to the
+          settings and toggle the startup option — that's all it takes.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-5"
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-4"
           onclick="toggleFaq(this)">
           Does AppSwitcher require .NET to be installed separately?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
@@ -875,12 +859,12 @@
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a" id="faq-answer-5" aria-hidden="true">No. See <a
+        <div class="faq-a" id="faq-answer-4" aria-hidden="true">It depends. See <a
             href="https://github.com/ipatalas/app-switcher#choosing-a-release" target="_blank" rel="noreferrer">Choosing
             a Release</a> for more information.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-7"
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-5"
           onclick="toggleFaq(this)">
           Which version of Windows does AppSwitcher require?
           <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
@@ -888,9 +872,9 @@
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        <div class="faq-a" id="faq-answer-7" aria-hidden="true">Windows 10 version 2004 (May 2020 Update, build 19041)
+        <div class="faq-a" id="faq-answer-5" aria-hidden="true">Windows 10 version 2004 (May 2020 Update, build 19041)
           or newer, including all Windows 11 versions. Older Windows 10 releases (1909 and earlier) are not supported
-          because AppSwitcher relies on WinRT APIs introduced in that update to detect and launch packaged (Store)
+          because AppSwitcher relies on WinRT APIs introduced to detect and launch packaged (Store)
           apps such as Windows Terminal.</div>
       </div>
       <div class="faq-item">
