@@ -117,3 +117,9 @@ jobs:
             AppSwitcher/Inno_Files/AppSwitcher SelfContained Installer.exe
           body: ${{ env.CHANGES }}
           make_latest: true
+
+  deploy-website:
+    needs: release
+    if: ${{ !inputs.draft }}
+    uses: ./.github/workflows/website.yml
+    secrets: inherit
