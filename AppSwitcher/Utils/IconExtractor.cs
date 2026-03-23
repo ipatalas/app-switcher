@@ -4,32 +4,26 @@ using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.Utils;
 
-public class IconExtractor(AppLocator appLocator)
+public class IconExtractor
 {
     private readonly Dictionary<string, ImageSource> _images = new();
 
-    public ImageSource? GetByProcessName(string processName)
+    public ImageSource? GetByProcessPath(string processPath)
     {
-        if (string.IsNullOrWhiteSpace(processName))
+        if (string.IsNullOrWhiteSpace(processPath))
         {
             return null;
         }
 
-        if (_images.TryGetValue(processName, out var imageSource))
+        if (_images.TryGetValue(processPath, out var imageSource))
         {
             return imageSource;
         }
 
-        var executablePath = appLocator.FindExecutablePath(processName);
-        if (executablePath == null)
-        {
-            return null;
-        }
-
-        var icon = LoadIconFromExe(executablePath);
+        var icon = LoadIconFromExe(processPath);
         if (icon != null)
         {
-            _images[processName] = icon;
+            _images[processPath] = icon;
             return icon;
         }
 

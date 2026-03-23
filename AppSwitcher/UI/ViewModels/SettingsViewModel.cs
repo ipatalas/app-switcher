@@ -113,7 +113,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         _dirtyTracker?.Dispose();
 
         var defaultIcon =
-            _iconExtractor.GetByProcessName(
+            _iconExtractor.GetByProcessPath(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
         Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app =>
         {
@@ -124,7 +124,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
             var processIcon = isPackaged
                 ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
-                : _iconExtractor.GetByProcessName(app.ProcessPath);
+                : _iconExtractor.GetByProcessPath(app.ProcessPath);
 
             return new ApplicationShortcutViewModel
             {
@@ -190,7 +190,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private void AddApplication(ApplicationSelectionArgs args)
     {
         var defaultIcon =
-            _iconExtractor.GetByProcessName(
+            _iconExtractor.GetByProcessPath(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
 
         var packagedApp = args.Type == ApplicationType.Packaged
@@ -199,7 +199,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
         var processIcon = args.Type == ApplicationType.Packaged
             ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
-            : _iconExtractor.GetByProcessName(args.ProcessPath);
+            : _iconExtractor.GetByProcessPath(args.ProcessPath);
 
         var viewModel = new ApplicationShortcutViewModel
         {

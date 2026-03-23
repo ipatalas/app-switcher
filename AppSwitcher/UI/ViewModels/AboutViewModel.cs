@@ -51,7 +51,7 @@ internal partial class AboutViewModel : ObservableObject
         _snackbarService = snackbarService;
         _windowHelper = windowHelper;
         _launchAtStartup = autoStart.IsEnabled();
-        AppIcon = iconExtractor.GetByProcessName(Environment.ProcessPath ?? string.Empty);
+        AppIcon = iconExtractor.GetByProcessPath(Environment.ProcessPath ?? string.Empty);
     }
 
     partial void OnLaunchAtStartupChanged(bool value)

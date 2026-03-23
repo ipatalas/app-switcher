@@ -25,7 +25,7 @@ internal class RunningApplicationsService(WindowHelper windowHelper, IconExtract
             .Select(item => new RunningApplicationInfo(
                 ProcessName: item.Name,
                 ProcessImageName: item.Path,
-                Icon: iconExtractor.GetByProcessName(item.Path),
+                Icon: iconExtractor.GetByProcessPath(item.Path),
                 IsPackagedApp: packagedApps.Contains(item.Directory)))
             .ToList();
     }
