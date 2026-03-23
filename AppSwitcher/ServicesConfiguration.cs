@@ -1,5 +1,6 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
+using AppSwitcher.Configuration.Migrations;
 using AppSwitcher.Extensions;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
@@ -37,6 +38,8 @@ internal static class ServicesConfiguration
 
         services.AddTransient<ConfigurationService>();
         services.AddTransient<ConfigurationValidator>();
+        services.AddTransient<MigrationRunner>();
+        services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();
         services.AddTransient<Hook>();
         services.AddTransient<WindowHelper>();
@@ -47,7 +50,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddSingleton<AppLocator>();
         services.AddTransient<RunningApplicationsService>();
-        services.AddTransient<PackagedAppsService>();
+        services.AddTransient<IPackagedAppsService, PackagedAppsService>();
 
         services.AddCliHandler();
 
@@ -56,7 +59,7 @@ internal static class ServicesConfiguration
         services.AddTransient<Settings>();
 
         // pages
-        services.AddImplementationsOf<Page>(ServiceLifetime.Transient);
+        services.AddImplementationsOf<Page>(ServiceLifetime.Transient, registerAsConcreteType: true);
 
         // view models
         services.AddTransient<MainWindowViewModel>();
@@ -96,7 +99,7 @@ internal static class ServicesConfiguration
         }
     }
 
-    private static IServiceCollection AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime)
+    private static IServiceCollection AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime, bool registerAsConcreteType = false)
     {
         var interfaceType = typeof(TInterface);
         var implementations = Assembly.GetExecutingAssembly().GetTypes()
@@ -104,7 +107,18 @@ internal static class ServicesConfiguration
 
         foreach (var implementation in implementations)
         {
-            services.TryAdd(new ServiceDescriptor(implementation, implementation, lifetime));
+            var serviceType = registerAsConcreteType ? implementation : interfaceType;
+            var serviceDescriptor = new ServiceDescriptor(serviceType, implementation, lifetime);
+
+            if (registerAsConcreteType)
+            {
+                services.TryAdd(serviceDescriptor);
+            }
+            else
+            {
+                // Allow multiple implementations for the same interface to be registered.
+                services.Add(serviceDescriptor);
+            }
         }
 
         return services;

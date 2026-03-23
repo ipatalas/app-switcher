@@ -16,7 +16,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
     private readonly ISnackbarService _snackbarService = null!;
-    private readonly PackagedAppsService _packagedAppsService = null!;
+    private readonly IPackagedAppsService _packagedAppsService = null!;
     private readonly ApplicationsValidator _validator = new();
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
@@ -93,7 +93,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
     }
 
-    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, PackagedAppsService packagedAppsService)
+    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService)
     {
         _configurationManager = configurationManager;
         _iconExtractor = iconExtractor;

@@ -5,7 +5,7 @@ using Windows.Management.Deployment;
 
 namespace AppSwitcher.Utils;
 
-public class PackagedAppsService(ILogger<PackagedAppsService> logger)
+internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPackagedAppsService
 {
     public IReadOnlySet<string> GetInstalledPaths()
     {
@@ -22,7 +22,8 @@ public class PackagedAppsService(ILogger<PackagedAppsService> logger)
         var packageManager = new PackageManager();
         var packages = packageManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main);
 
-        var package = packages.FirstOrDefault(p => path.StartsWith(p.InstalledPath, StringComparison.OrdinalIgnoreCase));
+        var package =
+            packages.FirstOrDefault(p => path.StartsWith(p.InstalledPath, StringComparison.OrdinalIgnoreCase));
         if (package == null)
         {
             return null;

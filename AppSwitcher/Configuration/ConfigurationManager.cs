@@ -1,3 +1,4 @@
+using AppSwitcher.Configuration.Migrations;
 using Microsoft.Extensions.Logging;
 
 namespace AppSwitcher.Configuration;
@@ -5,14 +6,25 @@ namespace AppSwitcher.Configuration;
 internal class ConfigurationManager(
     ConfigurationService configService,
     ConfigurationValidator configValidator,
+    MigrationRunner migrationRunner,
     ILogger<ConfigurationManager> logger)
 {
     private Configuration? _currentConfiguration;
+    private bool _migrationsRun;
 
     public event Action<Configuration>? ConfigurationChanged;
 
     public Configuration? GetConfiguration()
     {
+        if (!_migrationsRun)
+        {
+            if (!migrationRunner.RunPending())
+            {
+                return null;
+            }
+            _migrationsRun = true;
+        }
+
         if (_currentConfiguration is null)
         {
             LoadConfiguration();

@@ -6,7 +6,7 @@ namespace AppSwitcher.Utils;
 
 internal record RunningApplicationInfo(string ProcessName, string ProcessImageName, ImageSource? Icon, bool IsPackagedApp);
 
-internal class RunningApplicationsService(WindowHelper windowHelper, IconExtractor iconExtractor, PackagedAppsService packagedAppsService)
+internal class RunningApplicationsService(WindowHelper windowHelper, IconExtractor iconExtractor, IPackagedAppsService packagedAppsService)
 {
     public IReadOnlyList<RunningApplicationInfo> GetRunningApplications(IEnumerable<string> excludedProcessNames)
     {
