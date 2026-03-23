@@ -35,14 +35,24 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 
         foreach (var app in configuration.Applications)
         {
-            if (string.IsNullOrWhiteSpace(app.ProcessPath))
+            if (app.Type == ApplicationType.Packaged)
             {
-                return ValidationResult.Error("Application process must be set correctly");
+                if (string.IsNullOrWhiteSpace(app.Aumid))
+                {
+                    return ValidationResult.Error(app.ProcessName, "Packaged application AUMID must be set");
+                }
             }
-
-            if (!File.Exists(app.ProcessPath))
+            else
             {
-                return ValidationResult.Error("Application process path invalid - file does not exist");
+                if (string.IsNullOrWhiteSpace(app.ProcessPath))
+                {
+                    return ValidationResult.Error("Application process must be set correctly");
+                }
+
+                if (!File.Exists(app.ProcessPath))
+                {
+                    return ValidationResult.Error("Application process path invalid - file does not exist");
+                }
             }
 
             if (app.Key is Key.None or not (>=Key.A and <= Key.Z))

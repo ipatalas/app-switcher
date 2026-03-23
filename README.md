@@ -7,7 +7,7 @@ I couldn't find any similar application for Windows, so I've decided to create o
 
 ## Requirements
 
-- Windows 10 or newer
+- Windows 10 version 2004 (May 2020 Update, build 19041) or newer
 - .NET 8(or higher) Desktop Runtime — required unless using a self-contained release (see [Installation](#installation))
 
 ## Installation

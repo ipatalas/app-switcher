@@ -685,7 +685,7 @@
       </div>
       <a href="#demo" class="btn-secondary">See it in action</a>
     </div>
-    <p class="hero-meta">Windows 10 / 11 · Free · <strong>{{VERSION}}</strong></p>
+    <p class="hero-meta">Windows 10 2004+ / 11 · Free · <strong>{{VERSION}}</strong></p>
   </section>
 
   <!-- DEMO GIF -->
@@ -880,6 +880,20 @@
             a Release</a> for more information.</div>
       </div>
       <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-7"
+          onclick="toggleFaq(this)">
+          Which version of Windows does AppSwitcher require?
+          <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        <div class="faq-a" id="faq-answer-7" aria-hidden="true">Windows 10 version 2004 (May 2020 Update, build 19041)
+          or newer, including all Windows 11 versions. Older Windows 10 releases (1909 and earlier) are not supported
+          because AppSwitcher relies on WinRT APIs introduced in that update to detect and launch packaged (Store)
+          apps such as Windows Terminal.</div>
+      </div>
+      <div class="faq-item">
         <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-6"
           onclick="toggleFaq(this)">
           Why is Windows SmartScreen blocking the app?
@@ -926,7 +940,7 @@
           releases on GitHub →</a>
       </div>
     </div>
-    <p class="cta-meta">Windows 10 / 11 · No account required</p>
+    <p class="cta-meta">Windows 10 2004+ / 11 · No account required</p>
   </div>
   <!-- FOOTER -->
   <footer>

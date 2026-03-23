@@ -16,6 +16,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
     private readonly ISnackbarService _snackbarService = null!;
+    private readonly PackagedAppsService _packagedAppsService = null!;
     private readonly ApplicationsValidator _validator = new();
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
@@ -92,11 +93,12 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
     }
 
-    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService)
+    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, PackagedAppsService packagedAppsService)
     {
         _configurationManager = configurationManager;
         _iconExtractor = iconExtractor;
         _snackbarService = snackbarService;
+        _packagedAppsService = packagedAppsService;
         LoadConfiguration();
     }
 
@@ -120,6 +122,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             ProcessPath = app.ProcessPath,
             StartIfNotRunning = app.StartIfNotRunning,
             CycleMode = app.CycleMode,
+            Type = app.Type,
+            Aumid = app.Aumid,
             ProcessIcon = _iconExtractor.GetByProcessName(app.ProcessPath) ?? defaultIcon
         }).ToList());
 
@@ -160,7 +164,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
         return new SettingsSnapshot(ModifierIdleTimeoutMs, ModifierKey,
             Applications.Select(app =>
-                    new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode))
+                    new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode, app.Type, app.Aumid))
                 .ToList(),
             PulseBorderEnabled,
             Theme);
@@ -171,19 +175,28 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     public event Action<ApplicationShortcutViewModel>? ApplicationAdded;
 
     [RelayCommand]
-    private void AddApplication((string ProcessName, string ProcessPath) args)
+    private void AddApplication(ApplicationSelectionArgs args)
     {
-        var processName = args.ProcessName;
         var defaultIcon =
             _iconExtractor.GetByProcessName(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
+
+        var packagedApp = args.Type == ApplicationType.Packaged
+            ? _packagedAppsService.GetByInstalledPath(args.ProcessPath)
+            : null;
+
+        var processIcon = args.Type == ApplicationType.Packaged
+            ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
+            : _iconExtractor.GetByProcessName(args.ProcessPath);
 
         var viewModel = new ApplicationShortcutViewModel
         {
             Key = Key.None,
             ProcessPath = args.ProcessPath,
-            ProcessName = processName,
-            ProcessIcon = _iconExtractor.GetByProcessName(args.ProcessPath) ?? defaultIcon
+            ProcessName = args.ProcessName,
+            Type = args.Type,
+            Aumid = packagedApp?.Aumid,
+            ProcessIcon = processIcon ?? defaultIcon
         };
 
         Applications.Add(viewModel);
@@ -212,7 +225,9 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                         app.Key,
                         app.ProcessPath,
                         app.CycleMode,
-                        app.StartIfNotRunning)).ToList(),
+                        app.StartIfNotRunning,
+                        app.Type,
+                        app.Aumid)).ToList(),
                 PulseBorderEnabled,
                 Theme);
 
@@ -276,6 +291,8 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
     [ObservableProperty] private string _processPath = null!;
     [ObservableProperty] private bool _startIfNotRunning;
     [ObservableProperty] private CycleMode _cycleMode = CycleMode.NextWindow;
+    [ObservableProperty] private ApplicationType _type = ApplicationType.Win32;
+    [ObservableProperty] private string? _aumid;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasValidationError))]

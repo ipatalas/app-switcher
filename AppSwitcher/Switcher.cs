@@ -45,8 +45,17 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
         {
             if (appConfig.StartIfNotRunning)
             {
-                Process.Start(appConfig.ProcessPath);
-                logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
+                if (appConfig.Type == ApplicationType.Packaged)
+                {
+                    Process.Start("explorer.exe", $"shell:AppsFolder\\{appConfig.Aumid}");
+                    logger.LogInformation("Starting packaged app {ProcessName} via AUMID {Aumid}",
+                        appConfig.ProcessName, appConfig.Aumid);
+                }
+                else
+                {
+                    Process.Start(appConfig.ProcessPath);
+                    logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
+                }
                 return;
             }
             logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);

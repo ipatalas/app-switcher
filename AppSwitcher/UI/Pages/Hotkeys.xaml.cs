@@ -90,10 +90,10 @@ internal partial class Hotkeys : Page
         AddApplicationFlyout.FocusSearch();
     }
 
-    private void OnApplicationSelected(string processName, string processPath)
+    private void OnApplicationSelected(ApplicationSelectionArgs args)
     {
         AddFlyoutPopup.IsOpen = false;
-        _viewModel.AddApplicationCommand.Execute((processName, processPath));
+        _viewModel.AddApplicationCommand.Execute(args);
     }
 
     private void OnApplicationAdded(ApplicationShortcutViewModel addedVm)

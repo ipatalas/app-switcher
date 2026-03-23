@@ -26,7 +26,7 @@ public class IconExtractor(AppLocator appLocator)
             return null;
         }
 
-        var icon = LoadIcon(executablePath);
+        var icon = LoadIconFromExe(executablePath);
         if (icon != null)
         {
             _images[processName] = icon;
@@ -36,12 +36,22 @@ public class IconExtractor(AppLocator appLocator)
         return null;
     }
 
-    private static BitmapImage? LoadIcon(string path)
+    public ImageSource? GetByIconPath(string? iconPath)
     {
+        if (string.IsNullOrWhiteSpace(iconPath))
+        {
+            return null;
+        }
+
+        if (_images.TryGetValue(iconPath, out var imageSource))
+        {
+            return imageSource;
+        }
+
         try
         {
-            using var icon = Icon.ExtractAssociatedIcon(path);
-            return icon != null ? ConvertToImageSource(icon) : null;
+            var image = Image.FromFile(iconPath);
+            return ConvertToImageSource(image);
         }
         catch
         {
@@ -49,10 +59,23 @@ public class IconExtractor(AppLocator appLocator)
         }
     }
 
-    private static BitmapImage ConvertToImageSource(Icon icon)
+    private static BitmapImage? LoadIconFromExe(string path)
+    {
+        try
+        {
+            using var icon = Icon.ExtractAssociatedIcon(path);
+            return icon != null ? ConvertToImageSource(icon.ToBitmap()) : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static BitmapImage ConvertToImageSource(Image image)
     {
         using var stream = new MemoryStream();
-        icon.ToBitmap().Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+        image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
         stream.Seek(0, SeekOrigin.Begin);
 
         var bitmap = new BitmapImage();

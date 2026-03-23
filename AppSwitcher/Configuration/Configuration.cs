@@ -18,12 +18,14 @@ internal record Configuration(
     bool PulseBorderEnabled = true,
     AppThemeSetting Theme = AppThemeSetting.System);
 
-[DebuggerDisplay("{Key} -> {ProcessPath} (CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
+[DebuggerDisplay("{Key} -> {ProcessPath} (Type: {Type}, CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(
     Key Key,
     string ProcessPath,
     CycleMode CycleMode,
-    bool StartIfNotRunning)
+    bool StartIfNotRunning,
+    ApplicationType Type = ApplicationType.Win32,
+    string? Aumid = null)
 {
     public string ProcessName => Path.GetFileName(ProcessPath);
 }

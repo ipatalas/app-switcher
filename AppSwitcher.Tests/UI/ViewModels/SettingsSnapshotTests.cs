@@ -126,4 +126,62 @@ public class SettingsSnapshotTests
 
         a.GetHashCode().Should().Be(b.GetHashCode());
     }
+
+    // --- ApplicationShortcutSnapshot Type/Aumid equality ---
+
+    [Fact]
+    public void ApplicationShortcutSnapshot_Equals_ReturnsTrue_WhenTypeAndAumidMatch()
+    {
+        var a = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+        var b = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+
+        a.Should().Be(b);
+    }
+
+    [Fact]
+    public void ApplicationShortcutSnapshot_Equals_ReturnsFalse_WhenTypeDiffers()
+    {
+        var a = new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp,
+            ApplicationType.Win32);
+        var b = new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Some.App_xyz!App");
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void ApplicationShortcutSnapshot_Equals_ReturnsFalse_WhenAumidDiffers()
+    {
+        var a = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+        var b = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!DifferentApp");
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void ApplicationShortcutSnapshot_Type_DefaultsToWin32()
+    {
+        var snap = new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp);
+
+        snap.Type.Should().Be(ApplicationType.Win32);
+        snap.Aumid.Should().BeNull();
+    }
+
+    [Fact]
+    public void SettingsSnapshot_Equals_ReturnsFalse_WhenApplicationTypesDiffer()
+    {
+        var win32App = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Win32);
+        var packagedApp = new ApplicationShortcutSnapshot(Key.T, "WindowsTerminal.exe", false, CycleMode.NextApp,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+
+        var a = Default() with { Applications = [win32App] };
+        var b = Default() with { Applications = [packagedApp] };
+
+        a.Should().NotBe(b);
+    }
 }

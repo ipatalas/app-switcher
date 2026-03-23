@@ -47,6 +47,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddSingleton<AppLocator>();
         services.AddTransient<RunningApplicationsService>();
+        services.AddTransient<PackagedAppsService>();
 
         services.AddCliHandler();
 

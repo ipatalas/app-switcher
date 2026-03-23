@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net8.0-windows7.0": {
+    "net8.0-windows10.0.19041": {
       "CommunityToolkit.Mvvm": {
         "type": "Direct",
         "requested": "[8.4.0, )",
@@ -183,14 +183,14 @@
         "contentHash": "N4/ODw2F7yniiaEO6aEaxFC8aMJDJTGoeNNv3LLXFJs+qY2Flu9fMqFrRfcCFTk4ZKg1+guUB6Y0QKi6AGt88w=="
       }
     },
-    "net8.0-windows7.0/win-x64": {
+    "net8.0-windows10.0.19041/win-x64": {
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
         "resolved": "10.0.0",
         "contentHash": "bYdnhuD0XxcVTrxc8RyBjXo+AXYWJPnda3clhGz2Kakleyun1PyrzYV8RezT7ZYmR9OBSOgvpFQcvHo/K8Y90w=="
       }
     },
-    "net8.0-windows7.0/win-x86": {
+    "net8.0-windows10.0.19041/win-x86": {
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
         "resolved": "10.0.0",

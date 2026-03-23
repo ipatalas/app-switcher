@@ -14,8 +14,12 @@ internal class ApplicationConfigurationDocument
 
     public bool StartIfNotRunning { get; init; }
 
+    public ApplicationType Type { get; init; } = ApplicationType.Win32;
+
+    public string? Aumid { get; init; }
+
     public ApplicationConfiguration ToApplicationConfiguration() =>
-        new(Key, ProcessPath, CycleMode, StartIfNotRunning);
+        new(Key, ProcessPath, CycleMode, StartIfNotRunning, Type, Aumid);
 
     public static ApplicationConfigurationDocument FromApplicationConfiguration(ApplicationConfiguration config) =>
         new()
@@ -23,6 +27,8 @@ internal class ApplicationConfigurationDocument
             Key = config.Key,
             ProcessPath = config.ProcessPath,
             CycleMode = config.CycleMode,
-            StartIfNotRunning = config.StartIfNotRunning
+            StartIfNotRunning = config.StartIfNotRunning,
+            Type = config.Type,
+            Aumid = config.Aumid
         };
 }

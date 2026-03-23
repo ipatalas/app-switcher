@@ -18,6 +18,9 @@ public class ConfigurationValidatorTests
     private static ApplicationConfiguration MakeApp(Key key, string processPath) =>
         new(key, processPath, CycleMode.NextApp, false);
 
+    private static ApplicationConfiguration MakePackagedApp(Key key, string exeFilename, string? aumid) =>
+        new(key, exeFilename, CycleMode.NextApp, false, ApplicationType.Packaged, aumid);
+
     [Fact]
     public void ValidateAndLog_ReturnsSuccess_WhenNoApplicationsConfigured()
     {
@@ -145,5 +148,39 @@ public class ConfigurationValidatorTests
 
         result.Status.Should().Be(ValidationResultStatus.Error);
         result.Message.Should().Contain("process must be set correctly");
+    }
+
+    [Fact]
+    public void ValidateAndLog_ReturnsSuccess_ForPackagedApp_WithValidAumid()
+    {
+        var app = MakePackagedApp(Key.T, "WindowsTerminal.exe", "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+
+        var result = _sut.ValidateAndLog(MakeConfig(Key.LeftCtrl, app));
+
+        result.Status.Should().Be(ValidationResultStatus.Success);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ValidateAndLog_ReturnsError_ForPackagedApp_WhenAumidIsMissingOrWhitespace(string? aumid)
+    {
+        var app = MakePackagedApp(Key.T, "WindowsTerminal.exe", aumid);
+
+        var result = _sut.ValidateAndLog(MakeConfig(Key.LeftCtrl, app));
+
+        result.Status.Should().Be(ValidationResultStatus.Error);
+        result.Message.Should().Contain("AUMID");
+    }
+
+    [Fact]
+    public void ValidateAndLog_DoesNotCheckFileExistence_ForPackagedApp()
+    {
+        var app = MakePackagedApp(Key.T, "C:\\WindowsTerminal.exe", "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+
+        var result = _sut.ValidateAndLog(MakeConfig(Key.LeftCtrl, app));
+
+        result.Status.Should().Be(ValidationResultStatus.Success);
     }
 }

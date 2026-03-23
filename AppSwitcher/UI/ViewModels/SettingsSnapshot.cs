@@ -34,4 +34,6 @@ internal sealed record ApplicationShortcutSnapshot(
     Key Key,
     string ProcessName,
     bool StartIfNotRunning,
-    CycleMode CycleMode);
+    CycleMode CycleMode,
+    ApplicationType Type = ApplicationType.Win32,
+    string? Aumid = null);

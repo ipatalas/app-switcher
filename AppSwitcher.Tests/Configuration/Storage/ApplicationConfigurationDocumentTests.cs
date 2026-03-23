@@ -30,6 +30,30 @@ public class ApplicationConfigurationDocumentTests
     }
 
     [Fact]
+    public void ToApplicationConfiguration_MapsPackagedFields()
+    {
+        var doc = new ApplicationConfigurationDocument
+        {
+            Key = Key.T,
+            ProcessPath = "WindowsTerminal.exe",
+            CycleMode = CycleMode.Hide,
+            StartIfNotRunning = true,
+            Type = ApplicationType.Packaged,
+            Aumid = "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"
+        };
+
+        var result = doc.ToApplicationConfiguration();
+
+        result.Should().BeEquivalentTo(new ApplicationConfiguration(
+            Key: Key.T,
+            ProcessPath: "WindowsTerminal.exe",
+            CycleMode: CycleMode.Hide,
+            StartIfNotRunning: true,
+            Type: ApplicationType.Packaged,
+            Aumid: "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"));
+    }
+
+    [Fact]
     public void FromApplicationConfiguration_MapsAllFields()
     {
         var config = new ApplicationConfiguration(Key.W, @"C:\tools\app.exe", CycleMode.Hide, true);
@@ -41,7 +65,29 @@ public class ApplicationConfigurationDocumentTests
             Key = Key.W,
             ProcessPath = @"C:\tools\app.exe",
             CycleMode = CycleMode.Hide,
-            StartIfNotRunning = true
+            StartIfNotRunning = true,
+            Type = ApplicationType.Win32,
+            Aumid = null
+        });
+    }
+
+    [Fact]
+    public void FromApplicationConfiguration_MapsPackagedFields()
+    {
+        var config = new ApplicationConfiguration(
+            Key.T, "WindowsTerminal.exe", CycleMode.Hide, true,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
+
+        var result = ApplicationConfigurationDocument.FromApplicationConfiguration(config);
+
+        result.Should().BeEquivalentTo(new ApplicationConfigurationDocument
+        {
+            Key = Key.T,
+            ProcessPath = "WindowsTerminal.exe",
+            CycleMode = CycleMode.Hide,
+            StartIfNotRunning = true,
+            Type = ApplicationType.Packaged,
+            Aumid = "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"
         });
     }
 
@@ -49,9 +95,23 @@ public class ApplicationConfigurationDocumentTests
     [InlineData(CycleMode.NextApp)]
     [InlineData(CycleMode.Hide)]
     [InlineData(CycleMode.NextWindow)]
-    public void RoundTrip_PreservesAllData(CycleMode cycleMode)
+    public void RoundTrip_PreservesAllData_Win32(CycleMode cycleMode)
     {
         var original = new ApplicationConfiguration(Key.C, @"C:\apps\tool.exe", cycleMode, false);
+
+        var roundTripped = ApplicationConfigurationDocument
+            .FromApplicationConfiguration(original)
+            .ToApplicationConfiguration();
+
+        roundTripped.Should().Be(original);
+    }
+
+    [Fact]
+    public void RoundTrip_PreservesAllData_Packaged()
+    {
+        var original = new ApplicationConfiguration(
+            Key.T, "WindowsTerminal.exe", CycleMode.NextWindow, true,
+            ApplicationType.Packaged, "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App");
 
         var roundTripped = ApplicationConfigurationDocument
             .FromApplicationConfiguration(original)

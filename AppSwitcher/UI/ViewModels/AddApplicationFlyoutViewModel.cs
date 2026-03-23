@@ -1,3 +1,4 @@
+using AppSwitcher.Configuration;
 using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +22,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
     private readonly RunningApplicationsService _runningApplicationsService = null!;
 
-    public event Action<string, string>? ApplicationSelected;
+    public event Action<ApplicationSelectionArgs>? ApplicationSelected;
 
     [UsedImplicitly(Reason = "Design-time constructor")]
     public AddApplicationFlyoutViewModel()
@@ -31,9 +32,9 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         var explorerIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/explorer.png"));
 
         _filteredApplications = new ObservableCollection<RunningApplicationInfo>([
-            new("chrome.exe", "chrome.exe", chromeIcon),
-            new("notepad.exe", "notepad.exe", notepadIcon),
-            new("explorer.exe", "explorer.exe", explorerIcon)
+            new("chrome.exe", "chrome.exe", chromeIcon, false),
+            new("notepad.exe", "notepad.exe", notepadIcon, false),
+            new("explorer.exe", "explorer.exe", explorerIcon, false)
         ]);
     }
 
@@ -45,6 +46,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     public void Refresh(IEnumerable<string> excludedProcessNames)
     {
         SearchText = string.Empty;
+
         _allApplications = _runningApplicationsService.GetRunningApplications(excludedProcessNames);
         FilteredApplications = new ObservableCollection<RunningApplicationInfo>(_allApplications);
     }
@@ -61,7 +63,10 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     [RelayCommand]
     private void SelectApplication(RunningApplicationInfo application)
     {
-        ApplicationSelected?.Invoke(application.ProcessName, application.ProcessImageName);
+        ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
+            ProcessName: application.ProcessName,
+            ProcessPath: application.ProcessImageName,
+            Type: application.IsPackagedApp ? ApplicationType.Packaged : ApplicationType.Win32));
     }
 
     [RelayCommand]
@@ -76,7 +81,10 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-            ApplicationSelected?.Invoke(Path.GetFileName(dialog.FileName), dialog.FileName);
+            ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
+                ProcessName: Path.GetFileName(dialog.FileName),
+                ProcessPath: dialog.FileName,
+                Type: ApplicationType.Win32));
         }
     }
 }
