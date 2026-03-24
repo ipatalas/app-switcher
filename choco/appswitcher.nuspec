@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>appswitcher</id>
+    <version>0.0.0</version>
+    <title>AppSwitcher</title>
+    <authors>Ireneusz Patalas</authors>
+    <projectUrl>https://github.com/ipatalas/app-switcher</projectUrl>
+    <packageSourceUrl>https://github.com/ipatalas/app-switcher</packageSourceUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/ipatalas/app-switcher@main/AppSwitcher/Resources/app-switcher.png</iconUrl>
+    <licenseUrl>https://github.com/ipatalas/app-switcher/blob/main/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) Ireneusz Patalas</copyright>
+    <summary>Switch to any running window instantly using configurable global hotkeys.</summary>
+    <description>AppSwitcher is a Windows desktop application that lets you jump to any running window using a dedicated hotkey — no more Alt-Tabbing through a stack of windows.
+
+Inspired by rCmd for macOS, AppSwitcher lets you assign a global hotkey to any application so you can reach it in one keystroke.
+
+## Features
+
+- Assign global hotkeys to switch directly to any running window
+- Runs silently in the system tray
+- Optional autostart with Windows
+- Supports Windows 10 version 2004 (build 19041) or newer
+
+## Notes
+
+Requires .NET 8.0 or higher Desktop Runtime, automatically installed as a Chocolatey dependency.</description>
+    <releaseNotes>https://github.com/ipatalas/app-switcher/releases</releaseNotes>
+    <tags>window-switcher hotkey productivity switcher windows tray</tags>
+    <dependencies>
+      <dependency id="dotnet-8.0-desktopruntime" version="8.0.0" />
+    </dependencies>
+  </metadata>
+</package>

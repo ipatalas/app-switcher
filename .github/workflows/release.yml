@@ -86,6 +86,18 @@ jobs:
             /DProfileName=selfcontained
             /DAppVersion=${{ env.ver }}
 
+      - name: Compute installer checksum
+        run: |
+          $hash = (Get-FileHash "AppSwitcher/Inno_Files/AppSwitcher Installer.exe" -Algorithm SHA256).Hash
+          "installer_checksum=$hash" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Pack Chocolatey package
+        run: |
+          (Get-Content choco/tools/chocolateyInstall.ps1 -Raw) `
+            -replace '__CHECKSUM__', $env:installer_checksum |
+            Set-Content choco/tools/chocolateyInstall.ps1 -Encoding UTF8
+          choco pack choco/appswitcher.nuspec --version $env:ver --out .
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -114,6 +126,13 @@ jobs:
             AppSwitcher/Inno_Files/AppSwitcher SelfContained Installer.exe
           body: ${{ env.CHANGES }}
           make_latest: true
+
+      - name: Push Chocolatey package
+        if: ${{ !inputs.draft }}
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+        run: |
+          choco push "appswitcher.$($env:ver).nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
 
   deploy-website:
     needs: release
