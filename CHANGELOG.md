@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.7.4] - 2026-03-24
+- Fix migration failing on empty database
+
 ## [1.7.3] - 2026-03-23
 - Fix support for Packaged Apps (e.g. Windows Terminal) - Windows 10 version 2004 (May 2020 Update, build 19041) or newer is required
 - Improve hotkey assignment appearance ("breathing" animation when assigning hotkey)
