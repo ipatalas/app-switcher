@@ -122,7 +122,7 @@ begin
     RoamingDir := ExpandConstant('{userappdata}\AppSwitcher');
     LocalDir := ExpandConstant('{localappdata}\AppSwitcher');
 
-    if DirExists(RoamingDir) or DirExists(LocalDir) then
+    if not UninstallSilent and (DirExists(RoamingDir) or DirExists(LocalDir)) then
     begin
       if MsgBox('Do you want to delete all user data (settings and logs)?' #13#10 #13#10 +
                 'This will permanently remove your configurations.',
