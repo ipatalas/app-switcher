@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
-    <id>appswitcher</id>
+    <id>ipatalas-appswitcher</id>
     <version>0.0.0</version>
     <title>AppSwitcher</title>
     <authors>Ireneusz Patalas</authors>

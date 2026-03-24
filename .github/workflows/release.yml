@@ -96,7 +96,7 @@ jobs:
           (Get-Content choco/tools/chocolateyInstall.ps1 -Raw) `
             -replace '__CHECKSUM__', $env:installer_checksum |
             Set-Content choco/tools/chocolateyInstall.ps1 -Encoding UTF8
-          choco pack choco/appswitcher.nuspec --version $env:ver --out .
+          choco pack choco/ipatalas-appswitcher.nuspec --version $env:ver --out .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
@@ -132,7 +132,7 @@ jobs:
         env:
           CHOCO_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
         run: |
-          choco push "appswitcher.$($env:ver).nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
+          choco push "ipatalas-appswitcher.$($env:ver).nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
 
   deploy-website:
     needs: release
