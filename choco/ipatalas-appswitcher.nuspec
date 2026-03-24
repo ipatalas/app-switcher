@@ -6,7 +6,9 @@
     <title>AppSwitcher</title>
     <authors>Ireneusz Patalas</authors>
     <projectUrl>https://github.com/ipatalas/app-switcher</projectUrl>
+    <projectSourceUrl>https://github.com/ipatalas/app-switcher</projectSourceUrl>
     <packageSourceUrl>https://github.com/ipatalas/app-switcher</packageSourceUrl>
+    <bugTrackerUrl>https://github.com/ipatalas/app-switcher/issues</bugTrackerUrl>
     <iconUrl>https://cdn.jsdelivr.net/gh/ipatalas/app-switcher@main/AppSwitcher/Resources/app-switcher.png</iconUrl>
     <licenseUrl>https://github.com/ipatalas/app-switcher/blob/main/LICENSE.md</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
