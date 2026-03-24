@@ -33,6 +33,9 @@ Source: "bin\publish\{#ProfileName}\*"; DestDir: "{app}"; Excludes: ".portable";
 Name: "{userappdata}\AppSwitcher"; Flags: uninsneveruninstall
 Name: "{localappdata}\AppSwitcher"; Flags: uninsneveruninstall
 
+[UninstallDelete]
+Type: files; Name: "{userstartup}\AppSwitcher.lnk"
+
 [Icons]
 Name: "{group}\AppSwitcher"; Filename: "{app}\AppSwitcher.exe"
 Name: "{commondesktop}\AppSwitcher"; Filename: "{app}\AppSwitcher.exe"; Tasks: desktopicon
