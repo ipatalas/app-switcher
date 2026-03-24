@@ -54,6 +54,14 @@ public class FixPackagedAppsMigrationTests : IDisposable
     }
 
     [Fact]
+    public void Up_DoesNotThrow_WhenDatabaseIsEmpty()
+    {
+        var act = () => _sut.Up(_db);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Up_SetsTypeToPackaged_WhenWin32PathMatchesInstalledPackage()
     {
         const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";

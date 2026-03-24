@@ -27,9 +27,9 @@ public class MigrationRunnerTests : IDisposable
     {
         var sut = CreateRunner();
 
-        var act = () => sut.RunPending();
+        var result = sut.RunPending();
 
-        act.Should().NotThrow();
+        result.Should().BeTrue();
     }
 
     [Fact]

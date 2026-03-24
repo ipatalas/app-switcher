@@ -16,6 +16,12 @@ internal class FixPackagedAppsMigration(IPackagedAppsService packagedAppsService
         var collection = db.GetCollection<SettingsDocument>(SettingsCollectionName);
         var document = collection.FindById(SettingsDocumentId);
 
+        if (document is null)
+        {
+            // first run of the application won't have any settings yet
+            return;
+        }
+
         var updatedApps = new List<ApplicationConfigurationDocument>();
         var changed = false;
 
