@@ -1,34 +1,66 @@
 # AppSwitcher
 
-AppSwitcher is a free Windows application that lets you switch to any open app instantly using a hotkey — no more Alt+Tab cycling.
-Assign a key combination to each app you use (e.g. `Apps+C` → VS Code, `Apps+T` → Terminal) and jump there directly.
+**Stop hunting. Start teleporting.**
 
-Inspired by [rCmd](https://lowtechguys.com/rcmd/) for Mac.
+![Windows Support](https://img.shields.io/badge/Windows-10%202004+%20/%2011-blue)
+
+I spend my workdays on macOS and my evenings on Windows. After using [rCmd](https://lowtechguys.com/rcmd/) on Mac, I stopped searching for windows and started using muscle memory to jump to them.
+
+Back on Windows, Alt+Tab felt slow and unpredictable for the same workflow, so I built AppSwitcher.
+
+[**Download Latest Release**](https://app-switcher.com/) | [**Portable (.zip)**](https://github.com/ipatalas/app-switcher/releases)
 
 <details>
 <summary>▶ See it in action</summary>
 <video src="https://github.com/user-attachments/assets/19c24843-4465-41b0-ac8d-437cccc3430d" controls width="100%"></video>
 </details>
 
-## Trust & Transparency
+---
 
-AppSwitcher uses a system-wide keyboard hook to detect your hotkeys — which can sound alarming. Here's why you can trust it:
+## 🚀 Why use this?
 
-- 🔍 **Open Source** — the full source code is publicly available. Read every line and see exactly what it does.
-- 📵 **100% Offline** — never connects to the internet. No auto-updates, no telemetry, no servers. Block it in your firewall — it will work fine.
-- 🔒 **Minimal Privileges** — runs without administrator rights by default.
+Alt+Tab is MRU (Most Recently Used), so the order keeps shifting. You have to look, scan, and tap.
+
+AppSwitcher uses static hotkeys:
+
+- `Apps+C` -> always Chrome
+- `Apps+V` -> always VS Code
+- `Apps+T` -> always Terminal
+
+You stop thinking about where a window is and just jump there.
+
+## ✨ Key features
+
+- **Three Intelligent Cycle Modes:**
+    * `NextApp`: Cycle between different apps assigned to the same key.
+    * `NextWindow`: Cycle through all open windows of a *single* app (great for multi-instance browsers).
+    * `Hide`: Minimize the app if you press the hotkey while it's already focused (the ultimate "toggle").
+- **Start if not running:** optional per-app setting to start the app when no matching process is running.
+- **Packaged app support:** works with modern Windows packaged apps (for example Windows Terminal) in addition to classic desktop apps.
+- **Lightweight desktop app:** native C#/.NET app with a tray-first workflow.
+
+## 🔒 Power user ethics
+
+AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exactly why transparency matters.
+
+- **Open source:** review the code and verify behavior yourself.
+- **100% offline:** no telemetry, no auto-updates, no backend service.
+- **No admin required by default:** runs in user space.
+- **Portable option:** use the ZIP build if you want a no-installer workflow.
 
 > **Windows SmartScreen may appear on first launch.**
-> As an independent release, AppSwitcher hasn't built up a reputation with Microsoft yet. It's completely safe — click **More info** then **Run anyway** to proceed.
+> As an independent release, AppSwitcher has not built strong SmartScreen reputation yet. If prompted, click **More info** then **Run anyway**.
 
-## Requirements
+---
 
-- Windows 10 version 2004 (May 2020 Update, build 19041) or newer
-- .NET 8(or higher) Desktop Runtime — required unless using a self-contained release (see [Installation](#installation))
+## 💽 Installation and requirements
 
-## Installation
+### Requirements
 
-### Choosing a release
+- Windows 10 version 2004 (build 19041) or newer, or Windows 11
+- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) for non-self-contained builds
+
+### Choose a release
 
 | Release | Requires .NET installed | Installer |
 |---|---|---|
@@ -37,37 +69,32 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys — which ca
 | **Portable** | Yes | No |
 | **Portable self-contained** | No | No |
 
-- **Installer** — recommended for most users. Runs a setup wizard and adds AppSwitcher to Programs. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
-- **Installer self-contained** — same as above but bundles the .NET runtime, so no separate install is needed. Larger download (~45 MB vs ~5 MB).
-- **Portable** — just a ZIP, no setup. Extract anywhere and run `AppSwitcher.exe`. Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
-- **Portable self-contained** — ZIP with the .NET runtime bundled. Extract and run, no dependencies.
+- **Installer** - recommended for most users. Runs setup and adds AppSwitcher to Programs.
+- **Installer self-contained** - bundles .NET runtime, larger download.
+- **Portable** - ZIP only, no setup. Extract and run `AppSwitcher.exe`.
+- **Portable self-contained** - ZIP with bundled runtime, no separate dependency.
 
 ### Steps
 
-1. Download the latest release from the [releases page](https://github.com/ipatalas/app-switcher/releases)
-2. Run the installer or unzip the archive
-3. Run `AppSwitcher.exe`
+1. Download from [app-switcher.com](https://app-switcher.com/) or [GitHub releases](https://github.com/ipatalas/app-switcher/releases).
+2. Run the installer, or extract the ZIP archive.
+3. Start `AppSwitcher.exe`.
 
-The application will start in the background. You can see it by checking the icon in the system tray.
-Open the Settings window from the tray icon to configure your hotkeys and preferences.
+The app starts in the background. Open Settings from the system tray icon to configure hotkeys.
 
-> Note: Configured modifier will be suppressed and won't be passed to the active application.
-> This is to avoid any side effects in foreground application. However, if modifier is pressed without any letter key it will be passed to the active application as usual.
-> That means if your modifier is `Apps` key you can still use it to open the context menu by pressing it without any letter key.
+## ⌨️ Set up your first hotkey
 
-## How to use
+1. Right-click the tray icon and open **Settings**.
+2. Add a hotkey and choose the target app.
+3. Pick a modifier and a letter key.
+4. Optional: enable **Start if not running** for that app.
 
-Each hotkey can be defined as a combination of a modifier key (Ctrl, Alt, [Apps](https://en.wikipedia.org/wiki/Menu_key)) and a letter key (A-Z).
-For example, you can switch to Notepad by pressing `Apps+N` or to Windows Terminal by pressing `Apps+T`.
-If a hotkey is pressed and the application is not running it will NOT be started by default.
-Pressing a hotkey for an application that is already running will bring it to the front. Also, if the application is minimized it will be restored.
-Every hotkey that is defined in the configuration will be available system-wide, will be suppressed and won't reach foreground application.
-That means that if you have a hotkey defined as `Ctrl+V` and you press it while working in Notepad the hotkey won't be passed to Notepad, hence nothing will be pasted.
-Bear that in mind when defining hotkeys.
+Tip: the `Menu/Apps` key is often an excellent modifier because it is usually unused as a shortcut modifier.
 
-### CLI commands
+## ⌘ CLI commands
 
-Simply run the following command:
+Run:
+
 ```shell
 AppSwitcher.exe <command>
 ```
@@ -76,32 +103,18 @@ Available commands:
 
 | Command               | Description                                                            |
 |-----------------------|------------------------------------------------------------------------|
-| `--log-all-windows`   | Log all windows to the log file, might be useful when troubleshooting  |
+| `--log-all-windows`   | Log all windows to the log file, useful when troubleshooting           |
 | `--enable-auto-start` | Enable application auto start on system boot                           |
 | `--debug`             | Enable debug logging, useful for troubleshooting, do not use otherwise |
 | `--trace`             | Enable trace logging, useful for troubleshooting, do not use otherwise |
 | `--help`              | Show the help message with available commands                          |
 
+## 🛠 Technical notes and known issues
 
-## Features
+- Configured modifier down/up events are suppressed to avoid side effects in foreground apps.
+- Pressing modifier alone (without letter key) still works as usual. For example, `Apps` alone can still open context menu.
+- If you assign common shortcuts (for example `Ctrl+V`) as AppSwitcher hotkeys, those combinations will be intercepted system-wide and will not reach the foreground app.
+- Complex shortcuts may conflict. Example: if `Ctrl` is your configured modifier, an app shortcut like `Ctrl+Shift+T` may fail because `Ctrl` is suppressed before the full combo reaches the app.
+- Elevated windows limitation (UIPI): when an administrator app is focused, AppSwitcher hotkeys will not be intercepted unless AppSwitcher is also run as Administrator.
 
-### Cycle mode
-
-By default, the application will be brought to the front if it's running but subsequently pressing the hotkey will do nothing.
-You can change this behavior via the cycle mode setting per each application.
-Available options are:
-
-- `NextApp` - the default behavior, cycles between applications assigned to the same letter
-- `Hide` - if the application is currently active it will be hidden - this is useful to quickly toggle an application
-- `NextWindow` - if the application is currently active the next window of the same application will be brought to the front
-
-### Start if not running
-
-If you want to start the application if it's not running you can enable the `Start if not running` option per each application configuration.
-
-## Known issues
-
-Configured modifier key down and up events are being suppressed to avoid side effects (e.g. if your modifier is `Apps` a context menu would open when switching between apps).
-That has a downside that if your have a complex shortcut with multiple modifiers (e.g. `Ctrl+Shift+T`) and one of these modifiers is configured in AppSwitcher (e.g. `Ctrl`) the shortcut won't work at all because `Ctrl` key down event will be suppressed and the application will never receive the full shortcut (`Ctrl+Shift+T`).
-Bear that in mind when choosing your modifier. My recommendation is to use `Apps` key as a modifier because it's not used as a modifier in general so there should be no conflict here. 
-Pressing `Apps` key without any letter key will still work as expected and open the context menu.
+Inspired by [rCmd](https://apps.apple.com/app/rcmd-app-switcher/id1596483192) for macOS.
