@@ -63,6 +63,11 @@
                         <ui:SymbolIcon Symbol="AppsList24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Overlay" TargetPageType="{x:Type pages:Overlay}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="LayerDiagonal20" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="About" TargetPageType="{x:Type pages:About}">

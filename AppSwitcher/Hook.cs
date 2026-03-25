@@ -23,7 +23,7 @@ internal class Hook(
     {
         _config = config;
         modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
-        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), 1500);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -43,6 +43,7 @@ internal class Hook(
     public void UpdateConfiguration(Configuration.Configuration config)
     {
         _config = config;
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         // Reset state when configuration changes (especially if modifier key changes)
         ResetModifierState();
     }
@@ -93,7 +94,7 @@ internal class Hook(
             // Restart timer on each key repeat
             modifierIdleTimer.Restart();
 
-            if (!wasModifierDown) // first press only — not a key repeat
+            if (!wasModifierDown && _config!.OverlayEnabled) // first press only — not a key repeat
             {
                 overlayShowTimer.Start();
             }

@@ -13,7 +13,9 @@ public class SettingsSnapshotTests
         ModifierKey: Key.LeftCtrl,
         Applications: [new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp)],
         PulseBorderEnabled: true,
-        Theme: AppThemeSetting.System);
+        Theme: AppThemeSetting.System,
+        OverlayEnabled: true,
+        OverlayShowDelayMs: 1000);
 
     [Fact]
     public void Equals_ReturnsTrue_WhenAllFieldsAreEqual()

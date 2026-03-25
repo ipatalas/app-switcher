@@ -18,13 +18,19 @@ internal class SettingsDocument
 
     public AppThemeSetting Theme { get; init; } = AppThemeSetting.System;
 
+    public bool OverlayEnabled { get; init; } = true;
+
+    public int OverlayShowDelayMs { get; init; } = 1000;
+
     public Configuration ToConfiguration() =>
         new(
             ModifierIdleTimeoutMs,
             Modifier,
             Applications.Select(a => a.ToApplicationConfiguration()).ToList(),
             PulseBorderEnabled,
-            Theme);
+            Theme,
+            OverlayEnabled,
+            OverlayShowDelayMs);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -36,6 +42,8 @@ internal class SettingsDocument
                 .Select(ApplicationConfigurationDocument.FromApplicationConfiguration)
                 .ToList(),
             PulseBorderEnabled = config.PulseBorderEnabled,
-            Theme = config.Theme
+            Theme = config.Theme,
+            OverlayEnabled = config.OverlayEnabled,
+            OverlayShowDelayMs = config.OverlayShowDelayMs
         };
 }

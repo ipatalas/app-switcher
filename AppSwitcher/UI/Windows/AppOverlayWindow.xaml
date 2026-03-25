@@ -100,6 +100,16 @@
 
             <!-- Launchable apps section -->
             <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasLaunchableApps}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
                 <TextBlock Text="Launchable apps"
                            FontSize="11"
                            Opacity="0.6"
@@ -108,25 +118,7 @@
 
                 <ItemsControl ItemsSource="{Binding LaunchableApps}"
                               ItemTemplate="{StaticResource AppItemTemplate}" />
-
-                <!-- Empty state — visible when HasLaunchableApps is False -->
-                <TextBlock Text="No launchable apps"
-                           FontSize="13"
-                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                           Opacity="0.5">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding HasLaunchableApps}" Value="False">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
             </StackPanel>
-
         </StackPanel>
     </Border>
 </Window>
