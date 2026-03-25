@@ -6,7 +6,8 @@ on:
       - "**"
     paths-ignore:
       - "website/**"
-      - ".github/workflows/website.yml"
+      - ".github/workflows/*.yml"
+      - "!.github/workflows/ci.yml"
       - "*.md"
 
 jobs:
