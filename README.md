@@ -1,9 +1,25 @@
 # AppSwitcher
 
-AppSwitcher is a simple Windows application that allows you to switch between running applications using a hotkey.
-Instead of using Alt-Tab you can have predefined hotkeys to switch to particular applications.
-I've been using similar application ([rCmd](https://lowtechguys.com/rcmd/)) for Mac recently and this has completely changed the way I switch between applications.
-I couldn't find any similar application for Windows, so I've decided to create one.
+AppSwitcher is a free Windows application that lets you switch to any open app instantly using a hotkey — no more Alt+Tab cycling.
+Assign a key combination to each app you use (e.g. `Apps+C` → VS Code, `Apps+T` → Terminal) and jump there directly.
+
+Inspired by [rCmd](https://lowtechguys.com/rcmd/) for Mac.
+
+<details>
+<summary>▶ See it in action</summary>
+<video src="https://github.com/user-attachments/assets/19c24843-4465-41b0-ac8d-437cccc3430d" controls width="100%"></video>
+</details>
+
+## Trust & Transparency
+
+AppSwitcher uses a system-wide keyboard hook to detect your hotkeys — which can sound alarming. Here's why you can trust it:
+
+- 🔍 **Open Source** — the full source code is publicly available. Read every line and see exactly what it does.
+- 📵 **100% Offline** — never connects to the internet. No auto-updates, no telemetry, no servers. Block it in your firewall — it will work fine.
+- 🔒 **Minimal Privileges** — runs without administrator rights by default.
+
+> **Windows SmartScreen may appear on first launch.**
+> As an independent release, AppSwitcher hasn't built up a reputation with Microsoft yet. It's completely safe — click **More info** then **Run anyway** to proceed.
 
 ## Requirements
 
