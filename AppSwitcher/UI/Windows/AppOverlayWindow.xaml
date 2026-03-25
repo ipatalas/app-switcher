@@ -1,0 +1,132 @@
+<Window x:Class="AppSwitcher.UI.Windows.AppOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        SizeToContent="WidthAndHeight"
+        d:DataContext="{d:DesignInstance viewModels:AppOverlayViewModel}">
+
+    <Window.Resources>
+        <!-- App row item template -->
+        <DataTemplate x:Key="AppItemTemplate" DataType="{x:Type viewModels:OverlayAppItem}">
+            <Grid Height="32">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- App icon -->
+                <Image Grid.Column="0"
+                       Source="{Binding Icon}"
+                       Width="20"
+                       Height="20"
+                       Margin="0,0,8,0"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                <!-- App name -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Name}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           FontSize="13"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <!-- Hotkey key badge — Secondary appearance matches KeyAssignmentButton style in Settings -->
+                <ui:Button Grid.Column="2"
+                           Content="{Binding HotkeyKey}"
+                           Appearance="Secondary"
+                           Width="26"
+                           Height="26"
+                           Padding="1"
+                           MinWidth="0"
+                           IsHitTestVisible="False"
+                           Focusable="False"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!-- Floating card container — ApplicationBackgroundBrush is fully opaque, avoiding see-through artefacts -->
+    <Border CornerRadius="12"
+            Padding="16"
+            MinWidth="240"
+            Background="{DynamicResource ApplicationBackgroundBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1">
+        <StackPanel>
+
+            <!-- Running apps section -->
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Text="Running apps"
+                           FontSize="11"
+                           Opacity="0.6"
+                           Margin="0,0,0,6"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <ItemsControl ItemsSource="{Binding RunningApps}"
+                              ItemTemplate="{StaticResource AppItemTemplate}" />
+
+                <!-- Empty state — visible when HasRunningApps is False -->
+                <TextBlock Text="No running apps"
+                           FontSize="13"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                           Opacity="0.5">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasRunningApps}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+            <!-- Launchable apps section -->
+            <StackPanel>
+                <TextBlock Text="Launchable apps"
+                           FontSize="11"
+                           Opacity="0.6"
+                           Margin="0,0,0,6"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <ItemsControl ItemsSource="{Binding LaunchableApps}"
+                              ItemTemplate="{StaticResource AppItemTemplate}" />
+
+                <!-- Empty state — visible when HasLaunchableApps is False -->
+                <TextBlock Text="No launchable apps"
+                           FontSize="13"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                           Opacity="0.5">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasLaunchableApps}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</Window>

@@ -93,6 +93,9 @@ public partial class App
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
 
+        // Eagerly create the overlay window singleton so it is ready before the hook starts.
+        _serviceProvider.GetRequiredService<AppOverlayWindow>();
+
         _hook = _serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
 

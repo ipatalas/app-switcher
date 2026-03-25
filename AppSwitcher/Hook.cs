@@ -6,7 +6,12 @@ using System.Windows.Input;
 
 namespace AppSwitcher;
 
-internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer modifierIdleTimer) : IDisposable
+internal class Hook(
+    ILogger<Hook> logger,
+    Switcher switcher,
+    ModifierIdleTimer modifierIdleTimer,
+    OverlayShowTimer overlayShowTimer,
+    AppOverlayService overlayService) : IDisposable
 {
     private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
@@ -18,6 +23,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     {
         _config = config;
         modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), 1500);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -77,6 +83,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
 
     private void HandleModifierKeyPress(KeyboardHookEventArgs e)
     {
+        var wasModifierDown = _modifierDown;
         _modifierDown = e.IsKeyDown();
         e.SuppressKeyPress = true;
 
@@ -85,19 +92,32 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
             _letterKeyPressedWithModifier = false;
             // Restart timer on each key repeat
             modifierIdleTimer.Restart();
+
+            if (!wasModifierDown) // first press only — not a key repeat
+            {
+                overlayShowTimer.Start();
+            }
         }
         else if (!_letterKeyPressedWithModifier) // modifier up without any letter key pressed
         {
+            var wasOverlayVisible = overlayService.IsVisible;
+            overlayShowTimer.Cancel();
+            overlayService.Hide();
             modifierIdleTimer.Cancel();
 
-            // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
-            // This allows the modifier key to function normally when pressed and released on its own
-            // without interfering with the app switching functionality
-            var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
-            logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
+            if (!wasOverlayVisible)
+            {
+                // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
+                // This allows the modifier key to function normally when pressed and released on its own
+                // without interfering with the app switching functionality
+                var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
+                logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
+            }
         }
         else // modifier up after letter key was pressed
         {
+            overlayShowTimer.Cancel();
+            overlayService.Hide();
             modifierIdleTimer.Cancel();
         }
     }
@@ -127,6 +147,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
 
                     logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                     switcher.Execute(matchingApps);
+                    overlayService.Hide();
 
                     modifierIdleTimer.Restart();
                 }
@@ -145,6 +166,8 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     {
         _modifierDown = false;
         _suppressedLetterKeys.Clear();
+        overlayShowTimer.Cancel();
+        overlayService.Hide();
         modifierIdleTimer.Cancel();
     }
 }
