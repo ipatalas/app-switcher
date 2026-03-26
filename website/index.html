@@ -248,6 +248,67 @@
       color: var(--muted);
     }
 
+    .install-command {
+      margin-top: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .install-command-label {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .install-command-code {
+      font-family: Consolas, 'Courier New', monospace;
+      color: var(--text);
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .install-command-copy {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+
+    .install-command-copy:hover,
+    .install-command-copy:focus-visible {
+      color: var(--text);
+    }
+
+    .install-command-copy:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     /* DEMO GIF */
     .demo {
       max-width: 860px;
@@ -680,6 +741,9 @@
           <a href="https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher-portable.zip">🗜️
             Portable (.zip) <span class="dl-sub">No install needed</span></a>
           <div class="dl-divider"></div>
+          <a href="https://community.chocolatey.org/packages/ipatalas-appswitcher" target="_blank" rel="noreferrer">🍫
+            Chocolatey <span class="dl-sub">choco install</span></a>
+          <div class="dl-divider"></div>
           <a class="muted-link" href="https://github.com/ipatalas/app-switcher/releases">All
             releases on GitHub →</a>
         </div>
@@ -687,6 +751,19 @@
       <a href="#demo" class="btn-secondary">See it in action</a>
     </div>
     <p class="hero-meta">Windows 10 2004+ / 11 · Free · <strong>{{VERSION}}</strong></p>
+    <div class="install-command">
+      <span class="install-command-label">via Chocolatey:</span>
+      <code class="install-command-code">choco install ipatalas-appswitcher</code>
+      <button class="install-command-copy" type="button" aria-label="Copy Chocolatey install command"
+        onclick="copyChoco(this)">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+          aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      </button>
+      <span class="visually-hidden" aria-live="polite"></span>
+    </div>
   </section>
 
   <!-- DEMO GIF -->
@@ -988,6 +1065,32 @@
         answer.classList.add('open');
         answer.setAttribute('aria-hidden', 'false');
       }
+    }
+
+    const copyIconMarkup = '<rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+    const copiedIconMarkup = '<polyline points="20 6 9 17 4 12"></polyline>';
+
+    function setCopyFeedback(button, statusText, iconMarkup, ariaLabel) {
+      const icon = button.querySelector('svg');
+      const status = button.parentElement.querySelector('.visually-hidden');
+
+      icon.innerHTML = iconMarkup;
+      button.setAttribute('aria-label', ariaLabel);
+      status.textContent = statusText;
+
+      clearTimeout(button._copyResetTimeout);
+      button._copyResetTimeout = setTimeout(() => {
+        icon.innerHTML = copyIconMarkup;
+        button.setAttribute('aria-label', 'Copy Chocolatey install command');
+        status.textContent = '';
+      }, 1500);
+    }
+
+    async function copyChoco(button) {
+      const command = button.parentElement.querySelector('.install-command-code').textContent.trim();
+
+      await navigator.clipboard.writeText(command);
+      setCopyFeedback(button, 'Copied Chocolatey install command', copiedIconMarkup, 'Copied Chocolatey install command');
     }
   </script>
 
