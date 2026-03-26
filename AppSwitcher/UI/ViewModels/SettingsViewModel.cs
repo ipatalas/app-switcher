@@ -208,7 +208,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             ProcessName = args.ProcessName,
             Type = args.Type,
             Aumid = packagedApp?.Aumid,
-            ProcessIcon = processIcon ?? defaultIcon
+            ProcessIcon = processIcon ?? defaultIcon,
+            StartIfNotRunning = true
         };
 
         Applications.Add(viewModel);
