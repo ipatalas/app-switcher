@@ -78,13 +78,18 @@
 
     </Window.Resources>
 
-    <!-- Floating card container -->
-    <Border CornerRadius="12"
-            Padding="16"
-            MinWidth="240"
-            Background="{DynamicResource ApplicationBackgroundBrush}"
-            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1">
+    <!-- Shadow clearance — gives DropShadowEffect room to render outside the card bounds -->
+    <Border Padding="16">
+
+        <!-- Floating card container -->
+        <Border x:Name="CardBorder"
+                CornerRadius="12"
+                Padding="16"
+                MinWidth="240"
+                Background="{DynamicResource SolidBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                Opacity="0.95">
         <StackPanel>
 
             <!-- Focused app windows section — visible only when a NextWindow app is in the foreground -->
@@ -163,5 +168,7 @@
             </StackPanel>
 
         </StackPanel>
+        </Border>
+
     </Border>
 </Window>
