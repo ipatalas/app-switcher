@@ -15,9 +15,9 @@ public partial class AppOverlayViewModel : ObservableObject
     public ObservableCollection<OverlayAppItem> RunningApps { get; } = [];
     public ObservableCollection<OverlayAppItem> LaunchableApps { get; } = [];
 
-    public bool HasFocusedAppWindows => FocusedAppWindows.Count > 0;
-    public bool HasRunningApps => RunningApps.Count > 0;
-    public bool HasLaunchableApps => LaunchableApps.Count > 0;
+    public bool ShowFocusedAppWindows => FocusedAppWindows.Count > 1;
+    public bool ShowRunningApps => RunningApps.Count > 0;
+    public bool ShowLaunchableApps => LaunchableApps.Count > 0;
 
     [ObservableProperty]
     private string? _focusedAppName;
@@ -73,8 +73,8 @@ public partial class AppOverlayViewModel : ObservableObject
 
         FocusedAppName = focusedAppName;
 
-        OnPropertyChanged(nameof(HasFocusedAppWindows));
-        OnPropertyChanged(nameof(HasRunningApps));
-        OnPropertyChanged(nameof(HasLaunchableApps));
+        OnPropertyChanged(nameof(ShowFocusedAppWindows));
+        OnPropertyChanged(nameof(ShowRunningApps));
+        OnPropertyChanged(nameof(ShowLaunchableApps));
     }
 }

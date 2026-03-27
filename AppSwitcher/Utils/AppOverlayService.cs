@@ -57,7 +57,7 @@ internal class AppOverlayService(
         IReadOnlyList<ApplicationConfiguration> applications)
     {
         var focusedWindows = windowHelper.GetFocusedAppWindows(allWindows, applications);
-        if (focusedWindows.Count < 2)
+        if (focusedWindows.Count < 1)
         {
             return (null, []);
         }
@@ -86,11 +86,14 @@ internal class AppOverlayService(
             .Select((w, i) => new OverlayAppItem(IndexToKey(i), w.Title, iconExtractor.GetByProcessPath(w.ProcessPath), w.IsActive))
             .ToList();
 
+        var processPath = focusedWindows.FirstOrDefault()?.ProcessPath;
+
         var running = new List<OverlayAppItem>();
         var launchable = new List<OverlayAppItem>();
         foreach (var app in appSnapshots)
         {
-            var item = new OverlayAppItem(app.Key, app.DisplayName, iconExtractor.GetByProcessPath(app.ProcessPath));
+            var isActive = app.ProcessPath == processPath;
+            var item = new OverlayAppItem(app.Key, app.DisplayName, iconExtractor.GetByProcessPath(app.ProcessPath), isActive);
             (app.IsRunning ? running : launchable).Add(item);
         }
 
