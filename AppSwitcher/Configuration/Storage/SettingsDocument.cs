@@ -14,15 +14,15 @@ internal class SettingsDocument
 
     public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
 
-    public bool PulseBorderEnabled { get; init; } = true;
+    public bool PulseBorderEnabled { get; init; }
 
-    public AppThemeSetting Theme { get; init; } = AppThemeSetting.System;
+    public AppThemeSetting Theme { get; init; }
 
-    public bool OverlayEnabled { get; init; } = true;
+    public bool OverlayEnabled { get; init; }
 
-    public int OverlayShowDelayMs { get; init; } = 1000;
+    public int OverlayShowDelayMs { get; init; }
 
-    public bool OverlayKeepOpenWhileModifierHeld { get; init; } = false;
+    public bool OverlayKeepOpenWhileModifierHeld { get; init; }
 
     public Configuration ToConfiguration() =>
         new(

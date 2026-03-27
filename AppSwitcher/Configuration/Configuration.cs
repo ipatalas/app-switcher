@@ -15,11 +15,11 @@ internal record Configuration(
     int? ModifierIdleTimeoutMs,
     Key Modifier,
     IReadOnlyList<ApplicationConfiguration> Applications,
-    bool PulseBorderEnabled = true,
-    AppThemeSetting Theme = AppThemeSetting.System,
-    bool OverlayEnabled = true,
-    int OverlayShowDelayMs = 1000,
-    bool OverlayKeepOpenWhileModifierHeld = false);
+    bool PulseBorderEnabled,
+    AppThemeSetting Theme,
+    bool OverlayEnabled,
+    int OverlayShowDelayMs,
+    bool OverlayKeepOpenWhileModifierHeld);
 
 [DebuggerDisplay("{Key} -> {ProcessName} (Type: {Type}, CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(

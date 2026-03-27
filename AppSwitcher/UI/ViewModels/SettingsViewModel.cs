@@ -75,15 +75,15 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
-    private bool _overlayEnabled = true;
+    private bool _overlayEnabled;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
-    private int _overlayShowDelayMs = 1000;
+    private int _overlayShowDelayMs;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
-    private bool _overlayKeepOpenWhileModifierHeld = false;
+    private bool _overlayKeepOpenWhileModifierHeld;
 
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
