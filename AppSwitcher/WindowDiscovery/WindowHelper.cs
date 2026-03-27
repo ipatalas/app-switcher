@@ -1,6 +1,8 @@
-﻿using AppSwitcher.Utils;
+﻿using AppSwitcher.Configuration;
+using AppSwitcher.Utils;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.IO;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
@@ -10,7 +12,7 @@ namespace AppSwitcher.WindowDiscovery;
 
 internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor processPathExtractor)
 {
-    public IList<ApplicationWindow> GetWindows()
+    public List<ApplicationWindow> GetWindows()
     {
         var sw = Stopwatch.StartNew();
         var windows = GetVisibleWindowsHandles();
@@ -42,6 +44,56 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
         var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
 
         return GetApplicationWindow(hwnd, style, styleEx);
+    }
+
+    public record FocusedAppWindows(ApplicationWindow? FocusedWindow, List<ApplicationWindow> AllWindows)
+    {
+        public static FocusedAppWindows Empty => new(null, []);
+
+        public int Count => AllWindows.Count;
+
+        public int FocusedWindowIndex =>
+            FocusedWindow is null ? -1 : AllWindows.FindIndex(w => w.Handle == FocusedWindow.Handle);
+
+        public ApplicationWindow this[int index]
+        {
+            get { return AllWindows[index]; }
+        }
+    }
+    /// <summary>
+    /// This is strictly for the Modifier + Digit functionality
+    /// This will get all visible windows for currently focused app if it's configured as NextWindow cycle mode
+    /// </summary>
+    /// <param name="allWindows">All visible windows to check</param>
+    /// <param name="applications">All configured applications</param>
+    /// <returns>maximum of 10 windows with stable ordering</returns>
+    public FocusedAppWindows GetFocusedAppWindows(
+        IReadOnlyList<ApplicationWindow> allWindows,
+        IReadOnlyList<ApplicationConfiguration> applications)
+    {
+        var currentWindow = GetCurrentWindow();
+        if (currentWindow is null)
+        {
+            return FocusedAppWindows.Empty;
+        }
+
+        var currentProcessName = Path.GetFileName(currentWindow.ProcessImageName).ToLowerInvariant();
+        var focusedApp = applications.FirstOrDefault(a =>
+            a.ProcessName.Equals(currentProcessName, StringComparison.InvariantCultureIgnoreCase) &&
+            a.CycleMode == CycleMode.NextWindow);
+
+        if (focusedApp is null)
+        {
+            return FocusedAppWindows.Empty;
+        }
+
+        var focusedAppWindows = allWindows
+            .Where(w => w.ProcessImageName.EndsWith(focusedApp.ProcessName, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(static w => (IntPtr)w.Handle) // stable order, independent of Z-order / focus
+            .Take(10) // only 10 digit keys available
+            .ToList();
+
+        return new FocusedAppWindows(currentWindow, focusedAppWindows);
     }
 
     public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result)
@@ -104,7 +156,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
         if (hresult != 0)
         {
             logger.LogWarning("Failed to get cloaked attribute for window {Handle} ({ProcessName}), HRESULT: {HResult}",
-                hwnd, System.IO.Path.GetFileName(processImageName), hresult);
+                hwnd, Path.GetFileName(processImageName), hresult);
         }
 
         return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size,

@@ -51,6 +51,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
+        services.AddTransient<TitleSuffixHelper>();
         services.AddTransient<AppOverlayService>();
 
         services.AddCliHandler();

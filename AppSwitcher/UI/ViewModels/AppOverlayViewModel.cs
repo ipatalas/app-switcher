@@ -7,15 +7,20 @@ using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels;
 
-public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon);
+public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon, bool IsActive = false);
 
 public partial class AppOverlayViewModel : ObservableObject
 {
+    public ObservableCollection<OverlayAppItem> FocusedAppWindows { get; } = [];
     public ObservableCollection<OverlayAppItem> RunningApps { get; } = [];
     public ObservableCollection<OverlayAppItem> LaunchableApps { get; } = [];
 
+    public bool HasFocusedAppWindows => FocusedAppWindows.Count > 0;
     public bool HasRunningApps => RunningApps.Count > 0;
     public bool HasLaunchableApps => LaunchableApps.Count > 0;
+
+    [ObservableProperty]
+    private string? _focusedAppName;
 
     [UsedImplicitly(Reason = "Design-time constructor")]
     public AppOverlayViewModel()
@@ -23,19 +28,37 @@ public partial class AppOverlayViewModel : ObservableObject
         var chromeIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/chrome.png"));
         var notepadIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/notepad.png"));
         var explorerIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/explorer.png"));
+        var codeIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/code.png"));
+
+        FocusedAppWindows = new ObservableCollection<OverlayAppItem>([
+            new(Key.D1, "Welcome - Visual Studio Code", codeIcon, IsActive: true),
+            new(Key.D2, "README.md - Visual Studio Code", codeIcon)
+        ]);
+
+        FocusedAppName = "code";
 
         RunningApps = new ObservableCollection<OverlayAppItem>([
             new(Key.C, "chrome", chromeIcon),
-            new(Key.N, "notepad.exe", notepadIcon)
+            new(Key.N, "notepad", notepadIcon)
         ]);
 
         LaunchableApps = new ObservableCollection<OverlayAppItem>([
-            new(Key.E, "explorer.exe", explorerIcon)
+            new(Key.E, "explorer", explorerIcon)
         ]);
     }
 
-    public void Update(IEnumerable<OverlayAppItem> running, IEnumerable<OverlayAppItem> launchable)
+    public void Update(
+        IEnumerable<OverlayAppItem> focusedWindows,
+        string? focusedAppName,
+        IEnumerable<OverlayAppItem> running,
+        IEnumerable<OverlayAppItem> launchable)
     {
+        FocusedAppWindows.Clear();
+        foreach (var item in focusedWindows)
+        {
+            FocusedAppWindows.Add(item);
+        }
+
         RunningApps.Clear();
         foreach (var item in running)
         {
@@ -48,6 +71,9 @@ public partial class AppOverlayViewModel : ObservableObject
             LaunchableApps.Add(item);
         }
 
+        FocusedAppName = focusedAppName;
+
+        OnPropertyChanged(nameof(HasFocusedAppWindows));
         OnPropertyChanged(nameof(HasRunningApps));
         OnPropertyChanged(nameof(HasLaunchableApps));
     }

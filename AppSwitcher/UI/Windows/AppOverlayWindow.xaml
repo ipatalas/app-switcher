@@ -18,49 +18,67 @@
         d:DataContext="{d:DesignInstance viewModels:AppOverlayViewModel}">
 
     <Window.Resources>
-        <!-- App row item template -->
+
+        <!-- Shared item template — used for app rows and focused window rows -->
         <DataTemplate x:Key="AppItemTemplate" DataType="{x:Type viewModels:OverlayAppItem}">
-            <Grid Height="32">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <Border CornerRadius="6" Padding="4,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
 
-                <!-- App icon -->
-                <Image Grid.Column="0"
-                       Source="{Binding Icon}"
-                       Width="20"
-                       Height="20"
-                       Margin="0,0,8,0"
-                       VerticalAlignment="Center"
-                       RenderOptions.BitmapScalingMode="HighQuality" />
+                <Grid Height="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <!-- App name -->
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Name}"
+                    <!-- Icon -->
+                    <Image Grid.Column="0"
+                           Source="{Binding Icon}"
+                           Width="20"
+                           Height="20"
+                           Margin="0,0,8,0"
                            VerticalAlignment="Center"
-                           HorizontalAlignment="Left"
-                           FontSize="13"
-                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                           RenderOptions.BitmapScalingMode="HighQuality" />
 
-                <!-- Hotkey key badge — Secondary appearance matches KeyAssignmentButton style in Settings -->
-                <ui:Button Grid.Column="2"
-                           Content="{Binding HotkeyKey}"
-                           Appearance="Secondary"
-                           Width="26"
-                           Height="26"
-                           Padding="1"
-                           MinWidth="0"
-                           IsHitTestVisible="False"
-                           Focusable="False"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Center" />
-            </Grid>
+                    <!-- Name / window title -->
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Name}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               FontSize="13"
+                               MaxWidth="280"
+                               Padding="0,0,8,0"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                    <!-- Hotkey badge (D1/D2/… for windows, letter key for apps) -->
+                    <ui:Button Grid.Column="2"
+                               Content="{Binding HotkeyKey}"
+                               Appearance="Secondary"
+                               Width="26"
+                               Height="26"
+                               Padding="1"
+                               MinWidth="0"
+                               IsHitTestVisible="False"
+                               Focusable="False"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
         </DataTemplate>
+
     </Window.Resources>
 
-    <!-- Floating card container — ApplicationBackgroundBrush is fully opaque, avoiding see-through artefacts -->
+    <!-- Floating card container -->
     <Border CornerRadius="12"
             Padding="16"
             MinWidth="240"
@@ -68,6 +86,29 @@
             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
             BorderThickness="1">
         <StackPanel>
+
+            <!-- Focused app windows section — visible only when a NextWindow app is in the foreground -->
+            <StackPanel Margin="0,0,0,16">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasFocusedAppWindows}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <TextBlock Text="{Binding FocusedAppName, StringFormat='{}{0} windows'}"
+                           FontSize="11"
+                           Opacity="0.6"
+                           Margin="0,0,0,6"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <ItemsControl ItemsSource="{Binding FocusedAppWindows}"
+                              ItemTemplate="{StaticResource AppItemTemplate}" />
+            </StackPanel>
 
             <!-- Running apps section -->
             <StackPanel Margin="0,0,0,16">
@@ -110,6 +151,7 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
+
                 <TextBlock Text="Launchable apps"
                            FontSize="11"
                            Opacity="0.6"
@@ -119,6 +161,7 @@
                 <ItemsControl ItemsSource="{Binding LaunchableApps}"
                               ItemTemplate="{StaticResource AppItemTemplate}" />
             </StackPanel>
+
         </StackPanel>
     </Border>
 </Window>

@@ -70,6 +70,10 @@ internal class Hook(
             {
                 HandleLetterKeyPress(e);
             }
+            else if (IsDigit(e.InputEvent.Key))
+            {
+                HandleDigitKeyPress(e);
+            }
             else if (_modifierDown && !IsConfiguredModifier(e.InputEvent.Key))
             {
                 logger.LogDebug("Unrelated key {Key} pressed while modifier down - resetting state", e.InputEvent.Key);
@@ -160,8 +164,47 @@ internal class Hook(
         }
     }
 
-    private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
+    private void HandleDigitKeyPress(KeyboardHookEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(_config);
+
+        if (!e.IsKeyDown() && _suppressedLetterKeys.Remove(e.InputEvent.Key))
+        {
+            e.SuppressKeyPress = true;
+            logger.LogDebug("Suppressing key up for previously suppressed digit {Key}", e.InputEvent.Key);
+        }
+        else if (_modifierDown)
+        {
+            _letterKeyPressedWithModifier = true;
+
+            if (e.IsKeyDown())
+            {
+                var digit = e.InputEvent.Key;
+                var index = DigitKeyToIndex(digit);
+
+                if (switcher.SwitchToWindowByIndex(_config.Applications, index))
+                {
+                    e.SuppressKeyPress = true;
+                    _suppressedLetterKeys.Add(digit);
+
+                    logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
+                    overlayService.Hide();
+                    modifierIdleTimer.Restart();
+                }
+                else // no matching NextWindow app or window index out of range
+                {
+                    modifierIdleTimer.Cancel();
+                }
+            }
+        }
+    }
+
+    private static bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
+    private static bool IsDigit(Key key) => key is >= Key.D0 and <= Key.D9;
     private bool IsConfiguredModifier(Key key) => _config!.Modifier == key;
+
+    // Inverse of AppOverlayService.IndexToKey: D1→0, D2→1, …, D9→8, D0→9
+    private static int DigitKeyToIndex(Key key) => key == Key.D0 ? 9 : key - Key.D1;
 
     private void ResetModifierState()
     {
