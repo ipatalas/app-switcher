@@ -8,12 +8,22 @@
 - **Line endings**: CRLF
 - **Final newline**: None
 - **Braces**: Opening brace on new line (Allman style)
+- **Braces always required**: Every `if`, `else`, `for`, `foreach`, `while`, `do`, `using`, and `lock` body **must** use braces, even for single-statement bodies. Never omit braces.
 
 ```csharp
+// Correct
 if (condition)
 {
     DoSomething();
 }
+else
+{
+    DoOtherThing();
+}
+
+// WRONG - never omit braces
+if (condition)
+    DoSomething();
 ```
 
 ## Namespaces

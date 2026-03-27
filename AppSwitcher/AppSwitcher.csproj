@@ -42,6 +42,7 @@
     <Resource Include="Resources\DesignTime\notepad.png" />
     <Resource Include="Resources\DesignTime\explorer.png" />
     <Resource Include="Resources\app-switcher.png" />
+    <Resource Include="Resources\DesignTime\code.png" />
   </ItemGroup>
 
   <ItemGroup>

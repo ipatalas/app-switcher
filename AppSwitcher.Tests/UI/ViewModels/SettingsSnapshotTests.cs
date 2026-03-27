@@ -13,7 +13,10 @@ public class SettingsSnapshotTests
         ModifierKey: Key.LeftCtrl,
         Applications: [new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp)],
         PulseBorderEnabled: true,
-        Theme: AppThemeSetting.System);
+        Theme: AppThemeSetting.System,
+        OverlayEnabled: true,
+        OverlayShowDelayMs: 1000,
+        OverlayKeepOpenWhileModifierHeld: false);
 
     [Fact]
     public void Equals_ReturnsTrue_WhenAllFieldsAreEqual()
@@ -62,6 +65,33 @@ public class SettingsSnapshotTests
     {
         var a = Default();
         var b = a with { Theme = AppThemeSetting.Dark };
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void Equals_ReturnsFalse_WhenOverlayEnabledDiffers()
+    {
+        var a = Default();
+        var b = a with { OverlayEnabled = false };
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void Equals_ReturnsFalse_WhenOverlayShowDelayMsDiffers()
+    {
+        var a = Default();
+        var b = a with { OverlayShowDelayMs = 500 };
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void Equals_ReturnsFalse_WhenOverlayKeepOpenWhileModifierHeldDiffers()
+    {
+        var a = Default();
+        var b = a with { OverlayKeepOpenWhileModifierHeld = true };
 
         a.Should().NotBe(b);
     }

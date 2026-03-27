@@ -66,11 +66,14 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
         var defaults = new SettingsDocument
         {
             Id = SettingsDocumentId,
-            ModifierIdleTimeoutMs = null,
+            ModifierIdleTimeoutMs = 0,
             Modifier = Key.RightCtrl,
             Applications = [],
             PulseBorderEnabled = true,
-            Theme = AppThemeSetting.System
+            Theme = AppThemeSetting.System,
+            OverlayEnabled = false,
+            OverlayShowDelayMs = 1000,
+            OverlayKeepOpenWhileModifierHeld = true
         };
 
         collection.Insert(defaults);

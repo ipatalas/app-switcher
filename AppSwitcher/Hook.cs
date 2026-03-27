@@ -6,7 +6,12 @@ using System.Windows.Input;
 
 namespace AppSwitcher;
 
-internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer modifierIdleTimer) : IDisposable
+internal class Hook(
+    ILogger<Hook> logger,
+    Switcher switcher,
+    ModifierIdleTimer modifierIdleTimer,
+    OverlayShowTimer overlayShowTimer,
+    AppOverlayService overlayService) : IDisposable
 {
     private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
@@ -18,6 +23,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     {
         _config = config;
         modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -37,6 +43,8 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
     public void UpdateConfiguration(Configuration.Configuration config)
     {
         _config = config;
+        modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         // Reset state when configuration changes (especially if modifier key changes)
         ResetModifierState();
     }
@@ -63,6 +71,10 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
             {
                 HandleLetterKeyPress(e);
             }
+            else if (IsDigit(e.InputEvent.Key))
+            {
+                HandleDigitKeyPress(e);
+            }
             else if (_modifierDown && !IsConfiguredModifier(e.InputEvent.Key))
             {
                 logger.LogDebug("Unrelated key {Key} pressed while modifier down - resetting state", e.InputEvent.Key);
@@ -77,6 +89,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
 
     private void HandleModifierKeyPress(KeyboardHookEventArgs e)
     {
+        var wasModifierDown = _modifierDown;
         _modifierDown = e.IsKeyDown();
         e.SuppressKeyPress = true;
 
@@ -85,19 +98,32 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
             _letterKeyPressedWithModifier = false;
             // Restart timer on each key repeat
             modifierIdleTimer.Restart();
+
+            if (!wasModifierDown && _config!.OverlayEnabled) // first press only — not a key repeat
+            {
+                overlayShowTimer.Start();
+            }
         }
         else if (!_letterKeyPressedWithModifier) // modifier up without any letter key pressed
         {
+            var wasOverlayVisible = overlayService.IsVisible;
+            overlayShowTimer.Cancel();
+            overlayService.Hide();
             modifierIdleTimer.Cancel();
 
-            // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
-            // This allows the modifier key to function normally when pressed and released on its own
-            // without interfering with the app switching functionality
-            var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
-            logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
+            if (!wasOverlayVisible)
+            {
+                // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
+                // This allows the modifier key to function normally when pressed and released on its own
+                // without interfering with the app switching functionality
+                var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
+                logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
+            }
         }
         else // modifier up after letter key was pressed
         {
+            overlayShowTimer.Cancel();
+            overlayService.Hide();
             modifierIdleTimer.Cancel();
         }
     }
@@ -119,7 +145,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
             {
                 var letter = e.InputEvent.Key;
 
-                var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+                    var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
                 if (matchingApps.Count > 0)
                 {
                     e.SuppressKeyPress = true;
@@ -127,6 +153,7 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
 
                     logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                     switcher.Execute(matchingApps);
+                    RefreshOrHideOverlay();
 
                     modifierIdleTimer.Restart();
                 }
@@ -138,13 +165,68 @@ internal class Hook(ILogger<Hook> logger, Switcher switcher, ModifierIdleTimer m
         }
     }
 
-    private bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
+    private void HandleDigitKeyPress(KeyboardHookEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(_config);
+
+        if (!e.IsKeyDown() && _suppressedLetterKeys.Remove(e.InputEvent.Key))
+        {
+            e.SuppressKeyPress = true;
+            logger.LogDebug("Suppressing key up for previously suppressed digit {Key}", e.InputEvent.Key);
+        }
+        else if (_modifierDown)
+        {
+            _letterKeyPressedWithModifier = true;
+
+            if (e.IsKeyDown())
+            {
+                var digit = e.InputEvent.Key;
+                var index = DigitKeyToIndex(digit);
+
+                if (switcher.SwitchToWindowByIndex(_config.Applications, index))
+                {
+                    e.SuppressKeyPress = true;
+                    _suppressedLetterKeys.Add(digit);
+
+                    logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
+                    RefreshOrHideOverlay();
+                    modifierIdleTimer.Restart();
+                }
+                else // no matching NextWindow app or window index out of range
+                {
+                    modifierIdleTimer.Cancel();
+                }
+            }
+        }
+    }
+
+    private void RefreshOrHideOverlay()
+    {
+        ArgumentNullException.ThrowIfNull(_config);
+
+        if (_config.OverlayKeepOpenWhileModifierHeld && overlayService.IsVisible)
+        {
+            overlayService.Show(_config.Applications);
+        }
+        else
+        {
+            overlayService.Hide();
+        }
+    }
+
+    private static bool IsLetter(Key key) => key is >= Key.A and <= Key.Z;
+    private static bool IsDigit(Key key) => key is >= Key.D0 and <= Key.D9;
     private bool IsConfiguredModifier(Key key) => _config!.Modifier == key;
+
+    // Inverse of AppOverlayService.IndexToKey: D1→0, D2→1, …, D9→8, D0→9
+    private static int DigitKeyToIndex(Key key) => key == Key.D0 ? 9 : key - Key.D1;
 
     private void ResetModifierState()
     {
         _modifierDown = false;
         _suppressedLetterKeys.Clear();
+        overlayShowTimer.Cancel();
+        overlayService.Hide();
         modifierIdleTimer.Cancel();
     }
 }

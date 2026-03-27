@@ -41,21 +41,25 @@ internal static class ServicesConfiguration
         services.AddTransient<MigrationRunner>();
         services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();
-        services.AddTransient<Hook>();
+        services.AddSingleton<Hook>();
         services.AddTransient<WindowHelper>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
         services.AddTransient<ModifierIdleTimer>();
+        services.AddTransient<OverlayShowTimer>();
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
+        services.AddTransient<TitleSuffixHelper>();
+        services.AddTransient<AppOverlayService>();
 
         services.AddCliHandler();
 
         // windows
         services.AddTransient<MainWindow>();
         services.AddTransient<Settings>();
+        services.AddSingleton<AppOverlayWindow>();
 
         // pages
         services.AddImplementationsOf<Page>(ServiceLifetime.Transient, registerAsConcreteType: true);
@@ -65,6 +69,7 @@ internal static class ServicesConfiguration
         services.AddSingleton<SettingsViewModel>();
         services.AddTransient<AddApplicationFlyoutViewModel>();
         services.AddTransient<AboutViewModel>();
+        services.AddSingleton<AppOverlayViewModel>();
 
         return services.BuildServiceProvider();
     }

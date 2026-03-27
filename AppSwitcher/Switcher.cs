@@ -6,6 +6,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using Windows.Win32.Graphics.Dwm;
 
@@ -32,6 +33,23 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
         var nextApp = appGroup[(currentIndex + 1) % appGroup.Count];
         logger.LogDebug("Cycling app group: current index {CurrentIndex}, next app {NextApp}", currentIndex, nextApp.ProcessName);
         Execute(nextApp);
+    }
+
+    public bool SwitchToWindowByIndex(IReadOnlyList<ApplicationConfiguration> applications, int index)
+    {
+        var allWindows = windowHelper.GetWindows();
+        var focusedAppWindows = windowHelper.GetFocusedAppWindows(allWindows, applications);
+        var focusedAppWindow = focusedAppWindows.FocusedWindow!;
+        if (index < 0 || index >= focusedAppWindows.Count || index == focusedAppWindows.FocusedWindowIndex)
+        {
+            return false;
+        }
+
+        var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImageName);
+
+        logger.LogDebug("Switching to window #{Number} of {AppName}", index + 1, appName);
+        ActivateWindow(focusedAppWindows[index]);
+        return true;
     }
 
     private void Execute(ApplicationConfiguration appConfig)

@@ -73,6 +73,18 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         new(AppThemeSetting.Light, "Light"),
     ];
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private bool _overlayEnabled;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private int _overlayShowDelayMs;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private bool _overlayKeepOpenWhileModifierHeld;
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
@@ -109,6 +121,9 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs;
         PulseBorderEnabled = config.PulseBorderEnabled;
         Theme = config.Theme;
+        OverlayEnabled = config.OverlayEnabled;
+        OverlayShowDelayMs = config.OverlayShowDelayMs;
+        OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld;
 
         _dirtyTracker?.Dispose();
 
@@ -179,7 +194,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                     new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode, app.Type, app.Aumid))
                 .ToList(),
             PulseBorderEnabled,
-            Theme);
+            Theme,
+            OverlayEnabled,
+            OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld);
     }
 
     public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
@@ -242,7 +260,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                         app.Type,
                         app.Aumid)).ToList(),
                 PulseBorderEnabled,
-                Theme);
+                Theme,
+                OverlayEnabled,
+                OverlayShowDelayMs,
+                OverlayKeepOpenWhileModifierHeld);
 
             if (_configurationManager.UpdateConfiguration(newConfig))
             {

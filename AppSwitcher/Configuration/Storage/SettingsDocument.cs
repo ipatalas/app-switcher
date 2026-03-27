@@ -14,9 +14,15 @@ internal class SettingsDocument
 
     public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
 
-    public bool PulseBorderEnabled { get; init; } = true;
+    public bool PulseBorderEnabled { get; init; }
 
-    public AppThemeSetting Theme { get; init; } = AppThemeSetting.System;
+    public AppThemeSetting Theme { get; init; }
+
+    public bool OverlayEnabled { get; init; }
+
+    public int OverlayShowDelayMs { get; init; }
+
+    public bool OverlayKeepOpenWhileModifierHeld { get; init; }
 
     public Configuration ToConfiguration() =>
         new(
@@ -24,7 +30,10 @@ internal class SettingsDocument
             Modifier,
             Applications.Select(a => a.ToApplicationConfiguration()).ToList(),
             PulseBorderEnabled,
-            Theme);
+            Theme,
+            OverlayEnabled,
+            OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -36,6 +45,9 @@ internal class SettingsDocument
                 .Select(ApplicationConfigurationDocument.FromApplicationConfiguration)
                 .ToList(),
             PulseBorderEnabled = config.PulseBorderEnabled,
-            Theme = config.Theme
+            Theme = config.Theme,
+            OverlayEnabled = config.OverlayEnabled,
+            OverlayShowDelayMs = config.OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld
         };
 }
