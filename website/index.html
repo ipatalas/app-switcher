@@ -7,7 +7,21 @@
   <meta name="google-site-verification" content="FEsw5tOCO0jmlfqEPkk3kGtx-yuTCzbj1HIKi4dUcmg" />
   <link rel="icon" type="image/png" sizes="64x64" href="app-switcher.png" />
   <link rel="preload" fetchpriority="high" as="image" href="poster.jpg" type="image/jpeg" />
-  <title>AppSwitcher — Switch smarter. Work faster.</title>
+  <title>AppSwitcher — Free Windows App Switcher with Custom Hotkeys</title>
+  <meta name="description"
+    content="AppSwitcher is a free Windows utility that assigns hotkeys to your most-used apps for instant window switching — no more Alt+Tab hunting. Works on Windows 10 &amp; 11." />
+  <link rel="canonical" href="https://app-switcher.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://app-switcher.com/" />
+  <meta property="og:title" content="AppSwitcher — Free Windows App Switcher with Custom Hotkeys" />
+  <meta property="og:description"
+    content="Assign hotkeys to your most-used apps and switch instantly. Free for Windows 10 &amp; 11. No more Alt+Tab." />
+  <meta property="og:image" content="https://app-switcher.com/poster.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AppSwitcher — Free Windows App Switcher with Custom Hotkeys" />
+  <meta name="twitter:description"
+    content="Assign hotkeys to your most-used apps and switch instantly. Free for Windows 10 &amp; 11." />
+  <meta name="twitter:image" content="https://app-switcher.com/poster.jpg" />
   <style>
     *,
     *::before,
@@ -652,6 +666,79 @@
       margin-top: 0.4rem;
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AppSwitcher",
+    "description": "Free Windows app switcher that assigns hotkeys to your most-used apps for instant keyboard-driven window switching.",
+    "url": "https://app-switcher.com/",
+    "downloadUrl": "https://github.com/ipatalas/app-switcher/releases/latest/download/AppSwitcher.Installer.exe",
+    "operatingSystem": "Windows 10, Windows 11",
+    "applicationCategory": "UtilitiesApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does AppSwitcher work with all Windows applications?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, but there may be issues with apps running as Administrator. When an elevated app is in focus, AppSwitcher's keyboard hook can't intercept events. The workaround is to also run AppSwitcher as Administrator."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I change or remove a hotkey?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open the settings by double-clicking the tray icon, or right-clicking it for the menu. All hotkey management is done from there."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does AppSwitcher run on startup?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not by default, but it's easy to enable. Head to the settings and toggle the startup option — that's all it takes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does AppSwitcher require .NET to be installed separately?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on which release you choose. The self-contained installer bundles .NET 8 and requires no extra installation. The framework-dependent build requires .NET 8 to already be installed. See the GitHub releases page for details."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which version of Windows does AppSwitcher require?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Windows 10 version 2004 (May 2020 Update, build 19041) or newer, including all Windows 11 versions. Older Windows 10 releases (1909 and earlier) are not supported."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is Windows SmartScreen blocking the app?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "As an independent developer, AppSwitcher hasn't built up a reputation with Microsoft yet, which triggers SmartScreen. It's safe to run — just click More info then Run anyway to proceed."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
