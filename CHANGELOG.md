@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.8.0] - 2026-03-28
+- Add new overlay window when modifier key is held
+- Delete Startup shortcut when AppSwitcher is uninstalled
+- Change defaults:
+  - Start if not running: false -> true
+  - ModifierIdleTimer: 2000 ms -> 0 ms (most people don't need it at all and it could have annoying side effects)
+- Fix settings file not gracefully closed upon application exit
+
 ## [1.7.4] - 2026-03-24
 - Fix migration failing on empty database
 
