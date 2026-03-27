@@ -10,7 +10,8 @@ internal sealed record SettingsSnapshot(
     bool PulseBorderEnabled,
     AppThemeSetting Theme,
     bool OverlayEnabled,
-    int OverlayShowDelayMs)
+    int OverlayShowDelayMs,
+    bool OverlayKeepOpenWhileModifierHeld)
 {
     public bool Equals(SettingsSnapshot? other)
     {
@@ -25,13 +26,14 @@ internal sealed record SettingsSnapshot(
                Theme == other.Theme &&
                OverlayEnabled == other.OverlayEnabled &&
                OverlayShowDelayMs == other.OverlayShowDelayMs &&
+               OverlayKeepOpenWhileModifierHeld == other.OverlayKeepOpenWhileModifierHeld &&
                Applications.SequenceEqual(other.Applications);
     }
 
     public override int GetHashCode()
     {
         return HashCode.Combine(ModifierIdleTimeoutMs, ModifierKey, PulseBorderEnabled, Theme, OverlayEnabled,
-            OverlayShowDelayMs, Applications.Count);
+            OverlayShowDelayMs, OverlayKeepOpenWhileModifierHeld, Applications.Count);
     }
 }
 

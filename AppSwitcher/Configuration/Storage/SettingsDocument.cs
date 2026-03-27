@@ -22,6 +22,8 @@ internal class SettingsDocument
 
     public int OverlayShowDelayMs { get; init; } = 1000;
 
+    public bool OverlayKeepOpenWhileModifierHeld { get; init; } = false;
+
     public Configuration ToConfiguration() =>
         new(
             ModifierIdleTimeoutMs,
@@ -30,7 +32,8 @@ internal class SettingsDocument
             PulseBorderEnabled,
             Theme,
             OverlayEnabled,
-            OverlayShowDelayMs);
+            OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -44,6 +47,7 @@ internal class SettingsDocument
             PulseBorderEnabled = config.PulseBorderEnabled,
             Theme = config.Theme,
             OverlayEnabled = config.OverlayEnabled,
-            OverlayShowDelayMs = config.OverlayShowDelayMs
+            OverlayShowDelayMs = config.OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld
         };
 }

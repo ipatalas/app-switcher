@@ -145,7 +145,7 @@ internal class Hook(
             {
                 var letter = e.InputEvent.Key;
 
-                var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+                    var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
                 if (matchingApps.Count > 0)
                 {
                     e.SuppressKeyPress = true;
@@ -153,7 +153,7 @@ internal class Hook(
 
                     logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                     switcher.Execute(matchingApps);
-                    overlayService.Hide();
+                    RefreshOrHideOverlay();
 
                     modifierIdleTimer.Restart();
                 }
@@ -189,7 +189,7 @@ internal class Hook(
                     _suppressedLetterKeys.Add(digit);
 
                     logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
-                    overlayService.Hide();
+                    RefreshOrHideOverlay();
                     modifierIdleTimer.Restart();
                 }
                 else // no matching NextWindow app or window index out of range
@@ -197,6 +197,20 @@ internal class Hook(
                     modifierIdleTimer.Cancel();
                 }
             }
+        }
+    }
+
+    private void RefreshOrHideOverlay()
+    {
+        ArgumentNullException.ThrowIfNull(_config);
+
+        if (_config.OverlayKeepOpenWhileModifierHeld && overlayService.IsVisible)
+        {
+            overlayService.Show(_config.Applications);
+        }
+        else
+        {
+            overlayService.Hide();
         }
     }
 

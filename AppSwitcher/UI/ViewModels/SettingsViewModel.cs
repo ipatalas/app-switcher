@@ -81,6 +81,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private int _overlayShowDelayMs = 1000;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private bool _overlayKeepOpenWhileModifierHeld = false;
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
@@ -119,6 +123,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         Theme = config.Theme;
         OverlayEnabled = config.OverlayEnabled;
         OverlayShowDelayMs = config.OverlayShowDelayMs;
+        OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld;
 
         _dirtyTracker?.Dispose();
 
@@ -191,7 +196,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             PulseBorderEnabled,
             Theme,
             OverlayEnabled,
-            OverlayShowDelayMs);
+            OverlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld);
     }
 
     public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
@@ -255,7 +261,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 PulseBorderEnabled,
                 Theme,
                 OverlayEnabled,
-                OverlayShowDelayMs);
+                OverlayShowDelayMs,
+                OverlayKeepOpenWhileModifierHeld);
 
             if (_configurationManager.UpdateConfiguration(newConfig))
             {

@@ -28,6 +28,7 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             case nameof(_model.Theme):
             case nameof(_model.OverlayEnabled):
             case nameof(_model.OverlayShowDelayMs):
+            case nameof(_model.OverlayKeepOpenWhileModifierHeld):
                 _onChange();
                 break;
             case nameof(_model.Applications):

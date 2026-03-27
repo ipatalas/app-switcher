@@ -18,7 +18,8 @@ internal record Configuration(
     bool PulseBorderEnabled = true,
     AppThemeSetting Theme = AppThemeSetting.System,
     bool OverlayEnabled = true,
-    int OverlayShowDelayMs = 1000);
+    int OverlayShowDelayMs = 1000,
+    bool OverlayKeepOpenWhileModifierHeld = false);
 
 [DebuggerDisplay("{Key} -> {ProcessName} (Type: {Type}, CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(

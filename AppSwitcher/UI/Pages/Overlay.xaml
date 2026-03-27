@@ -81,6 +81,29 @@
                 </ui:CardControl.Content>
             </ui:CardControl>
 
+            <ui:CardControl Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Pin24}"
+                            IsEnabled="{Binding OverlayEnabled}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Keep open while modifier is held"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="When enabled, the overlay stays open and refreshes after each app switch until the modifier key is released."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:ToggleSwitch IsChecked="{Binding OverlayKeepOpenWhileModifierHeld, Mode=TwoWay}"
+                                     HorizontalContentAlignment="Left"
+                                     OffContent="Off"
+                                     OnContent="On" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
         </StackPanel>
     </ScrollViewer>
 </Page>
