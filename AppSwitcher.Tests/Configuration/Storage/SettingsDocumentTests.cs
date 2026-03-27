@@ -28,6 +28,9 @@ public class SettingsDocumentTests
                 }
             ],
             PulseBorderEnabled = false,
+            OverlayEnabled = true,
+            OverlayShowDelayMs = 500,
+            OverlayKeepOpenWhileModifierHeld = true,
             Theme = AppThemeSetting.Dark
         };
 
@@ -45,7 +48,10 @@ public class SettingsDocumentTests
                     StartIfNotRunning: false)
             ],
             PulseBorderEnabled: false,
-            Theme: AppThemeSetting.Dark));
+            Theme: AppThemeSetting.Dark,
+            OverlayEnabled: true,
+            OverlayShowDelayMs: 500,
+            OverlayKeepOpenWhileModifierHeld: true));
     }
 
     [Fact]
@@ -78,7 +84,10 @@ public class SettingsDocumentTests
                     StartIfNotRunning: true)
             ],
             PulseBorderEnabled: true,
-            Theme: AppThemeSetting.Light);
+            Theme: AppThemeSetting.Light,
+            OverlayEnabled: true,
+            OverlayShowDelayMs: 500,
+            OverlayKeepOpenWhileModifierHeld: true);
 
         var result = SettingsDocument.FromConfiguration(config: config, id: 42);
 
@@ -98,7 +107,10 @@ public class SettingsDocumentTests
                 }
             ],
             PulseBorderEnabled = true,
-            Theme = AppThemeSetting.Light
+            Theme = AppThemeSetting.Light,
+            OverlayEnabled = true,
+            OverlayShowDelayMs = 500,
+            OverlayKeepOpenWhileModifierHeld = true,
         });
     }
 
@@ -114,7 +126,10 @@ public class SettingsDocumentTests
                 new ApplicationConfiguration(Key.T, @"C:\apps\terminal.exe", CycleMode.NextApp, true)
             ],
             PulseBorderEnabled: true,
-            Theme: AppThemeSetting.System);
+            Theme: AppThemeSetting.System,
+            OverlayEnabled: true,
+            OverlayShowDelayMs: 500,
+            OverlayKeepOpenWhileModifierHeld: true);
 
         var roundTripped = SettingsDocument.FromConfiguration(original, 1).ToConfiguration();
 

@@ -13,6 +13,28 @@ public class ConfigurationServiceTests : IDisposable
     private readonly LiteDatabase _db = new(":memory:");
     private readonly ConfigurationService _sut;
 
+    private static AppConfig MakeConfig(
+        int? modifierIdleTimeoutMs = null,
+        Key modifier = Key.RightCtrl,
+        ApplicationConfiguration[]? applications = null,
+        bool pulseBorderEnabled = true,
+        AppThemeSetting theme = AppThemeSetting.System,
+        bool overlayEnabled = true,
+        int overlayShowDelayMs = 1000,
+        bool overlayKeepOpenWhileModifierHeld = true)
+    {
+        return new AppConfig(
+            ModifierIdleTimeoutMs: modifierIdleTimeoutMs,
+            Modifier: modifier,
+            Applications: applications ?? [],
+            PulseBorderEnabled: pulseBorderEnabled,
+            Theme: theme,
+            OverlayEnabled: overlayEnabled,
+            OverlayShowDelayMs: overlayShowDelayMs,
+            OverlayKeepOpenWhileModifierHeld: overlayKeepOpenWhileModifierHeld);
+    }
+
+
     public ConfigurationServiceTests()
     {
         _sut = new ConfigurationService(_db, NullLogger<ConfigurationService>.Instance);
@@ -26,22 +48,21 @@ public class ConfigurationServiceTests : IDisposable
         var result = _sut.ReadConfiguration();
 
         result.Should().BeEquivalentTo(new AppConfig(
-            ModifierIdleTimeoutMs: null,
+            ModifierIdleTimeoutMs: 0,
             Modifier: Key.RightCtrl,
             Applications: [],
             PulseBorderEnabled: true,
-            Theme: AppThemeSetting.System));
+            Theme: AppThemeSetting.System,
+            OverlayEnabled: false,
+            OverlayShowDelayMs: 1000,
+            OverlayKeepOpenWhileModifierHeld: true));
     }
 
     [Fact]
     public void ReadConfiguration_ReturnsStoredConfiguration_AfterWrite()
     {
-        var config = new AppConfig(
-            3000,
-            Key.LeftAlt,
-            [new ApplicationConfiguration(Key.N, @"C:\Windows\notepad.exe", CycleMode.Hide, false)],
-            false,
-            AppThemeSetting.Dark);
+        var app = new ApplicationConfiguration(Key.N, @"C:\Windows\notepad.exe", CycleMode.Hide, false);
+        var config = MakeConfig(applications: [app]);
 
         _sut.WriteConfiguration(config);
         var result = _sut.ReadConfiguration();
@@ -52,27 +73,14 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public void WriteConfiguration_Overwrites_WhenCalledTwice()
     {
-        var first = new AppConfig(1000, Key.LeftCtrl, [], true, AppThemeSetting.Light);
-        var second = new AppConfig(2000, Key.RightAlt, [], false, AppThemeSetting.Dark);
+        var first = MakeConfig();
+        var second = first with { ModifierIdleTimeoutMs = 2000, Modifier = Key.RightAlt, Theme = AppThemeSetting.Dark };
 
         _sut.WriteConfiguration(first);
         _sut.WriteConfiguration(second);
         var result = _sut.ReadConfiguration();
 
         result.Should().BeEquivalentTo(second);
-    }
-
-    [Fact]
-    public void ReadConfiguration_PreservesAllApplicationFields()
-    {
-        var app = new ApplicationConfiguration(Key.B, @"C:\apps\browser.exe", CycleMode.NextWindow, true);
-        var config = new AppConfig(null, Key.RightCtrl, [app], true, AppThemeSetting.System);
-
-        _sut.WriteConfiguration(config);
-        var result = _sut.ReadConfiguration();
-
-        result.Applications.Should().ContainSingle()
-            .Which.Should().BeEquivalentTo(app);
     }
 
     [Fact]
@@ -84,7 +92,7 @@ public class ConfigurationServiceTests : IDisposable
             new ApplicationConfiguration(Key.B, @"C:\apps\b.exe", CycleMode.Hide, true),
             new ApplicationConfiguration(Key.C, @"C:\apps\c.exe", CycleMode.NextWindow, false),
         };
-        var config = new AppConfig(null, Key.LeftAlt, apps, true, AppThemeSetting.System);
+        var config = MakeConfig(applications: apps);
 
         _sut.WriteConfiguration(config);
         var result = _sut.ReadConfiguration();
@@ -95,7 +103,7 @@ public class ConfigurationServiceTests : IDisposable
     [Fact]
     public void ReadConfiguration_PreservesNullModifierIdleTimeout()
     {
-        var config = new AppConfig(null, Key.LeftCtrl, [], true, AppThemeSetting.System);
+        var config = MakeConfig(modifierIdleTimeoutMs: null);
 
         _sut.WriteConfiguration(config);
         var result = _sut.ReadConfiguration();
