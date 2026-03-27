@@ -83,7 +83,7 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:NumberBox Value="{Binding ModifierIdleTimeoutMs, Mode=TwoWay}"
                                       Minimum="0"
-                                      PlaceholderText="2000"
+                                      PlaceholderText="0"
                                       AcceptsExpression="False"
                                       PreviewTextInput="ModifierIdleTimeout_OnPreviewTextInput"
                                       HorizontalContentAlignment="Right"

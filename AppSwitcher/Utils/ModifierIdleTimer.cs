@@ -4,7 +4,7 @@ namespace AppSwitcher.Utils;
 
 internal class ModifierIdleTimer(ILogger<ModifierIdleTimer> logger) : IDisposable
 {
-    private const int DefaultTimeoutMs = 2000;
+    private const int DefaultTimeoutMs = 0;
 
     private System.Threading.Timer? _timer;
     private int _timeoutMs = DefaultTimeoutMs;

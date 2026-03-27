@@ -43,6 +43,7 @@ internal class Hook(
     public void UpdateConfiguration(Configuration.Configuration config)
     {
         _config = config;
+        modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
         overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         // Reset state when configuration changes (especially if modifier key changes)
         ResetModifierState();
