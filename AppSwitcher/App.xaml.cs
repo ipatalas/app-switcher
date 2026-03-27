@@ -3,6 +3,7 @@ using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.Utils;
+using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -111,7 +112,11 @@ public partial class App
         var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
         logger?.LogInformation("AppSwitcher shutting down");
 
-        (_serviceProvider as ServiceProvider)?.Dispose();
+        // This has to be disposed manually because service was created manually
+        // https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection/guidelines#services-not-created-by-the-service-container
+        _serviceProvider?.GetRequiredService<LiteDatabase>().Dispose();
+
+        (_serviceProvider as IDisposable)?.Dispose();
 #if !DEBUG
         _mutex?.Dispose();
 #endif
