@@ -49,6 +49,7 @@ jobs:
 
       - name: Deploy preview to Cloudflare Pages
         id: deploy
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -56,6 +57,7 @@ jobs:
           command: pages deploy website --project-name=app-switcher --commit-dirty=true --branch=pr-${{ github.event.pull_request.number }}
 
       - name: Comment preview URL on PR
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -99,3 +101,7 @@ jobs:
                 body,
               });
             }
+
+      - name: Fork PR notice
+        if: ${{ github.event.pull_request.head.repo.fork }}
+        run: echo "Fork PR detected; skipping Cloudflare deploy and PR comment because repository secrets are unavailable."
