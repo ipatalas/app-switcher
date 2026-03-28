@@ -3,6 +3,8 @@ using System.Windows.Input;
 
 namespace AppSwitcher.Configuration.Storage;
 
+// Default values set for properties here will be used when someone is bumping from v1 to v2 and there is a new field in v2
+// SeedDefaults won't be called in such case so whatever defaults are set here will be used when settings are deserialized from the database and this field was missing
 internal class SettingsDocument
 {
     [BsonId]
@@ -20,7 +22,7 @@ internal class SettingsDocument
 
     public bool OverlayEnabled { get; init; }
 
-    public int OverlayShowDelayMs { get; init; }
+    public int OverlayShowDelayMs { get; init; } = 1000;
 
     public bool OverlayKeepOpenWhileModifierHeld { get; init; }
 
