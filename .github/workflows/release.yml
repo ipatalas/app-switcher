@@ -60,7 +60,7 @@ jobs:
         run: dotnet publish AppSwitcher\AppSwitcher.csproj -c $env:configuration -p:PublishProfile=FolderProfile --no-build
 
       - name: Build self-contained application
-        run: dotnet publish AppSwitcher\AppSwitcher.csproj -c $env:configuration -p:PublishProfile=SelfContainedProfile
+        run: dotnet publish AppSwitcher\AppSwitcher.csproj -c $env:configuration -p:PublishProfile=SelfContainedProfile --no-restore
 
       - name: Create ZIPs
         run: |
