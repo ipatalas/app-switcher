@@ -31,6 +31,6 @@ jobs:
 
   deploy-website:
     needs: push-chocolatey
-    if: ${{ needs.push-chocolatey.result == 'success' || needs.push-chocolatey.result == 'skipped' }}
+    if: ${{ always() && (needs.push-chocolatey.result == 'success' || needs.push-chocolatey.result == 'skipped') }}
     uses: ./.github/workflows/website.yml
     secrets: inherit
