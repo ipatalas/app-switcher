@@ -105,6 +105,76 @@
       color: var(--text);
     }
 
+    .nav-burger {
+      display: none;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--text);
+      border-radius: var(--radius);
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .nav-burger:hover {
+      background: var(--border);
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        padding: 0 1.25rem;
+        flex-wrap: wrap;
+        height: auto;
+        align-items: flex-start;
+      }
+
+      .nav-logo,
+      .nav-burger {
+        height: 56px;
+      }
+
+      .nav-burger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        width: 100%;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: max-height 0.25s ease, opacity 0.2s ease;
+      }
+
+      nav.open .nav-links {
+        max-height: 240px;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .nav-links a {
+        padding: 0.65rem 0.25rem;
+        font-size: 1rem;
+        line-height: 1.4;
+        border-radius: 8px;
+      }
+
+      .nav-links a:hover {
+        background: var(--accent-light);
+        color: var(--accent);
+        padding-left: 0.5rem;
+      }
+    }
+
     /* HERO */
     .hero {
       max-width: 760px;
@@ -749,7 +819,9 @@
       <span><img src="app-switcher.png" alt="AppSwitcher" /></span>
       AppSwitcher
     </div>
-    <div class="nav-links">
+    <button class="nav-burger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links"
+      onclick="toggleNav(this)">&#9776;</button>
+    <div class="nav-links" id="nav-links">
       <a href="#features">Features</a>
       <a href="#faq">FAQ</a>
       <a href="#download">Download</a>
@@ -1050,6 +1122,33 @@
   </footer>
 
   <script>
+    function closeNav() {
+      const nav = document.querySelector('nav');
+      const burger = nav.querySelector('.nav-burger');
+      nav.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleNav(btn) {
+      const nav = btn.closest('nav');
+      const isOpen = nav.classList.contains('open');
+      if (isOpen) {
+        closeNav();
+      } else {
+        nav.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Close menu when a nav link is clicked (same-page anchors)
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => closeNav());
+    });
+
+    // Close menu on outside click
+    document.addEventListener('click', e => {
+      if (!e.target.closest('nav')) closeNav();
+    });
     function closeDownloadMenus() {
       document.querySelectorAll('.dl-dropdown.open, .dl-chevron.open').forEach(el => {
         el.classList.remove('open');
