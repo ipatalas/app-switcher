@@ -1,24 +1,52 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
-// https://astro.build/config
 export default defineConfig({
+	outDir: '../website/docs',
 	integrations: [
 		starlight({
-			title: 'My Docs',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+			title: 'AppSwitcher',
+			description: 'Documentation for AppSwitcher — keyboard-driven window switching for Windows.',
+			logo: {
+				src: '../website/app-switcher.png',
+			},
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/ipatalas/app-switcher' },
+			],
+			customCss: [
+				'./src/styles/custom.css',
+			],
 			sidebar: [
 				{
-					label: 'Guides',
+					label: 'Getting Started',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
+						{ label: 'Installation', slug: 'getting-started/installation' },
+						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
+						{ label: 'System Requirements', slug: 'getting-started/requirements' },
+					],
+				},
+				{
+					label: 'Configuration',
+					items: [
+						{ label: 'Assigning Hotkeys', slug: 'configuration/hotkeys' },
+						{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
+						{ label: 'Startup & Tray', slug: 'configuration/startup' },
+					],
+				},
+				{
+					label: 'Advanced',
+					items: [
+						{ label: 'Running as Administrator', slug: 'advanced/admin' },
+						{ label: 'Portable Mode', slug: 'advanced/portable' },
 					],
 				},
 				{
 					label: 'Reference',
-					autogenerate: { directory: 'reference' },
+					items: [
+						{ label: 'CLI Commands', slug: 'reference/cli' },
+						{ label: 'Troubleshooting', slug: 'reference/troubleshooting' },
+						{ label: 'Changelog', slug: 'reference/changelog' },
+					],
 				},
 			],
 		}),

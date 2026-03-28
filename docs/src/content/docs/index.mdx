@@ -1,40 +1,42 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: AppSwitcher Documentation
+description: Everything you need to know about AppSwitcher — keyboard-driven window switching for Windows.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Stop hunting. Start teleporting.
   image:
-    file: ../../assets/houston.webp
+    html: '<img src="/app-switcher.png" alt="AppSwitcher" width="120" height="120" style="border-radius:24px;box-shadow:0 8px 32px rgba(37,99,235,0.18);" />'
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /getting-started/installation/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: View on GitHub
+      link: https://github.com/ipatalas/app-switcher
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
-
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
+  <Card title="Installation" icon="laptop">
+    Get AppSwitcher installed on your Windows machine in under a minute. Installer, portable, or Chocolatey.
+
+    [Install now →](/getting-started/installation/)
+  </Card>
+  <Card title="Quick Start" icon="rocket">
+    Assign your first hotkey and start switching apps instantly. Takes less than two minutes.
+
+    [Quick Start →](/getting-started/quick-start/)
+  </Card>
+  <Card title="Cycle Modes" icon="setting">
+    Learn the three intelligent cycle modes — NextApp, NextWindow, and Hide — to tailor each hotkey.
+
+    [Explore modes →](/configuration/cycle-modes/)
+  </Card>
+  <Card title="Troubleshooting" icon="warning">
+    Elevated windows not responding? SmartScreen blocking the app? Find answers here.
+
+    [Get help →](/reference/troubleshooting/)
+  </Card>
 </CardGrid>

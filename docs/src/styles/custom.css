@@ -1,0 +1,278 @@
+/* ============================================================
+   NON-THEMED TOKENS — font stack, radius, sidebar width.
+   These are safe on :root because they don't conflict with
+   Starlight's dark/light theme inversion logic.
+   ============================================================ */
+:root {
+    --sl-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --sl-font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --sl-font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    --sl-border-radius: 12px;
+    --sl-sidebar-width: 16rem;
+    --sl-text-h1: 2rem;
+    --sl-text-h2: 1.3rem;
+    --sl-text-h3: 1.1rem;
+
+    /* to be styled for Dark theme */
+    --sl-color-orange-low: #fffbeb;
+    --sl-color-blue-low: #eff6ff;
+}
+
+/* ============================================================
+   LIGHT THEME TOKENS
+   IMPORTANT: --sl-color-white is intentionally NOT set here.
+   Starlight defines it as hsl(224, 10%, 10%) in light mode —
+   a near-dark value used as the heading text color via:
+     .sl-markdown-content :is(h1,h2,...) { color: var(--sl-color-white) }
+   Overriding it to #ffffff makes all headings invisible on the
+   light background.
+   ============================================================ */
+[data-theme='light'] {
+    --sl-color-accent-low: #eff6ff;
+    --sl-color-accent: #2563eb;
+    --sl-color-accent-high: #1d4ed8;
+    --sl-color-bg: #f9f9fb;
+    --sl-color-bg-nav: rgba(249, 249, 251, 0.85);
+    --sl-color-bg-sidebar: #ffffff;
+    --sl-color-hairline: #e4e4e8;
+    --sl-color-hairline-light: #e4e4e8;
+    --sl-color-hairline-shade: #e4e4e8;
+    --sl-color-text: #6b6b7a;
+    --sl-color-text-accent: #2563eb;
+    --sl-color-gray-1: #1a1a1f;
+    --sl-color-gray-2: #3a3a45;
+    --sl-color-gray-3: #6b6b7a;
+    --sl-color-gray-4: #9a9aaa;
+    --sl-color-gray-5: #e4e4e8;
+    --sl-color-gray-6: #f9f9fb;
+}
+
+[data-theme='dark'] {
+    --sl-color-accent-low: #1e3a5f;
+    --sl-color-accent: #3b82f6;
+    --sl-color-accent-high: #93c5fd;
+    --sl-color-bg: #0f1117;
+    --sl-color-bg-nav: rgba(15, 17, 23, 0.85);
+    --sl-color-bg-sidebar: #13151c;
+    --sl-color-hairline: #2a2d3a;
+    --sl-color-hairline-light: #2a2d3a;
+    --sl-color-hairline-shade: #2a2d3a;
+    --sl-color-text: #e8e8f0;
+    --sl-color-text-accent: #60a5fa;
+    --sl-color-gray-1: #e8e8f0;
+    --sl-color-gray-2: #c0c0cc;
+    --sl-color-gray-3: #9090a0;
+    --sl-color-gray-4: #50505e;
+    --sl-color-gray-5: #2a2d3a;
+    --sl-color-gray-6: #13151c;
+}
+
+/* ============================================================
+   FONT — apply directly to body so no Starlight fallback leaks
+   ============================================================ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+main {
+    padding: 3rem 4rem 6rem !important;
+}
+
+.content-panel {
+    padding: 0;
+    border: 0;
+}
+
+.sl-heading-wrapper {
+    padding-top: 2.5rem;
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content p {
+    font-size: 0.95rem;
+}
+
+.sl-markdown-content strong {
+    color: var(--sl-color-white);
+}
+
+.sl-steps {
+    display: grid;
+    row-gap: 1rem;
+}
+
+.sl-steps>li::before {
+    background-color: var(--sl-color-accent);
+    color: var(--sl-color-gray-6);
+    box-shadow: none;
+    font-weight: 700;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+    text-decoration: none;
+}
+
+.sl-markdown-content a:hover:not(:where(.not-content *)) {
+    text-decoration: underline;
+    color: var(--sl-color-text-accent);
+}
+
+.starlight-aside--note {
+    border: 1px solid var(--sl-color-blue);
+    border-radius: var(--sl-border-radius);
+}
+
+.starlight-aside--note p.starlight-aside__title::before {
+    content: 'ℹ️';
+}
+
+.starlight-aside--note p svg {
+    display: none;
+}
+
+.starlight-aside--caution {
+    border: 1px solid var(--sl-color-orange);
+    border-radius: var(--sl-border-radius);
+}
+
+.starlight-aside--caution p.starlight-aside__title::before {
+    content: '⚠️';
+}
+
+.starlight-aside--caution p svg {
+    display: none;
+}
+
+pre[data-language=plaintext] {
+    border-radius: var(--sl-border-radius);
+    background-color: var(--sl-color-gray-1);
+}
+
+pre[data-language=plaintext] code span {
+    color: var(--sl-color-gray-4);
+}
+
+/* ============================================================
+   HEADING TYPOGRAPHY — tight letter-spacing matching landing page
+   ============================================================ */
+main h1:not(:where(.not-content *)) {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.7;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+main h2:not(:where(.not-content *)) {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+main h3:not(:where(.not-content *)) {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   HEADER — backdrop blur matching landing page sticky nav
+   ============================================================ */
+header.header {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+/* ============================================================
+   SIDEBAR — section group labels: small, uppercase, muted gray
+   (reference design uses gray, not blue accent)
+   ============================================================ */
+.group-label span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+}
+
+/* Hide collapse arrows — groups stay permanently expanded */
+.sidebar-content .group-label .caret,
+.sidebar-content details>summary .caret {
+    display: none;
+}
+
+.sidebar-content details>summary {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Active item — light accent background instead of solid blue pill */
+.sidebar-content li:has(> a[aria-current='page']) {
+    background-color: var(--sl-color-accent-low);
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+}
+
+.sidebar-content a[aria-current='page'] {
+    background-color: var(--sl-color-accent-low);
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+}
+
+.sidebar-content li:has(> a:hover) {
+    background-color: var(--sl-color-bg);
+}
+
+/* ============================================================
+   INLINE CODE — accent pill style from landing page
+   ============================================================ */
+:not(pre)>code {
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-accent);
+    border-radius: 5px;
+    padding: 0.15em 0.45em;
+    font-size: 0.85em;
+}
+
+/* ============================================================
+   TABLES — clean borders, uppercase column headers
+   ============================================================ */
+.sl-markdown-content table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    display: table;
+}
+
+.sl-markdown-content th {
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+    border-bottom: 1.5px solid var(--sl-color-hairline);
+    padding: 0.6rem 1rem;
+    text-align: left;
+}
+
+.sl-markdown-content td {
+    border-bottom: 1px solid var(--sl-color-hairline);
+    padding: 0.65rem 1rem;
+    vertical-align: top;
+}
+
+.sl-markdown-content tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================================
+   RIGHT TOC — subtle sizing tweak
+   ============================================================ */
+starlight-toc a {
+    font-size: 0.82rem;
+}
+
+starlight-toc .isCurrent {
+    font-weight: 600;
+}
