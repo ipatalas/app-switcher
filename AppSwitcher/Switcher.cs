@@ -40,9 +40,15 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
         var allWindows = windowHelper.GetWindows();
         var focusedAppWindows = windowHelper.GetFocusedAppWindows(allWindows, applications);
         var focusedAppWindow = focusedAppWindows.FocusedWindow!;
-        if (index < 0 || index >= focusedAppWindows.Count || index == focusedAppWindows.FocusedWindowIndex)
+        if (index < 0 || index >= focusedAppWindows.Count)
         {
             return false;
+        }
+
+        if (index == focusedAppWindows.FocusedWindowIndex)
+        {
+            // already focused, nothing to do but digit key press must be suppressed no to be sent to the active application
+            return true;
         }
 
         var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImageName);
