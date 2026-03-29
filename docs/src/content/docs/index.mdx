@@ -5,10 +5,10 @@ template: splash
 hero:
   tagline: Stop hunting. Start teleporting.
   image:
-    html: '<img src="/app-switcher.png" alt="AppSwitcher" width="120" height="120" style="border-radius:24px;box-shadow:0 8px 32px rgba(37,99,235,0.18);" />'
+    html: '<img src="/docs/app-switcher.png" alt="AppSwitcher" width="120" height="120" style="border-radius:24px;box-shadow:0 8px 32px rgba(37,99,235,0.18);" />'
   actions:
     - text: Get Started
-      link: /getting-started/installation/
+      link: '/docs/getting-started/installation/'
       icon: right-arrow
     - text: View on GitHub
       link: https://github.com/ipatalas/app-switcher
@@ -18,25 +18,27 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
+const baseUrl = import.meta.env.BASE_URL;
+
 <CardGrid stagger>
   <Card title="Installation" icon="laptop">
     Get AppSwitcher installed on your Windows machine in under a minute. Installer, portable, or Chocolatey.
 
-    [Install now →](/getting-started/installation/)
+    [Install now →]({baseUrl}/getting-started/installation/)
   </Card>
   <Card title="Quick Start" icon="rocket">
     Assign your first hotkey and start switching apps instantly. Takes less than two minutes.
 
-    [Quick Start →](/getting-started/quick-start/)
+    [Quick Start →]({baseUrl}/getting-started/quick-start/)
   </Card>
   <Card title="Cycle Modes" icon="setting">
     Learn the three intelligent cycle modes — NextApp, NextWindow, and Hide — to tailor each hotkey.
 
-    [Explore modes →](/configuration/cycle-modes/)
+    [Explore modes →]({baseUrl}/configuration/cycle-modes/)
   </Card>
   <Card title="Troubleshooting" icon="warning">
     Elevated windows not responding? SmartScreen blocking the app? Find answers here.
 
-    [Get help →](/reference/troubleshooting/)
+    [Get help →]({baseUrl}/reference/troubleshooting/)
   </Card>
 </CardGrid>
