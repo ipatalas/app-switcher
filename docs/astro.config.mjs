@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
 	outDir: '../website/docs',
+	base: '/docs',
 	integrations: [
 		starlight({
 			title: 'AppSwitcher',
