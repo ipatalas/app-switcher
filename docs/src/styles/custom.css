@@ -12,6 +12,8 @@
     --sl-text-h1: 2rem;
     --sl-text-h2: 1.3rem;
     --sl-text-h3: 1.1rem;
+    --sl-nav-height: 60px;
+    --sl-nav-pad-x: 2rem;
 
     /* to be styled for Dark theme */
     --sl-color-orange-low: #fffbeb;
@@ -184,6 +186,53 @@ header.header {
     border-bottom: 1px solid var(--sl-color-hairline);
 }
 
+.site-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--sl-color-white);
+    text-decoration: none;
+}
+
+.site-title img {
+    width: 28px;
+    height: 28px;
+}
+
+/* DOCS badge appended to the site title text */
+.site-title::after {
+    content: 'DOCS';
+    display: inline-block;
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-accent);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.2em 0.55em;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Home link injected into the social icons area */
+.sl-home-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    padding: 0.25rem 0.25rem;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+
+.sl-home-link:hover {
+    color: var(--sl-color-text);
+    opacity: 1;
+}
+
 /* ============================================================
    SIDEBAR — section group labels: small, uppercase, muted gray
    (reference design uses gray, not blue accent)
@@ -196,6 +245,10 @@ header.header {
     color: var(--sl-color-gray-3);
 }
 
+.sidebar-content {
+    padding: 1.5rem 0;
+}
+
 /* Hide collapse arrows — groups stay permanently expanded */
 .sidebar-content .group-label .caret,
 .sidebar-content details>summary .caret {
@@ -205,11 +258,23 @@ header.header {
 .sidebar-content details>summary {
     cursor: default;
     pointer-events: none;
+    padding: 0 1.25rem;
+    margin-bottom: 0.4rem;
+}
+
+.sidebar-content details>ul {
+    --sl-sidebar-item-padding-inline: 0;
+    margin-bottom: 1rem;
+}
+
+.sidebar-content details>ul>li {
+    padding: 0.35rem 1.25rem;
 }
 
 /* Active item — light accent background instead of solid blue pill */
 .sidebar-content li:has(> a[aria-current='page']) {
     background-color: var(--sl-color-accent-low);
+    border-left: 2px solid var(--sl-color-accent);
     color: var(--sl-color-text-accent);
     font-weight: 600;
 }
@@ -220,7 +285,7 @@ header.header {
     font-weight: 600;
 }
 
-.sidebar-content li:has(> a:hover) {
+.sidebar-content li:has(> a:hover:not([aria-current='page'])) {
     background-color: var(--sl-color-bg);
 }
 

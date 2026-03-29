@@ -1,0 +1,49 @@
+---
+const { dir, pagination } = Astro.locals.starlightRoute;
+const { prev, next } = pagination;
+const isRtl = dir === "rtl";
+---
+
+<div class="pagination-links print:hidden" dir={dir}>
+    {
+        prev && (
+            <a href={prev.href} rel="prev">
+                ← {prev.label}
+            </a>
+        )
+    }
+    {
+        next && (
+            <a href={next.href} rel="next">
+                {next.label} →
+            </a>
+        )
+    }
+</div>
+
+<style>
+    @layer starlight.core {
+        .pagination-links {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(min(18rem, 100%), 1fr)
+            );
+            gap: 1rem;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--sl-color-accent);
+        }
+        [rel="next"] {
+            justify-content: end;
+            text-align: end;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+</style>

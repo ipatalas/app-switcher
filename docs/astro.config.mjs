@@ -10,9 +10,13 @@ export default defineConfig({
 			logo: {
 				src: '../website/app-switcher.png',
 			},
-			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/ipatalas/app-switcher' },
-			],
+			// social: [
+			// 	{ icon: 'github', label: 'GitHub', href: 'https://github.com/ipatalas/app-switcher' },
+			// ],
+			components: {
+				SocialIcons: './src/components/SocialIcons.astro',
+				Pagination: './src/components/Pagination.astro',
+			},
 			customCss: [
 				'./src/styles/custom.css',
 			],
