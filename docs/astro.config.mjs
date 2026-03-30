@@ -6,8 +6,7 @@ export default defineConfig({
 	base: '/docs',
 	redirects: {
 		'/': '/docs/getting-started/installation',
-		'/docs': '/docs/getting-started/installation',
-		'/docs/': '/docs/getting-started/installation',
+		'/docs': '/docs/getting-started/installation'
 	},
 	integrations: [
 		starlight({
@@ -44,6 +43,7 @@ export default defineConfig({
 					label: 'Advanced',
 					items: [
 						{ label: 'Running as Administrator', slug: 'advanced/admin' },
+						{ label: 'Firewall setup', slug: 'advanced/firewall' },
 						{ label: 'Portable Mode', slug: 'advanced/portable' },
 					],
 				},

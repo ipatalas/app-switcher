@@ -10,23 +10,21 @@ import { Aside } from '@astrojs/starlight/components';
 **Check that AppSwitcher is running.** Look for the tray icon. If it's not there,
 launch AppSwitcher from the Start menu or install location.
 
-**The target app may be elevated.** If the app you're trying to switch to is running
-as Administrator, AppSwitcher cannot control it unless it is also elevated.
-See [Running as Administrator](/advanced/admin).
+**Verify the hotkey is correctly set up.** Open Settings from the tray icon and make sure
+the hotkey is assigned to the correct application.
 
-**Another app may have claimed the hotkey.** Some apps register global hotkeys that
-conflict with AppSwitcher. Try assigning a different key combination.
+**Check the logs.** In the Settings window, go to the **About** tab where you can open the logs folder. Look for any error messages when you press the hotkey.
+Report any issues you find on the [GitHub repository](https://github.com/ipatalas/app-switcher/issues).
 
-## App doesn't launch automatically
+## Target app doesn't launch automatically
 
-Make sure the **application path** in the hotkey settings points to a valid `.exe` file.
-If the app was updated or moved, the path may be stale — re-select it using **Browse**.
+If the application was moved to a different location or updated, the path in AppSwitcher may be stale.
+To fix this, open the settings and re-add the application. This updates the path to the correct executable.
 
 ## AppSwitcher switches to the wrong window
 
 If you have multiple windows of the same app open, AppSwitcher cycles through them in
-the order Windows reports them. This order may not match what you expect.
-Consider switching to **Hide** mode if you only need one window at a time.
+the order Windows reports them. This order may not match what you expect but it should be consistent as long as you don't open or close windows of that app.
 
 ## Tray icon is missing
 
@@ -34,19 +32,14 @@ The icon may be hidden in the overflow area. Click the `^` arrow on the taskbar 
 To keep it visible, drag it onto the main taskbar.
 
 If the icon is missing entirely, AppSwitcher may have crashed. Check Task Manager for
-a running `AppSwitcher.exe` process, or simply relaunch the app.
+a running `AppSwitcher.exe` process, or simply relaunch the app. If the app crashed, please report the issue on the [GitHub repository](https://github.com/ipatalas/app-switcher/issues).
 
 ## SmartScreen blocks the installer
 
 This is expected for new independent releases. Click **More info** → **Run anyway**.
 AppSwitcher is open source — you can review the full source code on GitHub before running.
 
-## Settings window doesn't open
-
-Try right-clicking the tray icon and selecting **Settings** from the context menu.
-If that fails, close AppSwitcher from the tray and relaunch it.
-
 <Aside type="note">
   If you encounter a bug not listed here, please open an issue on the
-  [GitHub repository](https://github.com/your-username/appswitcher/issues).
+  [GitHub repository](https://github.com/ipatalas/app-switcher/issues).
 </Aside>

@@ -314,3 +314,7 @@ starlight-toc a[aria-current=true] {
     font-weight: 600;
     border-left-color: var(--sl-color-accent);
 }
+
+mobile-starlight-toc>nav {
+    backdrop-filter: blur(10px);
+}

@@ -1,0 +1,27 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+    src: ImageMetadata;
+    alt: string;
+    [key: string]: any;
+}
+
+const { src, alt, ...props } = Astro.props;
+---
+
+<div class="screenshot">
+    <Image {src} {alt} {...props} />
+</div>
+
+<style>
+    .screenshot {
+        display: flex;
+        justify-content: center;
+    }
+
+    .screenshot img {
+        border-radius: 4px;
+        box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>

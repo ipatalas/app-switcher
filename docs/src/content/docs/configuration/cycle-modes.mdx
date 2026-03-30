@@ -3,19 +3,28 @@ title: Cycle Modes
 description: Understand the three hotkey cycle modes and when to use each one.
 ---
 
+import { Image } from 'astro:assets';
 import { Aside } from '@astrojs/starlight/components';
+import Screenshot from './src/components/Screenshot.astro';
+import overlay from './src/assets/overlay-numeric.png';
 
 Each hotkey in AppSwitcher has a **cycle mode** that controls what happens when you press it.
 Choosing the right mode for each app makes your workflow feel natural and predictable.
 
 ## NextWindow
 
-**Best for:** Apps you frequently open multiple windows of (e.g. browser, File Explorer, VS Code).
+**Best for:** Apps you frequently open multiple windows of (e.g., Browser, File Explorer, VS Code).
 
-Pressing the hotkey cycles through all open windows of the target application, one by one.
-If only one window is open, it brings that window into focus. If the app isn't running, it launches it.
+Pressing the hotkey cycles through all open windows of the target application, one by one. If only one window is open, it brings that window into focus.
 
-**Example:** You have three Chrome windows open. Each press of `Apps+B` brings the next one into focus.
+### Direct Selection (Numeric Keys)
+You don’t have to cycle one by one. AppSwitcher assigns a **stable number (1–0)** to every open window of the target application.
+
+* **How it works:** While holding your modifier key, simply tap a number to "teleport" directly to that specific window. For example, if `Modifier + E` is your shortcut for Vivaldi, pressing `Modifier + E` then `2` takes you straight to your second window.
+* **No Overlay Required:** This feature is always active. While the **Show Overlay** setting (see screenshot) helps visualize which number belongs to which window, the shortcuts work even if the overlay is turned off.
+* **Stable Indexing:** These numbers are tied to the internal window handle. They won't shift positions while you are working; they only change if a window is closed and a new one is opened.
+
+<Screenshot src={overlay} alt="Overlay with numeric assignments example" />
 
 ## NextApp
 
@@ -39,12 +48,3 @@ Pressing the hotkey brings the app into focus. Pressing it again minimises the f
 Subsequent presses toggle visibility.
 
 **Example:** `Apps+T` opens your terminal. Pressing `Apps+T` again minimises it out of the way.
-
-## Choosing a Mode
-
-| Scenario                              | Recommended mode |
-| ------------------------------------- | ---------------- |
-| Single app, one window at a time      | Hide             |
-| Single app, multiple windows          | NextWindow       |
-| Two apps on the same key              | NextApp          |
-| Launch-and-forget apps                | NextWindow       |

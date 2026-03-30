@@ -10,24 +10,24 @@ AppSwitcher is designed to be easy to run with minimal dependencies.
 | Version       | Supported | Notes                                              |
 | ------------- | --------- | -------------------------------------------------- |
 | Windows 11    | ✅        | Full support, including window border pulse effect |
-| Windows 10    | ✅        | Full support (border pulse effect not available)   |
+| Windows 10    | ✅        | 20H1 (build 19041) or newer: Full support (border pulse effect not available)   |
 | Windows 8.1   | ❌        | Not supported                                      |
 | Windows 7     | ❌        | Not supported                                      |
 
 ## Architecture
 
-Both **x64** (64-bit) and **x86** (32-bit) builds are available on the
-[GitHub Releases page](https://github.com/your-username/appswitcher/releases).
-Most modern machines should use the x64 build.
+Both **x64** (64-bit) and **x86** (32-bit) is supported but no dedicated builds are provided per architecture.
+The same installer and portable builds work on both architectures.
 
 ## .NET Runtime
 
-AppSwitcher is built with **.NET 8.0 WPF**. The recommended download is **self-contained**
-— it bundles the runtime and requires no separate .NET installation.
+AppSwitcher is built with **.NET 8.0 WPF**.
 
-If you prefer a smaller download, a framework-dependent build is also available,
-which requires [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
+If you prefer a smaller download, a framework-dependent build is available,
+which requires [.NET 8.0+ Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
 to be installed separately.
+
+If you want a hassle-free experience without worrying about runtimes, the self-contained builds include the .NET runtime and all dependencies, so you can just download and run without any additional setup.
 
 ## Permissions
 
