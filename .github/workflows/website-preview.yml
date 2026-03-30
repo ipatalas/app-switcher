@@ -83,6 +83,7 @@ jobs:
         with:
           script: |
             const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
+            const aliasUrl = '${{ steps.deploy.outputs.pages-deployment-alias-url }}';
             const sha = context.payload.pull_request.head.sha.slice(0, 7);
             const body = [
               '## 🚀 Website Preview',
@@ -90,6 +91,7 @@ jobs:
               '| | |',
               '|---|---|',
               `| **Preview URL** | ${deploymentUrl} |`,
+              `| **Alias URL** | ${aliasUrl} |`,
               `| **Commit** | \`${sha}\` |`,
               `| **Updated** | ${new Date().toUTCString()} |`,
               '',
