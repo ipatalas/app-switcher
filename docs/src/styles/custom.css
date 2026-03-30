@@ -163,9 +163,15 @@ header.header {
 .site-title {
     font-weight: 700;
     font-size: 1.1rem;
+    letter-spacing: -0.02em;
     color: var(--sl-color-white);
     text-decoration: none;
     gap: 0.5rem;
+}
+
+.site-title span {
+    /* offset for vertical alignment with main page */
+    margin-top: -1px;
 }
 
 .site-title img {
