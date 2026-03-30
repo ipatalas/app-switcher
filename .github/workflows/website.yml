@@ -30,10 +30,6 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: docs
 
-      - name: Build docs
-        run: pnpm build
-        working-directory: docs
-
       - name: Resolve version
         run: |
           LATEST=$(curl -s \
@@ -59,6 +55,11 @@ jobs:
             --remove-style-link-type-attributes \
             --minify-css true \
             --minify-js true
+
+      # Build docs after minification to avoid issues (Astro already does it differently)
+      - name: Build docs
+        run: pnpm build
+        working-directory: docs
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
