@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "node sync-changelog.js && astro dev",
-    "start": "astro dev",
     "build": "node sync-changelog.js && astro build",
     "preview": "astro preview",
     "astro": "astro"
