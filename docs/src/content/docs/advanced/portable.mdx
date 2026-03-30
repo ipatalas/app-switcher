@@ -1,0 +1,40 @@
+---
+title: Portable Mode
+description: Run AppSwitcher from a USB drive or any folder without installation.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The portable version of AppSwitcher runs directly from any folder — no installer,
+no registry entries, no admin rights required.
+
+## Setup
+
+1. Download **AppSwitcher-Portable.zip** from the [GitHub Releases page](https://github.com/your-username/appswitcher/releases).
+2. Extract the archive to your desired location (e.g. `D:\Tools\AppSwitcher\`).
+3. Run `AppSwitcher.exe`.
+
+## Configuration Storage
+
+In portable mode, AppSwitcher stores its configuration file (`appswitcher.config.json`)
+in the **same folder as the executable**. This means:
+
+- Your hotkeys and settings travel with the folder.
+- Copying the folder to a USB drive preserves your entire setup.
+- No data is written to `AppData` or the registry.
+
+<Aside type="caution">
+  If you move the AppSwitcher folder to a different path, any hotkeys that point to
+  absolute application paths will still work — but the **Start with Windows** startup
+  entry will break, since it points to the old location. Re-enable it after moving.
+</Aside>
+
+## Differences from the Installer Version
+
+| Feature                  | Installer | Portable |
+| ------------------------ | --------- | -------- |
+| Appears in Programs list | ✅        | ❌       |
+| Config in AppData        | ✅        | ❌       |
+| Config travels with app  | ❌        | ✅       |
+| Start with Windows       | ✅        | ✅ (path-dependent) |
+| Requires admin to install | ✅       | ❌       |

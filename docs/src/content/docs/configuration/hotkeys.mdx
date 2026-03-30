@@ -1,0 +1,57 @@
+---
+title: Assigning Hotkeys
+description: Learn how to assign, edit, and remove hotkeys for your applications.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Hotkeys are the core of AppSwitcher. Each hotkey is a key combination tied to a specific
+application and a [cycle mode](/docs/configuration/cycle-modes).
+
+## Opening the Hotkey Manager
+
+Double-click the AppSwitcher tray icon, or right-click it and choose **Settings**.
+The main window shows a list of all your configured hotkeys.
+
+{/* ![Hotkey manager window](../../../assets/placeholder-hotkey-manager.png) */}
+
+## Adding a Hotkey
+
+<Steps>
+1. Click **Add new hotkey**.
+2. Click inside the **Key combination** field and press your desired hotkey (e.g. `Apps+C`).
+3. Set the **Application** by clicking **Browse** and selecting an `.exe` file,
+   or by typing the full path manually.
+4. Choose a **Cycle mode** (see [Cycle Modes](/docs/configuration/cycle-modes)).
+5. Click **Save**.
+</Steps>
+
+<Aside type="tip">
+  You can also target a running application by clicking **Pick from running apps**,
+  which shows a live list of currently open processes to choose from.
+</Aside>
+
+## Editing a Hotkey
+
+Click the **pencil icon** next to any hotkey in the list to open the edit dialog.
+Make your changes and click **Save**.
+
+## Removing a Hotkey
+
+Click the **trash icon** next to any hotkey to remove it. This action is immediate and cannot be undone.
+
+## Hotkey Conflicts
+
+If you assign a key combination that is already in use by another hotkey or a system shortcut,
+AppSwitcher will warn you. System-level shortcuts (e.g. `Win+D`) cannot be overridden.
+
+## Recommended Key Combinations
+
+The `Apps` key (Menu key) is an excellent modifier for AppSwitcher hotkeys because it is
+rarely claimed by other applications. Common patterns:
+
+| Pattern      | Example          |
+| ------------ | ---------------- |
+| `Apps+letter`  | `Apps+C` → VS Code   |
+| `Apps+number`  | `Apps+1` → Browser   |
+| `Ctrl+Alt+letter` | `Ctrl+Alt+T` → Terminal |

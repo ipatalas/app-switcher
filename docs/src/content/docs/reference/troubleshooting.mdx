@@ -1,0 +1,52 @@
+---
+title: Troubleshooting
+description: Solutions to common issues with AppSwitcher.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Hotkey doesn't do anything
+
+**Check that AppSwitcher is running.** Look for the tray icon. If it's not there,
+launch AppSwitcher from the Start menu or install location.
+
+**The target app may be elevated.** If the app you're trying to switch to is running
+as Administrator, AppSwitcher cannot control it unless it is also elevated.
+See [Running as Administrator](/advanced/admin).
+
+**Another app may have claimed the hotkey.** Some apps register global hotkeys that
+conflict with AppSwitcher. Try assigning a different key combination.
+
+## App doesn't launch automatically
+
+Make sure the **application path** in the hotkey settings points to a valid `.exe` file.
+If the app was updated or moved, the path may be stale — re-select it using **Browse**.
+
+## AppSwitcher switches to the wrong window
+
+If you have multiple windows of the same app open, AppSwitcher cycles through them in
+the order Windows reports them. This order may not match what you expect.
+Consider switching to **Hide** mode if you only need one window at a time.
+
+## Tray icon is missing
+
+The icon may be hidden in the overflow area. Click the `^` arrow on the taskbar to reveal it.
+To keep it visible, drag it onto the main taskbar.
+
+If the icon is missing entirely, AppSwitcher may have crashed. Check Task Manager for
+a running `AppSwitcher.exe` process, or simply relaunch the app.
+
+## SmartScreen blocks the installer
+
+This is expected for new independent releases. Click **More info** → **Run anyway**.
+AppSwitcher is open source — you can review the full source code on GitHub before running.
+
+## Settings window doesn't open
+
+Try right-clicking the tray icon and selecting **Settings** from the context menu.
+If that fails, close AppSwitcher from the tray and relaunch it.
+
+<Aside type="note">
+  If you encounter a bug not listed here, please open an issue on the
+  [GitHub repository](https://github.com/your-username/appswitcher/issues).
+</Aside>

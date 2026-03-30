@@ -1,0 +1,38 @@
+---
+title: System Requirements
+description: Supported operating systems, architectures, and runtime requirements for AppSwitcher.
+---
+
+AppSwitcher is designed to be easy to run with minimal dependencies.
+
+## Operating System
+
+| Version       | Supported | Notes                                              |
+| ------------- | --------- | -------------------------------------------------- |
+| Windows 11    | ✅        | Full support, including window border pulse effect |
+| Windows 10    | ✅        | Full support (border pulse effect not available)   |
+| Windows 8.1   | ❌        | Not supported                                      |
+| Windows 7     | ❌        | Not supported                                      |
+
+## Architecture
+
+Both **x64** (64-bit) and **x86** (32-bit) builds are available on the
+[GitHub Releases page](https://github.com/your-username/appswitcher/releases).
+Most modern machines should use the x64 build.
+
+## .NET Runtime
+
+AppSwitcher is built with **.NET 8.0 WPF**. The recommended download is **self-contained**
+— it bundles the runtime and requires no separate .NET installation.
+
+If you prefer a smaller download, a framework-dependent build is also available,
+which requires [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
+to be installed separately.
+
+## Permissions
+
+AppSwitcher runs as a **standard user** by default and does not require administrator rights.
+
+There is one exception: switching to applications running with elevated privileges (e.g. Task Manager)
+requires AppSwitcher to also run as Administrator. See
+[Running as Administrator](/docs/advanced/admin) for details.

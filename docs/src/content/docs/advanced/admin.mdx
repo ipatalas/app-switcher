@@ -1,0 +1,46 @@
+---
+title: Running as Administrator
+description: When and how to run AppSwitcher with elevated privileges.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Why Elevation Matters
+
+Windows enforces a security boundary called **UIPI (UI Privilege Isolation)** that prevents
+a standard process from sending window messages to an elevated (administrator) process.
+
+Since AppSwitcher runs without admin rights by default, it cannot switch focus to
+elevated applications such as:
+
+- Task Manager
+- UAC-elevated terminals (e.g. an admin PowerShell window)
+- Any app launched with "Run as administrator"
+
+When this happens, the hotkey press is silently ignored.
+
+<Aside type="caution">
+  Running any application as Administrator gives it elevated access to your system.
+  Only do this if you regularly need to switch to elevated apps and understand the implications.
+</Aside>
+
+## How to Run AppSwitcher as Administrator
+
+<Aside type="note">
+  This can be configured directly from AppSwitcher's Settings window — no manual shortcut editing needed.
+</Aside>
+
+1. Open **Settings** (double-click the tray icon).
+2. Go to the **General** tab.
+3. Toggle **Run as Administrator** on.
+4. AppSwitcher will restart with elevated privileges.
+
+Alternatively, you can right-click `AppSwitcher.exe` → **Properties** → **Compatibility** tab →
+check **Run this program as an administrator**.
+
+## Startup Behaviour
+
+If you have both **Start with Windows** and **Run as Administrator** enabled, Windows will
+show a UAC prompt each time AppSwitcher starts. This is a Windows limitation — there is no
+way to auto-elevate at startup without a Task Scheduler workaround.
+

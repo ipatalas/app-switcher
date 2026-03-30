@@ -1,0 +1,50 @@
+---
+title: Cycle Modes
+description: Understand the three hotkey cycle modes and when to use each one.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Each hotkey in AppSwitcher has a **cycle mode** that controls what happens when you press it.
+Choosing the right mode for each app makes your workflow feel natural and predictable.
+
+## NextWindow
+
+**Best for:** Apps you frequently open multiple windows of (e.g. browser, File Explorer, VS Code).
+
+Pressing the hotkey cycles through all open windows of the target application, one by one.
+If only one window is open, it brings that window into focus. If the app isn't running, it launches it.
+
+**Example:** You have three Chrome windows open. Each press of `Apps+B` brings the next one into focus.
+
+## NextApp
+
+**Best for:** Grouping multiple apps on a single hotkey.
+
+Round-robins between multiple applications assigned to the same hotkey, switching to
+each one in sequence. Useful for toggling between two related apps (e.g. a browser and a design tool).
+
+**Example:** Both Figma and Chrome are assigned to `Apps+D`. Each press alternates between them.
+
+<Aside type="note">
+  To use NextApp, assign the same hotkey to multiple applications — AppSwitcher will
+  automatically group them and cycle between them.
+</Aside>
+
+## Hide
+
+**Best for:** Apps you want to quickly show and dismiss (e.g. terminal, music player).
+
+Pressing the hotkey brings the app into focus. Pressing it again minimises the focused window.
+Subsequent presses toggle visibility.
+
+**Example:** `Apps+T` opens your terminal. Pressing `Apps+T` again minimises it out of the way.
+
+## Choosing a Mode
+
+| Scenario                              | Recommended mode |
+| ------------------------------------- | ---------------- |
+| Single app, one window at a time      | Hide             |
+| Single app, multiple windows          | NextWindow       |
+| Two apps on the same key              | NextApp          |
+| Launch-and-forget apps                | NextWindow       |

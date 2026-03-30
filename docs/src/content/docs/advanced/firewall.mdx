@@ -1,0 +1,35 @@
+---
+title: Firewall Setup
+description: How to block AppSwitcher's internet access for peace of mind.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+AppSwitcher is **100% offline** — it never connects to the internet, has no telemetry,
+and performs no auto-updates. That said, you are welcome to block it in your firewall
+as an extra layer of assurance. It will continue to work perfectly.
+
+<Aside type="tip">
+  Blocking AppSwitcher in your firewall is entirely optional. It makes no outbound connections.
+  This page is for users who prefer to verify and enforce that explicitly.
+</Aside>
+
+## Windows Defender Firewall
+
+<Aside type="note">
+  You need administrator rights to create firewall rules.
+</Aside>
+
+1. Open **Windows Defender Firewall with Advanced Security** (search for it in the Start menu).
+2. Click **Outbound Rules** → **New Rule**.
+3. Select **Program** → **Next**.
+4. Browse to the AppSwitcher executable (e.g. `C:\Program Files\AppSwitcher\AppSwitcher.exe`).
+5. Select **Block the connection** → **Next**.
+6. Apply the rule to **Domain**, **Private**, and **Public** profiles.
+7. Give the rule a name (e.g. `Block AppSwitcher`) and click **Finish**.
+
+## Verifying with a Network Monitor
+
+If you want to verify that AppSwitcher makes no connections, you can use a tool like
+[Wireshark](https://www.wireshark.org/) or [GlassWire](https://www.glasswire.com/) and
+filter by the AppSwitcher process. You should see no outbound traffic under normal use.
