@@ -3,9 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "node sync-changelog.js && astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "node sync-changelog.js && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
