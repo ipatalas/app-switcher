@@ -6,7 +6,6 @@ description: Understand the three hotkey cycle modes and when to use each one.
 import { Image } from 'astro:assets';
 import { Aside } from '@astrojs/starlight/components';
 import Screenshot from '@components/Screenshot.astro';
-import overlay from '@assets/overlay-numeric.png';
 
 Each hotkey in AppSwitcher has a **cycle mode** that controls what happens when you press it.
 Choosing the right mode for each app makes your workflow feel natural and predictable.
@@ -24,7 +23,7 @@ You donâ€™t have to cycle one by one. AppSwitcher assigns a **stable number (1â€
 * **No Overlay Required:** This feature is always active. While the **Show Overlay** setting (see screenshot) helps visualize which number belongs to which window, the shortcuts work even if the overlay is turned off.
 * **Stable Indexing:** These numbers are tied to the internal window handle. They won't shift positions while you are working; they only change if a window is closed and a new one is opened.
 
-<Screenshot src={overlay} alt="Overlay with numeric assignments example" />
+<Screenshot src="/docs/images/overlay-numeric.png" alt="Overlay with numeric assignments example" width="405" height="236" />
 
 ## NextApp
 

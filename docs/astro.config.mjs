@@ -23,6 +23,7 @@ export default defineConfig({
 			logo: {
 				src: '../website/app-switcher.png',
 			},
+			favicon: 'app-switcher.png',
 			components: {
 				SocialIcons: './src/components/SocialIcons.astro',
 				Pagination: './src/components/Pagination.astro',
