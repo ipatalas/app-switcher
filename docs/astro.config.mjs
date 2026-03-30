@@ -8,6 +8,14 @@ export default defineConfig({
 		'/': '/docs/getting-started/installation',
 		'/docs': '/docs/getting-started/installation'
 	},
+	vite: {
+		resolve: {
+			alias: {
+				'@components': '/src/components',
+				'@assets': '/src/assets'
+			}
+		}
+	},
 	integrations: [
 		starlight({
 			title: 'AppSwitcher',
