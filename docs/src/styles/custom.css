@@ -41,6 +41,7 @@
     --sl-color-gray-5: #e4e4e8;
     --sl-color-gray-6: #f9f9fb;
 
+    /* CALLOUTS */
     --sl-color-orange-low: #fffbeb;
     --sl-color-blue-low: #eff6ff;
 }
@@ -63,6 +64,14 @@
     --sl-color-gray-4: #50505e;
     --sl-color-gray-5: #2a2d3a;
     --sl-color-gray-6: #13151c;
+
+    /* CALLOUTS */
+    --sl-color-orange-low: #2d1f00;
+    --sl-color-orange: #fbbf24;
+    --sl-color-orange-high: #fde68a;
+    --sl-color-red-low: #2d0a14;
+    --sl-color-red: #f43f5e;
+    --sl-color-red-high: #fda4af;
 }
 
 body {
@@ -109,32 +118,6 @@ body {
     color: var(--sl-color-text-accent);
 }
 
-.starlight-aside--note {
-    border: 1px solid var(--sl-color-blue);
-    border-radius: var(--sl-border-radius);
-}
-
-.starlight-aside--note p.starlight-aside__title::before {
-    content: 'ℹ️';
-}
-
-.starlight-aside--note p svg {
-    display: none;
-}
-
-.starlight-aside--caution {
-    border: 1px solid var(--sl-color-orange);
-    border-radius: var(--sl-border-radius);
-}
-
-.starlight-aside--caution p.starlight-aside__title::before {
-    content: '⚠️';
-}
-
-.starlight-aside--caution p svg {
-    display: none;
-}
-
 pre[data-language=plaintext] {
     border-radius: var(--sl-border-radius);
     background-color: var(--sl-color-gray-1);
@@ -142,6 +125,12 @@ pre[data-language=plaintext] {
 
 pre[data-language=plaintext] code span {
     color: var(--sl-color-gray-4);
+}
+
+/* CALLOUTS */
+.starlight-aside {
+    border: 1px solid var(--sl-color-asides-border);
+    border-radius: var(--sl-border-radius);
 }
 
 /* HEADING TYPOGRAPHY */
@@ -176,6 +165,7 @@ header.header {
     font-size: 1.1rem;
     color: var(--sl-color-white);
     text-decoration: none;
+    gap: 0.5rem;
 }
 
 .site-title img {
