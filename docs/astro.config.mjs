@@ -4,6 +4,11 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	outDir: '../website/docs',
 	base: '/docs',
+	redirects: {
+		'/': '/docs/getting-started/installation',
+		'/docs': '/docs/getting-started/installation',
+		'/docs/': '/docs/getting-started/installation',
+	},
 	integrations: [
 		starlight({
 			title: 'AppSwitcher',
@@ -11,9 +16,6 @@ export default defineConfig({
 			logo: {
 				src: '../website/app-switcher.png',
 			},
-			// social: [
-			// 	{ icon: 'github', label: 'GitHub', href: 'https://github.com/ipatalas/app-switcher' },
-			// ],
 			components: {
 				SocialIcons: './src/components/SocialIcons.astro',
 				Pagination: './src/components/Pagination.astro',
@@ -48,7 +50,6 @@ export default defineConfig({
 				{
 					label: 'Reference',
 					items: [
-						{ label: 'CLI Commands', slug: 'reference/cli' },
 						{ label: 'Troubleshooting', slug: 'reference/troubleshooting' },
 						{ label: 'Changelog', slug: 'reference/changelog' },
 					],
