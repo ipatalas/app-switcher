@@ -1,0 +1,54 @@
+---
+title: Running as Administrator
+description: When and how to run AppSwitcher with elevated privileges.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Why Elevation Matters
+
+While AppSwitcher can trigger a focus switch to almost any window, Windows enforces a security boundary called **UIPI (UI Privilege Isolation)**. This boundary prevents a standard process from "listening" to keyboard events while an elevated (Administrator) window has focus.
+
+Because AppSwitcher runs without admin rights by default, it loses "line of sight" to your keyboard the instant you switch to an elevated application, such as:
+
+* **Task Manager**
+* **UAC-elevated terminals** (e.g., Admin PowerShell or Command Prompt)
+* **System tools** or apps launched via "Run as administrator"
+
+### The "Ghost Modifier" Side Effect
+The most common side effect occurs when you switch focus to an elevated app: AppSwitcher never receives the **"Key Up"** signal when you release your modifier key (e.g., `Alt` or `Win`).
+
+As a result, **AppSwitcher thinks the modifier is still being held down.** Even after you switch back to a normal application, pressing a single letter key (like `W` for Web Browser) might trigger another app switch instead of typing the letter. This remains "stuck" until the state is manually reset.
+
+### How to Reset
+If you find yourself in this "Ghost Modifier" state:
+1.  Click on any **non-elevated** window (like a web browser or folder).
+2.  Tap your **Modifier Key** once and release it.
+3.  AppSwitcher will catch the "Key Up" event and return to normal.
+
+<Aside type="caution">
+  **Running AppSwitcher as Administrator** allows it to track keyboard events across all windows, preventing these "ghost" inputs. However, giving any app elevated access carries system-wide security risks. Only enable this if you frequently work with admin tools and are comfortable with the implications.
+</Aside>
+
+## How to Run AppSwitcher as Administrator
+
+To resolve the "Ghost Modifier" issue, you can manually configure AppSwitcher to always run with elevated privileges.
+
+1. Close **AppSwitcher** if it is currently running.
+2. Locate `AppSwitcher.exe` in your installation folder.
+3. Right-click the file and select **Properties**.
+4. Go to the **Compatibility** tab.
+5. Check the box for **Run this program as an administrator**.
+6. Click **OK** and relaunch the app.
+
+## Startup Behavior
+
+If you use the **Start with Windows** feature while running as Administrator, please be aware of two Windows security behaviors:
+
+* **UAC Prompt:** Windows will show a User Account Control (UAC) prompt asking for permission every time your computer starts. This is a system-level security requirement that cannot be bypassed by standard apps.
+* **Startup Delay:** Elevated applications sometimes take a few extra seconds to initialize during the Windows login process compared to standard apps.
+
+<Aside type="note">
+  **Power User Tip:** If the startup UAC prompt is too annoying, you can technically bypass it by creating a custom task in the **Windows Task Scheduler** to run AppSwitcher at logon with "Highest privileges."
+</Aside>
+

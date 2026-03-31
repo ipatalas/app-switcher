@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "website/**"
+      - "docs/**"
     types:
       - opened
       - synchronize
@@ -20,6 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: docs/pnpm-lock.yaml
+
+      - name: Install docs dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: docs
 
       - name: Resolve version
         run: |
@@ -47,6 +64,10 @@ jobs:
             --minify-css true \
             --minify-js true
 
+      - name: Build docs
+        run: pnpm build
+        working-directory: docs
+
       - name: Deploy preview to Cloudflare Pages
         id: deploy
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -62,6 +83,7 @@ jobs:
         with:
           script: |
             const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
+            const aliasUrl = '${{ steps.deploy.outputs.pages-deployment-alias-url }}';
             const sha = context.payload.pull_request.head.sha.slice(0, 7);
             const body = [
               '## 🚀 Website Preview',
@@ -69,6 +91,7 @@ jobs:
               '| | |',
               '|---|---|',
               `| **Preview URL** | ${deploymentUrl} |`,
+              `| **Alias URL** | ${aliasUrl} |`,
               `| **Commit** | \`${sha}\` |`,
               `| **Updated** | ${new Date().toUTCString()} |`,
               '',

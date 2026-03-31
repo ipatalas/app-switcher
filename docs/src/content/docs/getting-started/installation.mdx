@@ -1,0 +1,80 @@
+---
+title: Installation
+description: Get AppSwitcher up and running on your Windows machine in under a minute.
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Get AppSwitcher up and running on your Windows machine in under a minute.
+
+## System Requirements
+Before installing, make sure your system meets the following requirements:
+
+| Requirement    | Details                                                    |
+| -------------- | ---------------------------------------------------------- |
+| **OS**             | Windows 10 (build 19041 or later) or Windows 11            |
+| **.NET Runtime**   | Not required for the self-contained portable/installer builds<br/>.NET 8+ Desktop Runtime required for framework-dependent builds |
+| **Permissions**    | Standard user account (no admin required by default)       |
+| **Architecture**   | x64 or x86                                                 |
+
+## Download Options
+
+| Option           | Description                                              | Best for                      |
+| ---------------- | -------------------------------------------------------- | ----------------------------- |
+| **Installer (.exe)** | Standard Windows installer, adds AppSwitcher to Programs | Most users                    |
+| **Portable (.zip)**  | Extract and run — no installation needed                 | USB sticks, no-install setups |
+{/* | **Chocolatey**       | `choco install ipatalas-appswitcher`                     | Developers, automated setups  | */}
+
+## Installing
+
+<Tabs>
+  <TabItem label="Installer">
+
+    <Steps>
+    1. Download the latest **AppSwitcher-Setup.exe** from the [GitHub Releases page](https://github.com/ipatalas/app-switcher/releases).
+    2. Run the installer. If Windows SmartScreen appears, click **More info** → **Run anyway**.
+      This is expected for independent releases that haven't yet built a Microsoft reputation.
+    3. Follow the setup wizard. AppSwitcher will install and launch automatically,
+      appearing in your system tray.
+    </Steps>
+
+    <Aside type="caution" title="Windows SmartScreen">
+          Click **More info** then **Run anyway** if prompted. AppSwitcher is open source —
+          you can verify the source code on GitHub before running.
+    </Aside>
+  </TabItem>
+  {/* <TabItem label="Chocolatey">
+
+    If you have [Chocolatey](https://chocolatey.org/) installed, run the following in an elevated terminal:
+
+    ```
+    choco install ipatalas-appswitcher
+    ```
+
+    To upgrade to the latest version later:
+
+    ```
+    choco upgrade ipatalas-appswitcher
+    ```
+
+  </TabItem> */}
+  <TabItem label="Portable">
+
+    1. Download the latest **AppSwitcher-Portable.zip** from the [GitHub Releases page](https://github.com/ipatalas/app-switcher/releases).
+    2. Extract the archive to any folder of your choice.
+    3. Run `AppSwitcher.exe` directly — no installation needed.
+
+    <Aside type="note">
+      In portable mode, AppSwitcher stores its configuration in the same folder as the executable.
+      This makes it easy to carry your settings on a USB drive.
+    </Aside>
+
+  </TabItem>
+</Tabs>
+
+## First Launch
+
+After installation, AppSwitcher will appear as a small icon in your system tray.
+No windows will open — it runs quietly in the background until you configure your first hotkey.
+
+To get started, see [Quick Start](/docs/getting-started/quick-start/) for a step-by-step guide to setting up your first hotkey and switching apps in under two minutes.

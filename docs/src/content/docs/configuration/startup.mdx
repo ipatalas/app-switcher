@@ -1,0 +1,40 @@
+---
+title: Startup & Tray
+description: Configure AppSwitcher to run on Windows startup and manage tray behaviour.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Running on Startup
+
+By default, AppSwitcher does not start with Windows. To enable startup:
+
+1. Open **Settings** (double-click the tray icon).
+2. Go to the **About** tab.
+3. Toggle **Launch at startup** on.
+
+This creates a shortcut for AppSwitcher in your Windows startup folder. No Task Scheduler or
+admin rights are required.
+
+<Aside type="note">
+  If you are using the portable version, make sure the executable stays in the same location —
+  the startup entry points to the exact path where it was when you enabled the setting.
+</Aside>
+
+## Tray Icon
+
+AppSwitcher lives entirely in the system tray. Here's what you can do from there:
+
+| Action                  | Result                          |
+| ----------------------- | ------------------------------- |
+| **Double-click**        | Open Settings                   |
+| **Right-click**         | Open context menu               |
+| **Context → Settings**  | Open Settings                   |
+| **Context → Exit**      | Quit AppSwitcher                |
+
+## Hiding from the Taskbar
+
+AppSwitcher never appears in the taskbar — it is a tray-only application by design.
+If the tray icon is not visible, check the hidden icons area (the `^` arrow in your taskbar).
+
+To keep it always visible, drag it out of the overflow area onto the main taskbar.
