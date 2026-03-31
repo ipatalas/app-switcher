@@ -2,7 +2,7 @@
 
 **Stop hunting. Start teleporting.**
 
-![Windows Support](https://img.shields.io/badge/Windows-10%202004+%20/%2011-blue)
+![Windows Support](https://img.shields.io/badge/Windows-10%2020H1+%20/%2011-blue)
 
 I spend my workdays on macOS and my evenings on Windows. After using [rCmd](https://lowtechguys.com/rcmd/) on Mac, I stopped searching for windows and started using muscle memory to jump to them.
 
@@ -57,7 +57,7 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exa
 
 ### Requirements
 
-- Windows 10 version 2004 (build 19041) or newer, or Windows 11
+- Windows 10 version 20H1 (build 19041) or newer, or Windows 11
 - [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) for non-self-contained builds
 
 ### Choose a release

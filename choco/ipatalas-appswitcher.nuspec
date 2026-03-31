@@ -23,7 +23,7 @@ Inspired by rCmd for macOS, AppSwitcher lets you assign a global hotkey to any a
 - Assign global hotkeys to switch directly to any running window
 - Runs silently in the system tray
 - Optional autostart with Windows
-- Supports Windows 10 version 2004 (build 19041) or newer
+- Supports Windows 10 version 20H1 (build 19041) or newer
 
 ## Notes
 
