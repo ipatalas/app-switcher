@@ -2,6 +2,7 @@ using AppSwitcher.Extensions;
 using AppSwitcher.Utils;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
+using System.Collections.Frozen;
 using System.Windows.Input;
 
 namespace AppSwitcher;
@@ -13,6 +14,15 @@ internal class Hook(
     OverlayShowTimer overlayShowTimer,
     AppOverlayService overlayService) : IDisposable
 {
+    // Keys that trigger OS-level UI actions when pressed/released in isolation:
+    private static readonly FrozenSet<Key> ModifierKeysWithSideEffects = new[]
+    {
+        Key.LWin, Key.RWin, // opens start menu
+        Key.LeftAlt, // opens menu
+        Key.RightAlt, // opens menu on keyboard layouts without AltGr
+        Key.Apps, // opens context menu
+    }.ToFrozenSet();
+
     private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
     private bool _modifierDown;
@@ -91,7 +101,13 @@ internal class Hook(
     {
         var wasModifierDown = _modifierDown;
         _modifierDown = e.IsKeyDown();
-        e.SuppressKeyPress = true;
+
+        var hasSideEffects = ModifierKeysWithSideEffects.Contains(e.InputEvent.Key);
+        if (hasSideEffects)
+        {
+            logger.LogDebug("Modifier key {Key} with side effects - suppressing", e.InputEvent.Key);
+            e.SuppressKeyPress = true;
+        }
 
         if (e.IsKeyDown()) // modifier down
         {
@@ -111,7 +127,7 @@ internal class Hook(
             overlayService.Hide();
             modifierIdleTimer.Cancel();
 
-            if (!wasOverlayVisible)
+            if (!wasOverlayVisible && hasSideEffects)
             {
                 // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
                 // This allows the modifier key to function normally when pressed and released on its own
