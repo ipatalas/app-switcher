@@ -1,0 +1,105 @@
+---
+title: Choosing a Modifier Key
+description: Understand the trade-offs of each modifier key before assigning your hotkeys.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The modifier key is the foundation of your hotkey setup. Choosing the right one affects
+how natural your shortcuts feel, whether any side effects occur, and whether existing
+system or app shortcuts remain usable.
+
+## How Modifier Blocking Works
+
+To trigger a hotkey cleanly, AppSwitcher must **block the modifier key's own events**
+from reaching Windows and other applications. This is necessary because many modifier
+keys have built-in side effects when pressed and released on their own.
+
+Without blocking, a hotkey like `Apps+B` would switch to your browser *and* trigger
+the modifier's side effect at the same time. AppSwitcher prevents this automatically
+for all modifiers that have known side effects.
+
+<Aside type="note">
+  Blocking only affects the **configured** modifier key itself — it does not interfere with any
+  other use of that key outside of AppSwitcher hotkey combinations.
+</Aside>
+
+## Modifiers with Side Effects
+
+The following modifiers have side effects that AppSwitcher suppresses:
+
+| Modifier | Side effect if not blocked | Example without suppression |
+| -------- | -------------------------- | ---------------------------- |
+| **Apps** (Menu key) | Opens a context menu at the cursor | `Apps+B` switches to browser *and* shows a context menu |
+| **Win** | Opens the Windows Start menu | `Win+B` switches to browser *and* opens Start |
+| **Left Alt** | Activates the menu bar in some apps (e.g. File Explorer, Office) | `Alt+B` switches to browser *and* triggers a menu in the previously focused app |
+
+All of these are currently suppressed by AppSwitcher, so you can use them safely
+as modifiers without worrying about unwanted side effects.
+**Only the configured modifier is blocked** — if you choose `Apps` as your modifier, the `Win` key will still function normally and open Start when pressed on its own.
+Also when modifier alone is pressed, the side effect will still occur (e.g. pressing `Apps` by itself will open the context menu), but as long as you hold the modifier down while pressing a letter key, the side effect will be blocked.
+
+## Modifiers with Hotkey Conflicts
+
+Some modifier keys are so commonly used in existing shortcuts that assigning them
+as an AppSwitcher modifier will conflict with everyday actions.
+
+| Modifier | What you lose | Notes |
+| -------- | ------------- | ----- |
+| **Ctrl** | `Ctrl+C`, `Ctrl+V`, `Ctrl+Z`, `Ctrl+S` and most app shortcuts | Extremely disruptive — avoid as a sole modifier |
+| **Shift** | Ability to type uppercase letters with that specific Shift key | The opposite Shift key still works, but muscle memory will break |
+| **Left Alt** | `Alt+F4`, `Alt+Tab`, and app menu navigation | Loses many system shortcuts on top of the side effect above |
+| **Right Alt** | `AltGr` combinations (accented characters, symbols on non-US keyboards) | Especially problematic for non-English keyboard layouts. See note below. |
+
+<Aside type="caution">
+  If you use a non-US keyboard layout, avoid **Right Alt** as a modifier entirely.
+  On many European layouts, `AltGr` (Right Alt) is required to type common characters
+  such as `@`, `€`, `[`, `]`, and `\`.
+</Aside>
+
+<Aside type="danger" title="AltGr Ctrl leak">
+  On layouts where `AltGr` is active, pressing Right Alt actually simulates `Ctrl+Alt`
+  at the OS level. AppSwitcher suppresses the Alt part, but the **Ctrl modifier leaks through**.
+  This means `AltGr+A` — which would normally type a special character — instead reaches
+  the focused app as `Ctrl+A`, silently selecting all text. Similar unintended `Ctrl+letter`
+  shortcuts can fire for any `AltGr` combination. This is a Windows-level behaviour and
+  cannot be fully worked around by AppSwitcher.
+</Aside>
+
+## Recommended Modifiers
+
+### Apps key (Menu key) ✅ Best choice for most users
+
+The `Apps` key sits between the right `Alt` and `Ctrl` keys on most full-size keyboards.
+It is almost never used by other applications, has its side effect suppressed by AppSwitcher,
+and is easy to reach without moving your hand far from the home row.
+
+**Ideal pattern:** `Apps+letter` (e.g. `Apps+C` → VS Code, `Apps+T` → Terminal)
+
+### Right Ctrl ✅
+
+The `Right Ctrl` key is a solid choice if you prefer a more familiar modifier. It doesn't have any side effects that need blocking, and AppSwitcher will only block it when used in a hotkey combination, so you won't lose access to `Left Ctrl` shortcuts like `Ctrl+C` for copy.
+
+### Shift ⚠️ Usable with care
+
+If you always use just one Shift key for uppercase letters, you could assign the other Shift key as a modifier.
+This is a bit unconventional and may cause some muscle memory issues, but it can work if you don't mind the trade-off of losing uppercase letters with that specific Shift key.
+
+### Win key ⚠️ Usable with care
+
+The `Win` key works well as a modifier but many combinations are already claimed by
+Windows itself (`Win+D`, `Win+E`, `Win+L`, etc.). You can assign some of these combinations if you don't mind losing the original Windows shortcut, but it's generally best to choose combos that aren't already taken by the OS.
+Also some of them (`Win+L`) are impossible to override because they are handled at a lower level by Windows.
+Pressing `Win` alone will still open the Start menu, but will be blocked when held down with another key for a hotkey.
+
+## Summary
+
+| Modifier | Safe to use? | Recommendation |
+| -------- | ------------ | -------------- |
+| **Apps** | ✅ Yes | Best default choice |
+| **Right Ctrl** | ✅ Yes | Won't break `Left Ctrl-C` |
+| **Right Shift** | ✅ Yes | Works well if you only use the other `Shift` key for uppercase letters |
+| **Win** | ⚠️ Mostly | Avoid combos already claimed by Windows |
+| **Right Alt** | ⚠️ Mostly | Can be problematic on non-US layouts |
+| **Left Alt** | ⚠️ Risky | Side effects suppressed, but many shortcut conflicts |
+| **Left Ctrl** | ❌ Avoid | Loses clipboard and most app shortcuts |

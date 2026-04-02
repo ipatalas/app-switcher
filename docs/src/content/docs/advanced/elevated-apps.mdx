@@ -1,0 +1,53 @@
+---
+title: Elevated Apps
+description: When and how to run AppSwitcher with elevated privileges.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Why Elevation Matters
+
+While AppSwitcher can trigger a focus switch to almost any window, Windows enforces a security boundary called **UIPI (UI Privilege Isolation)**. This boundary prevents a standard process from "listening" to or intercepting keyboard events while an elevated (Administrator) window has focus.
+
+Because AppSwitcher runs without admin rights by default, it loses its ability to manage your hotkeys the instant you switch to an elevated application, such as:
+
+* **Task Manager**
+* **UAC-elevated terminals** (e.g., Admin PowerShell or Command Prompt)
+* **System tools** or apps launched via "Run as administrator"
+
+### The "Safety Reset" & Blackout Period
+To prevent your keys from getting "stuck" in a down position (the "Ghost Modifier" effect), AppSwitcher detects when you are switching to an elevated app and **automatically resets its internal state.** Once you are inside an elevated app (like Task Manager), AppSwitcher enters a **Blackout Period**:
+* **Hotkeys are ignored:** You cannot use your hotkeys to switch *away* from an elevated app, because AppSwitcher cannot "hear" your keyboard.
+* **Context Menu "Leak":** If your modifier is set to the `Apps` key, releasing it while an Admin window is focused will likely trigger that app's standard **Context Menu**. This happens because AppSwitcher is blocked from suppressing the "Key Up" event.
+* **Automatic Recovery:** As soon as you click back into a **non-elevated** window (or use `Alt+Tab` to leave the Admin app), AppSwitcher immediately regains control and your hotkeys will work again.
+
+### Identifying Elevated Apps
+AppSwitcher identifies these windows in the Overlay with a **Shield Badge (🛡️)**. If you see this badge, expect the "Safety Reset" to trigger upon switching.
+
+<Aside type="tip">
+  **Running AppSwitcher as Administrator** eliminates this blackout period entirely, allowing you to switch between Admin and Standard apps seamlessly.
+</Aside>
+
+---
+
+## How to Run AppSwitcher as Administrator
+
+To allow AppSwitcher to work seamlessly across all windows without the "Safety Reset," you can manually configure it to always run with elevated privileges.
+
+1.  Close **AppSwitcher** if it is currently running.
+2.  Locate `AppSwitcher.exe` in your installation folder.
+3.  Right-click the file and select **Properties**.
+4.  Go to the **Compatibility** tab.
+5.  Check the box for **Run this program as an administrator**.
+6.  Click **OK** and relaunch the app.
+
+## Startup Behavior
+
+If you use the **Start with Windows** feature while running as Administrator, please be aware of two Windows security behaviors:
+
+* **UAC Prompt:** Windows will show a User Account Control (UAC) prompt asking for permission every time your computer starts. This is a system-level security requirement.
+* **Startup Delay:** Elevated applications sometimes take a few extra seconds to initialize during the Windows login process compared to standard apps.
+
+<Aside type="note">
+  **Power User Tip:** If the startup UAC prompt is too annoying, you can bypass it by creating a custom task in the **Windows Task Scheduler** to run AppSwitcher at logon with "Highest privileges."
+</Aside>

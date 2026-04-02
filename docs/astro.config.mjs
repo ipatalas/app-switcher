@@ -44,6 +44,7 @@ export default defineConfig({
 				{
 					label: 'Configuration',
 					items: [
+						{ label: 'Choosing a Modifier Key', slug: 'configuration/choosing-modifier' },
 						{ label: 'Assigning Hotkeys', slug: 'configuration/hotkeys' },
 						{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
 						{ label: 'Startup & Tray', slug: 'configuration/startup' },
@@ -52,7 +53,7 @@ export default defineConfig({
 				{
 					label: 'Advanced',
 					items: [
-						{ label: 'Running as Administrator', slug: 'advanced/admin' },
+						{ label: 'Elevated Apps', slug: 'advanced/elevated-apps' },
 						{ label: 'Firewall setup', slug: 'advanced/firewall' },
 						{ label: 'Portable Mode', slug: 'advanced/portable' },
 					],
