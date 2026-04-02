@@ -9,6 +9,7 @@ on:
       - "**"
     paths-ignore:
       - "website/**"
+      - "docs/**"
       - ".github/workflows/*.yml"
       - "!.github/workflows/ci.yml"
       - "*.md"
