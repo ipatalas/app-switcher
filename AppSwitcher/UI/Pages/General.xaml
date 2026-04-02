@@ -49,10 +49,18 @@
             </ui:CardControl>
 
             <!-- Modifier Key -->
-            <ui:TextBlock Text="Modifier Key"
-                          FontTypography="BodyStrong"
-                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                          Margin="2,0,0,8" />
+            <DockPanel Margin="2,0,0,8">
+                <ui:HyperlinkButton DockPanel.Dock="Right"
+                                    Content="Learn more"
+                                    NavigateUri="https://app-switcher.com/choosing-modifier/"
+                                    Padding="0"
+                                    FontSize="12"
+                                    VerticalAlignment="Center" />
+                <ui:TextBlock Text="Modifier Key"
+                              FontTypography="BodyStrong"
+                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                              VerticalAlignment="Center" />
+            </DockPanel>
 
             <ui:Card Margin="0,0,0,10" Padding="12,12,12,12">
                 <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
