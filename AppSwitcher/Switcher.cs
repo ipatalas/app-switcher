@@ -181,12 +181,12 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
             {
                 PInvoke.SetForegroundWindow(hwnd);
             }
+        }
 
-            if (configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
-            {
-                // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
-                _ = PulseBorder(hwnd, Color.Gold, 100);
-            }
+        if (configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
+        {
+            // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
+            _ = PulseBorder(hwnd, Color.Gold, 100);
         }
     }
 
