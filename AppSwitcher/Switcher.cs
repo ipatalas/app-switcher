@@ -144,7 +144,16 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
         if (PInvoke.IsIconic(hwnd))
         {
             logger.LogDebug("Window is minimized - restoring...");
-            PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
+            if (window.NeedsElevation)
+            {
+                // SwitchToThisWindow works better than ShowWindow with SW_RESTORE when target window is elevated process
+                PInvoke.SwitchToThisWindow(hwnd, true);
+            }
+            else
+            {
+                // be polite most of the time when SwitchToThisWindow is not needed
+                PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
+            }
         }
 
         // Hack for SetForegroundWindow limitations (see Remarks here: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks)
