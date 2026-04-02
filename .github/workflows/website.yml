@@ -1,5 +1,8 @@
 name: Deploy Website
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
