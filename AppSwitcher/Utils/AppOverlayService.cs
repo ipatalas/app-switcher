@@ -19,7 +19,7 @@ internal class AppOverlayService(
     ILogger<AppOverlayService> logger)
 {
     private record WindowSnapshot(string Title, string ProcessPath, bool IsActive = false);
-    private record AppSnapshot(Key Key, string DisplayName, string ProcessPath, bool IsRunning);
+    private record AppSnapshot(Key Key, string DisplayName, string ProcessPath, bool IsRunning, bool NeedsElevation);
 
     public bool IsVisible { get; private set; }
 
@@ -27,8 +27,13 @@ internal class AppOverlayService(
     {
         var allWindows = windowHelper.GetWindows();
         var runningProcessNames = allWindows
-            .Select(w => Path.GetFileName(w.ProcessImageName).ToLowerInvariant())
-            .ToHashSet();
+            .Select(w => Path.GetFileName(w.ProcessImageName))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var needsElevationProcessNames = allWindows
+            .Where(w => w.NeedsElevation)
+            .Select(w => Path.GetFileName(w.ProcessImageName))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var (focusedAppName, focusedWindows) = GetFocusedWindowData(allWindows, applications);
         var appSnapshots = applications
@@ -36,7 +41,8 @@ internal class AppOverlayService(
                 app.Key,
                 Path.GetFileNameWithoutExtension(app.ProcessName),
                 app.ProcessPath,
-                runningProcessNames.Contains(app.ProcessName.ToLowerInvariant())))
+                runningProcessNames.Contains(app.ProcessName),
+                needsElevationProcessNames.Contains(app.ProcessName)))
             .ToList();
 
         Application.Current.Dispatcher.BeginInvoke(() => ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots));
@@ -93,7 +99,9 @@ internal class AppOverlayService(
         foreach (var app in appSnapshots)
         {
             var isActive = app.ProcessPath == processPath;
-            var item = new OverlayAppItem(app.Key, app.DisplayName, iconExtractor.GetByProcessPath(app.ProcessPath), isActive);
+            var name = app.DisplayName;
+            var item = new OverlayAppItem(app.Key, name, iconExtractor.GetByProcessPath(app.ProcessPath), isActive,
+                app.NeedsElevation);
             (app.IsRunning ? running : launchable).Add(item);
         }
 

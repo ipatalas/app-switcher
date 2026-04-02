@@ -1,0 +1,87 @@
+<Window x:Class="AppSwitcher.UI.Windows.ElevatedWarningWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen"
+        SizeToContent="WidthAndHeight">
+
+    <!-- Shadow clearance — bottom is larger because Direction=270 shadow needs ShadowDepth+BlurRadius room -->
+    <Border Padding="16,16,16,32">
+
+        <!-- Floating card container -->
+        <Border x:Name="CardBorder"
+                CornerRadius="12"
+                Padding="14,12"
+                Width="300"
+                Background="{DynamicResource SolidBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                Opacity="0.97">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Shield icon -->
+                <ui:SymbolIcon Grid.Column="0"
+                               Symbol="Shield24"
+                               FontSize="32"
+                               Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                               VerticalAlignment="Top"
+                               Margin="0,1,12,0" />
+
+                <!-- Message content -->
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Elevated application"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                    <TextBlock Text="AppSwitcher can no longer detect your keystrokes while an elevated app is in focus."
+                               FontSize="12"
+                               Opacity="0.7"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                    <ui:HyperlinkButton Content="Learn more"
+                                       Padding="0"
+                                       FontSize="12"
+                                       Margin="-3,4,0,0"
+                                       HorizontalAlignment="Left"
+                                       NavigateUri="https://app-switcher.com/elevated-apps/" />
+                </StackPanel>
+
+                <!-- Dismiss button -->
+                <ui:Button Grid.Column="2"
+                           Appearance="Transparent"
+                           Width="24"
+                           Height="24"
+                           Padding="2"
+                           MinWidth="0"
+                           VerticalAlignment="Top"
+                           Margin="8,-2,-4,0"
+                           ToolTip="Dismiss"
+                           Click="OnDismissClick">
+                    <ui:SymbolIcon Symbol="Dismiss20"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </ui:Button>
+            </Grid>
+        </Border>
+
+    </Border>
+</Window>

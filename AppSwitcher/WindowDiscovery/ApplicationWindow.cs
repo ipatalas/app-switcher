@@ -10,14 +10,15 @@ namespace AppSwitcher.WindowDiscovery;
 internal record ApplicationWindow(
     HWND Handle,
     string Title,
-    int ProcessId,
+    uint ProcessId,
     string ProcessImageName,
     SHOW_WINDOW_CMD State,
     Point Position,
     Size Size,
     WINDOW_STYLE Style,
     WindowStyleEx StyleEx,
-    bool IsCloaked)
+    bool IsCloaked,
+    bool NeedsElevation)
 {
     public bool IsValidWindow =>
         Size != Size.Empty && !string.IsNullOrEmpty(Title) &&

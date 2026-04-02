@@ -12,6 +12,7 @@ internal class Hook(
     Switcher switcher,
     ModifierIdleTimer modifierIdleTimer,
     OverlayShowTimer overlayShowTimer,
+    ElevatedWarningService elevatedWarningService,
     AppOverlayService overlayService) : IDisposable
 {
     // Keys that trigger OS-level UI actions when pressed/released in isolation:
@@ -161,17 +162,25 @@ internal class Hook(
             {
                 var letter = e.InputEvent.Key;
 
-                    var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+                var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
                 if (matchingApps.Count > 0)
                 {
                     e.SuppressKeyPress = true;
                     _suppressedLetterKeys.Add(letter);
 
                     logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
-                    switcher.Execute(matchingApps);
-                    RefreshOrHideOverlay();
-
-                    modifierIdleTimer.Restart();
+                    var window = switcher.Execute(matchingApps);
+                    if (window is { NeedsElevation: true })
+                    {
+                        // switching to elevated app so need to reset the state to avoid ghost modifier side effect
+                        ResetModifierState();
+                        elevatedWarningService.Show();
+                    }
+                    else
+                    {
+                        RefreshOrHideOverlay();
+                        modifierIdleTimer.Restart();
+                    }
                 }
                 else // unbound letter key
                 {

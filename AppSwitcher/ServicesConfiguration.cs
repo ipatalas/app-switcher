@@ -53,6 +53,8 @@ internal static class ServicesConfiguration
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
         services.AddTransient<TitleSuffixHelper>();
         services.AddTransient<AppOverlayService>();
+        services.AddSingleton<ElevatedWarningService>();
+        services.AddTransient<ProcessHelper>();
 
         services.AddCliHandler();
 
@@ -60,6 +62,7 @@ internal static class ServicesConfiguration
         services.AddTransient<MainWindow>();
         services.AddTransient<Settings>();
         services.AddSingleton<AppOverlayWindow>();
+        services.AddSingleton<ElevatedWarningWindow>();
 
         // pages
         services.AddImplementationsOf<Page>(ServiceLifetime.Transient, registerAsConcreteType: true);

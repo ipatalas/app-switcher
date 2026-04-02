@@ -38,6 +38,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Icon -->
@@ -60,8 +61,28 @@
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
+                    <!-- Elevated indicator — collapsed for non-elevated apps, takes no space -->
+                    <ui:SymbolIcon Grid.Column="2"
+                                   Symbol="Shield24"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"
+                                   Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                   ToolTip="Elevated application">
+                        <ui:SymbolIcon.Style>
+                            <Style TargetType="ui:SymbolIcon">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsElevated}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:SymbolIcon.Style>
+                    </ui:SymbolIcon>
+
                     <!-- Hotkey badge (D1/D2/… for windows, letter key for apps) -->
-                    <ui:Button Grid.Column="2"
+                    <ui:Button Grid.Column="3"
                                Content="{Binding HotkeyKey}"
                                Appearance="Secondary"
                                Width="26"

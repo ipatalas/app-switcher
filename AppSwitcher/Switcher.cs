@@ -16,12 +16,11 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
 {
     private readonly List<HWND> _nextWindows = [];
 
-    public void Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
+    public ApplicationWindow? Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
     {
         if (appGroup.Count == 1)
         {
-            Execute(appGroup[0]);
-            return;
+            return Execute(appGroup[0]);
         }
 
         var currentWindow = windowHelper.GetCurrentWindow();
@@ -32,7 +31,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
 
         var nextApp = appGroup[(currentIndex + 1) % appGroup.Count];
         logger.LogDebug("Cycling app group: current index {CurrentIndex}, next app {NextApp}", currentIndex, nextApp.ProcessName);
-        Execute(nextApp);
+        return Execute(nextApp);
     }
 
     public bool SwitchToWindowByIndex(IReadOnlyList<ApplicationConfiguration> applications, int index)
@@ -58,7 +57,12 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
         return true;
     }
 
-    private void Execute(ApplicationConfiguration appConfig)
+    /// <summary>
+    /// Switch to given application
+    /// </summary>
+    /// <param name="appConfig">configuration of target app</param>
+    /// <returns>app window that was just focused (only if switching between apps)</returns>
+    private ApplicationWindow? Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = windowHelper.GetWindows();
         var matchingWindows = topLevelWindows.Where(w =>
@@ -80,10 +84,10 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
                     Process.Start(appConfig.ProcessPath);
                     logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
                 }
-                return;
+                return null;
             }
             logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);
-            return;
+            return null;
         }
 
         var currentWindow = windowHelper.GetCurrentWindow();
@@ -93,8 +97,10 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
             _nextWindows.Clear();
             logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
             ActivateWindow(window);
+            return window;
         }
-        else if (appConfig.CycleMode == CycleMode.Hide)
+
+        if (appConfig.CycleMode == CycleMode.Hide)
         {
             logger.LogDebug("Hiding {ProcessName}", appConfig.ProcessName);
             HideWindow(window);
@@ -106,6 +112,8 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
             logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
             ActivateWindow(nextWindow);
         }
+
+        return null;
     }
 
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)

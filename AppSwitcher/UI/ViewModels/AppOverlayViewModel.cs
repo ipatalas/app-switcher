@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels;
 
-public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon, bool IsActive = false);
+public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon, bool IsActive = false, bool IsElevated = false);
 
 public partial class AppOverlayViewModel : ObservableObject
 {
@@ -38,7 +38,7 @@ public partial class AppOverlayViewModel : ObservableObject
         FocusedAppName = "code";
 
         RunningApps = new ObservableCollection<OverlayAppItem>([
-            new(Key.C, "chrome", chromeIcon),
+            new(Key.C, "chrome", chromeIcon, IsElevated: true),
             new(Key.N, "notepad", notepadIcon)
         ]);
 

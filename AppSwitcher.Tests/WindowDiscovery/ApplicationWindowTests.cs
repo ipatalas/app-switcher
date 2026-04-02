@@ -24,7 +24,8 @@ public class ApplicationWindowTests
             Size: new Size(width, height),
             Style: default,
             StyleEx: styleEx,
-            IsCloaked: isCloaked);
+            IsCloaked: isCloaked,
+            NeedsElevation: false);
 
     [Fact]
     public void IsValidWindow_ReturnsTrue_WhenAllConditionsAreMet()

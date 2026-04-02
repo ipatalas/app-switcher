@@ -10,15 +10,15 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor processPathExtractor)
+internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor processPathExtractor, ProcessHelper processHelper)
 {
     public List<ApplicationWindow> GetWindows()
     {
         var sw = Stopwatch.StartNew();
-        var windows = GetVisibleWindowsHandles();
+        var handles = GetVisibleWindowsHandles();
 
-        var result = windows
-            .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
+        var result = handles
+            .Select(GetApplicationWindow)
             .Where(item => item is { IsValidWindow: true })
             .Select(item => item!)
             .ToList();
@@ -41,9 +41,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
             style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         }
 
-        var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-
-        return GetApplicationWindow(hwnd, style, styleEx);
+        return GetApplicationWindow(hwnd);
     }
 
     public record FocusedAppWindows(ApplicationWindow? FocusedWindow, List<ApplicationWindow> AllWindows)
@@ -116,9 +114,9 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
     public List<ApplicationWindow> GetAllWindows()
     {
         var sw = Stopwatch.StartNew();
-        var windows = GetVisibleWindowsHandles();
-        var result = windows
-            .Select(w => GetApplicationWindow(w.Handle, w.Style, w.StyleEx))
+        var handles = GetVisibleWindowsHandles();
+        var result = handles
+            .Select(GetApplicationWindow)
             .Where(item => item != null)
             .Select(item => item!)
             .ToList();
@@ -133,7 +131,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
         LogWindows(LogLevel.Information, result);
     }
 
-    private unsafe ApplicationWindow? GetApplicationWindow(HWND hwnd, WINDOW_STYLE style, WindowStyleEx styleEx)
+    private unsafe ApplicationWindow? GetApplicationWindow(HWND hwnd)
     {
         WINDOWPLACEMENT placement = new();
         PInvoke.GetWindowPlacement(hwnd, ref placement);
@@ -151,6 +149,9 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
             return null;
         }
 
+        var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
         var cloaked = 0;
         var hresult = PInvoke.DwmGetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, &cloaked, sizeof(int));
         if (hresult != 0)
@@ -159,13 +160,15 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
                 hwnd, Path.GetFileName(processImageName), hresult);
         }
 
-        return new ApplicationWindow(hwnd, title, (int)processId, processImageName, placement.showCmd, position, size,
-            style, styleEx, cloaked != 0);
+        var needsElevation = processHelper.NeedsElevation(processId);
+
+        return new ApplicationWindow(hwnd, title, processId, processImageName, placement.showCmd, position, size,
+            style, styleEx, cloaked != 0, needsElevation);
     }
 
-    private ISet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)> GetVisibleWindowsHandles()
+    private ISet<HWND> GetVisibleWindowsHandles()
     {
-        var result = new HashSet<(HWND Handle, WINDOW_STYLE Style, WindowStyleEx StyleEx)>();
+        var result = new HashSet<HWND>();
         var shellWindow = PInvoke.GetShellWindow();
 
         PInvoke.EnumWindows(Enumerator, nint.Zero);
@@ -174,12 +177,9 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
 
         BOOL Enumerator(HWND hwnd, LPARAM lParam)
         {
-            var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
-            var styleEx = (WindowStyleEx)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-
             if (hwnd != shellWindow && PInvoke.IsWindowVisible(hwnd) && PInvoke.IsWindow(hwnd))
             {
-                result.Add((hwnd, style, styleEx));
+                result.Add(hwnd);
             }
 
             return true;
