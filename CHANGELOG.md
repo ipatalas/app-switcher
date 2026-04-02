@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.8.1] - 2026-04-02
+- Change modifier suppression - only suppress when configured modifier can have side effects
+- Add new warning when switching to elevated process from non-elevated AppSwitcher
+- Fix when sometimes elevated app was not focused correctly when switching to it from non-elevated AppSwitcher
+- Fix border pulse effect not always working (Win11 only)
+
 ## [1.8.0] - 2026-03-28
 - Add new overlay window when modifier key is held
 - Delete Startup shortcut when AppSwitcher is uninstalled
