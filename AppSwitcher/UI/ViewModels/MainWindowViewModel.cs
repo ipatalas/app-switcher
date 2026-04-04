@@ -12,10 +12,11 @@ using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace AppSwitcher.UI.ViewModels;
 
-public partial class MainWindowViewModel : ObservableObject
+internal partial class MainWindowViewModel : ObservableObject
 {
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly SettingsViewModel _settingsViewModel;
     private Settings? _settings;
 
     public string TrayTooltipText
@@ -26,14 +27,15 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider)
+    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider, SettingsViewModel settingsViewModel)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
+        _settingsViewModel = settingsViewModel;
         _logger.LogInformation("MainWindowViewModel initialized");
     }
 
-    public MainWindowViewModel() : this(NullLogger<MainWindowViewModel>.Instance, null!)
+    public MainWindowViewModel() : this(NullLogger<MainWindowViewModel>.Instance, null!, null!)
     {
     }
 
@@ -47,6 +49,10 @@ public partial class MainWindowViewModel : ObservableObject
 #if DEBUG_ERROR_HANDLING
             throw new InvalidOperationException("Simulated failure in OpenSettings");
 #endif
+            // refresh every time Settings window is open
+            // this will also fetch fresh icon for packaged apps (in case they were updated in the meantime)
+            _settingsViewModel.LoadConfiguration();
+
             if (_settings is not { IsLoaded: true })
             {
                 _settings = _serviceProvider.GetRequiredService<Settings>();

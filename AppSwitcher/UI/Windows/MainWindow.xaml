@@ -15,7 +15,8 @@
         Left="-1000"
         Top="-1000"
         Closed="MainWindow_OnClosed"
-        d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}">
+        d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        x:ClassModifier="internal">
     <StackPanel>
         <tray:NotifyIcon MenuOnRightClick="True"
                          Visibility="Visible"

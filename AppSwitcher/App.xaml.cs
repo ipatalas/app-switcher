@@ -91,8 +91,8 @@ public partial class App
 
         ApplyTheme(config.Theme);
 
-        var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-        mainWindow.Show();
+        Current.MainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+        Current.MainWindow.Show();
 
         // Eagerly create the overlay window singleton so it is ready before the hook starts.
         _serviceProvider.GetRequiredService<AppOverlayWindow>();

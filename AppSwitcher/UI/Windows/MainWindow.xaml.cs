@@ -7,7 +7,7 @@ namespace AppSwitcher.UI.Windows;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+internal partial class MainWindow
 {
     public MainWindow(MainWindowViewModel viewModel)
     {
