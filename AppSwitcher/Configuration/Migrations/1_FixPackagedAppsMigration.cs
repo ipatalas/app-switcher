@@ -1,6 +1,6 @@
-using AppSwitcher.Configuration.Storage;
 using AppSwitcher.Utils;
 using LiteDB;
+using System.Windows.Input;
 
 namespace AppSwitcher.Configuration.Migrations;
 
@@ -62,4 +62,34 @@ internal class FixPackagedAppsMigration(IPackagedAppsService packagedAppsService
             });
         }
     }
+}
+
+file class SettingsDocument
+{
+    [BsonId] public int Id { get; set; }
+
+    public int? ModifierIdleTimeoutMs { get; init; }
+
+    public Key Modifier { get; init; }
+
+    public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
+
+    public bool PulseBorderEnabled { get; init; }
+
+    public AppThemeSetting Theme { get; init; }
+}
+
+file class ApplicationConfigurationDocument
+{
+    public Key Key { get; init; }
+
+    public string ProcessPath { get; init; } = string.Empty;
+
+    public CycleMode CycleMode { get; init; }
+
+    public bool StartIfNotRunning { get; init; }
+
+    public ApplicationType Type { get; init; } = ApplicationType.Win32;
+
+    public string? Aumid { get; init; }
 }

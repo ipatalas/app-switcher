@@ -1,6 +1,5 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Configuration.Migrations;
-using AppSwitcher.Configuration.Storage;
 using AppSwitcher.Utils;
 using LiteDB;
 using System.Windows.Input;
@@ -30,13 +29,17 @@ public class FixPackagedAppsMigrationTests : IDisposable
         _db.GetCollection<SettingsDocument>("settings").Insert(new SettingsDocument
         {
             Id = 1,
+            ModifierIdleTimeoutMs = 1000,
             Modifier = Key.LeftCtrl,
+            PulseBorderEnabled = true,
+            Theme = AppThemeSetting.Dark,
             Applications = [.. apps]
         });
     }
 
-    private List<ApplicationConfigurationDocument> GetApps() =>
-        _db.GetCollection<SettingsDocument>("settings").FindById(1).Applications;
+    private List<ApplicationConfigurationDocument> GetApps() => GetSettings().Applications;
+
+    private SettingsDocument GetSettings() => _db.GetCollection<SettingsDocument>("settings").FindById(1);
 
     private ApplicationConfigurationDocument MakeApp(string processPath, ApplicationType type, string? aumid = null) =>
         new ApplicationConfigurationDocument
@@ -59,6 +62,24 @@ public class FixPackagedAppsMigrationTests : IDisposable
         var act = () => _sut.Up(_db);
 
         act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Up_PreservesOtherSettings_AfterMigration()
+    {
+        const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";
+        const string exePath = packageDir + @"\WindowsTerminal.exe";
+        _packagedAppsService.Register(packageDir, new PackagedAppInfo("Microsoft.WindowsTerminal_8wekyb3d8bbwe!App", null));
+        SeedSettings(MakeApp(exePath, ApplicationType.Win32));
+
+        _sut.Up(_db);
+
+        var settings = GetSettings();
+
+        settings.ModifierIdleTimeoutMs.Should().Be(1000);
+        settings.Modifier.Should().Be(Key.LeftCtrl);
+        settings.PulseBorderEnabled.Should().BeTrue();
+        settings.Theme.Should().Be(AppThemeSetting.Dark);
     }
 
     [Fact]
@@ -161,5 +182,35 @@ public class FixPackagedAppsMigrationTests : IDisposable
 
         public PackagedAppInfo? GetByAumid(string aumid) =>
             _packages.Values.FirstOrDefault(p => p.Aumid.Equals(aumid, StringComparison.OrdinalIgnoreCase));
+    }
+
+    class SettingsDocument
+    {
+        [BsonId] public int Id { get; set; }
+
+        public int? ModifierIdleTimeoutMs { get; init; }
+
+        public Key Modifier { get; init; }
+
+        public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
+
+        public bool PulseBorderEnabled { get; init; }
+
+        public AppThemeSetting Theme { get; init; }
+    }
+
+    class ApplicationConfigurationDocument
+    {
+        public Key Key { get; init; }
+
+        public string ProcessPath { get; init; } = string.Empty;
+
+        public CycleMode CycleMode { get; init; }
+
+        public bool StartIfNotRunning { get; init; }
+
+        public ApplicationType Type { get; init; } = ApplicationType.Win32;
+
+        public string? Aumid { get; init; }
     }
 }
