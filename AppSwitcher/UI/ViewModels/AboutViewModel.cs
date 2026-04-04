@@ -18,7 +18,6 @@ namespace AppSwitcher.UI.ViewModels;
 
 internal partial class AboutViewModel : ObservableObject
 {
-    private readonly AutoStart _autoStart = null!;
     private readonly ILogger<AboutViewModel> _logger = null!;
     private readonly ISnackbarService _snackbarService = null!;
     private readonly WindowHelper _windowHelper = null!;
@@ -33,37 +32,19 @@ internal partial class AboutViewModel : ObservableObject
 
     public ImageSource? AppIcon { get; }
 
-    [ObservableProperty]
-    private bool _launchAtStartup;
-
     [UsedImplicitly(Reason = "Design-time constructor")]
     public AboutViewModel()
     {
         AppVersion = "Version 1.2.3";
-        _launchAtStartup = true;
         AppIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
     }
 
-    public AboutViewModel(AutoStart autoStart, IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowHelper windowHelper)
+    public AboutViewModel(IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowHelper windowHelper)
     {
-        _autoStart = autoStart;
         _logger = logger;
         _snackbarService = snackbarService;
         _windowHelper = windowHelper;
-        _launchAtStartup = autoStart.IsEnabled();
         AppIcon = iconExtractor.GetByProcessPath(Environment.ProcessPath ?? string.Empty);
-    }
-
-    partial void OnLaunchAtStartupChanged(bool value)
-    {
-        if (value)
-        {
-            _autoStart.CreateShortcut();
-        }
-        else
-        {
-            _autoStart.RemoveShortcut();
-        }
     }
 
     [RelayCommand]

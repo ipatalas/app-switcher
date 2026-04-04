@@ -13,6 +13,7 @@ namespace AppSwitcher.UI.ViewModels;
 
 internal partial class SettingsViewModel : ObservableObject, IDisposable
 {
+    private readonly AutoStart _autoStart = null!;
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
     private readonly ISnackbarService _snackbarService = null!;
@@ -82,6 +83,21 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private bool _overlayKeepOpenWhileModifierHeld;
 
+    [ObservableProperty]
+    private bool _launchAtStartup;
+
+    partial void OnLaunchAtStartupChanged(bool value)
+    {
+        if (value)
+        {
+            _autoStart.CreateShortcut();
+        }
+        else
+        {
+            _autoStart.RemoveShortcut();
+        }
+    }
+
     public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
@@ -102,12 +118,14 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
     }
 
-    public SettingsViewModel(ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService)
+    public SettingsViewModel(AutoStart autoStart, ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService)
     {
+        _autoStart = autoStart;
         _configurationManager = configurationManager;
         _iconExtractor = iconExtractor;
         _snackbarService = snackbarService;
         _packagedAppsService = packagedAppsService;
+        _launchAtStartup = autoStart.IsEnabled();
         LoadConfiguration();
     }
 
