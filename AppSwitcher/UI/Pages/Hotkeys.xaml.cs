@@ -4,6 +4,7 @@ using AppSwitcher.UI.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Color = System.Windows.Media.Color;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -98,10 +99,12 @@ internal partial class Hotkeys : Page
 
     private void OnApplicationAdded(ApplicationShortcutViewModel addedVm)
     {
-        // Scroll to the new item and activate its key assignment button
-        ApplicationsList.ScrollIntoView(addedVm);
-        ApplicationsList.UpdateLayout();
-        ActivateKeyAssignmentFor(addedVm);
+        Dispatcher.InvokeAsync(() =>
+        {
+            ApplicationsList.UpdateLayout();
+            ApplicationsList.ScrollIntoView(addedVm);
+            ActivateKeyAssignmentFor(addedVm);
+        }, DispatcherPriority.Loaded);
     }
 
     private void ActivateKeyAssignmentFor(ApplicationShortcutViewModel targetVm)
