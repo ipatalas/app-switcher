@@ -12,7 +12,6 @@ public enum CycleMode
 }
 
 internal record Configuration(
-    int? ModifierIdleTimeoutMs,
     Key Modifier,
     IReadOnlyList<ApplicationConfiguration> Applications,
     bool PulseBorderEnabled,

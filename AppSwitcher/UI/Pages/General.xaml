@@ -72,41 +72,6 @@
                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                           Margin="2,0,0,8" />
 
-            <ui:CardControl Margin="0,0,0,4"
-                            Padding="20,10,20,10"
-                            Icon="{ui:SymbolIcon Timer24}">
-                <ui:CardControl.Header>
-                    <StackPanel>
-                        <ui:TextBlock FontTypography="BodyStrong"
-                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                      Text="Modifier idle timeout"
-                                      TextWrapping="WrapWithOverflow" />
-                        <ui:TextBlock Appearance="Secondary"
-                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                      Text="Resets stuck modifier state if the key-up event is blocked by the switched-to app. Increase if you notice unintended switches after releasing the modifier key. Set to 0 to disable."
-                                      TextWrapping="WrapWithOverflow" />
-                    </StackPanel>
-                </ui:CardControl.Header>
-                <ui:CardControl.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:NumberBox Value="{Binding ModifierIdleTimeoutMs, Mode=TwoWay}"
-                                      Minimum="0"
-                                      PlaceholderText="0"
-                                      AcceptsExpression="False"
-                                      PreviewTextInput="ModifierIdleTimeout_OnPreviewTextInput"
-                                      HorizontalContentAlignment="Right"
-                                      SpinButtonPlacementMode="Compact"
-                                      Width="100"
-                                      SmallChange="100"
-                                      LargeChange="1000" />
-                        <TextBlock Text="ms"
-                                   VerticalAlignment="Center"
-                                   Margin="6,0,0,0"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    </StackPanel>
-                </ui:CardControl.Content>
-            </ui:CardControl>
-
             <ui:CardControl Padding="20,10,20,10"
                             Icon="{ui:SymbolIcon Sparkle24}">
                 <ui:CardControl.Header>

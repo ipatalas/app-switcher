@@ -66,7 +66,6 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
         var defaults = new SettingsDocument
         {
             Id = SettingsDocumentId,
-            ModifierIdleTimeoutMs = 0,
             Modifier = Key.RightCtrl,
             Applications = [],
             PulseBorderEnabled = true,

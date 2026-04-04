@@ -4,7 +4,6 @@ using System.Windows.Input;
 namespace AppSwitcher.UI.ViewModels;
 
 internal sealed record SettingsSnapshot(
-    int? ModifierIdleTimeoutMs,
     Key ModifierKey,
     IReadOnlyList<ApplicationShortcutSnapshot> Applications,
     bool PulseBorderEnabled,
@@ -13,6 +12,7 @@ internal sealed record SettingsSnapshot(
     int OverlayShowDelayMs,
     bool OverlayKeepOpenWhileModifierHeld)
 {
+    // This is needed because regular record equality would do only reference comparison for Applications
     public bool Equals(SettingsSnapshot? other)
     {
         if (other is null)
@@ -20,8 +20,7 @@ internal sealed record SettingsSnapshot(
             return false;
         }
 
-        return ModifierIdleTimeoutMs == other.ModifierIdleTimeoutMs &&
-               ModifierKey == other.ModifierKey &&
+        return ModifierKey == other.ModifierKey &&
                PulseBorderEnabled == other.PulseBorderEnabled &&
                Theme == other.Theme &&
                OverlayEnabled == other.OverlayEnabled &&
@@ -32,7 +31,7 @@ internal sealed record SettingsSnapshot(
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(ModifierIdleTimeoutMs, ModifierKey, PulseBorderEnabled, Theme, OverlayEnabled,
+        return HashCode.Combine(ModifierKey, PulseBorderEnabled, Theme, OverlayEnabled,
             OverlayShowDelayMs, OverlayKeepOpenWhileModifierHeld, Applications.Count);
     }
 }

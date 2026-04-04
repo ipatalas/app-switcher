@@ -14,7 +14,6 @@ public class ConfigurationServiceTests : IDisposable
     private readonly ConfigurationService _sut;
 
     private static AppConfig MakeConfig(
-        int? modifierIdleTimeoutMs = null,
         Key modifier = Key.RightCtrl,
         ApplicationConfiguration[]? applications = null,
         bool pulseBorderEnabled = true,
@@ -24,7 +23,6 @@ public class ConfigurationServiceTests : IDisposable
         bool overlayKeepOpenWhileModifierHeld = true)
     {
         return new AppConfig(
-            ModifierIdleTimeoutMs: modifierIdleTimeoutMs,
             Modifier: modifier,
             Applications: applications ?? [],
             PulseBorderEnabled: pulseBorderEnabled,
@@ -48,7 +46,6 @@ public class ConfigurationServiceTests : IDisposable
         var result = _sut.ReadConfiguration();
 
         result.Should().BeEquivalentTo(new AppConfig(
-            ModifierIdleTimeoutMs: 0,
             Modifier: Key.RightCtrl,
             Applications: [],
             PulseBorderEnabled: true,
@@ -74,7 +71,7 @@ public class ConfigurationServiceTests : IDisposable
     public void WriteConfiguration_Overwrites_WhenCalledTwice()
     {
         var first = MakeConfig();
-        var second = first with { ModifierIdleTimeoutMs = 2000, Modifier = Key.RightAlt, Theme = AppThemeSetting.Dark };
+        var second = first with { Modifier = Key.RightAlt, Theme = AppThemeSetting.Dark };
 
         _sut.WriteConfiguration(first);
         _sut.WriteConfiguration(second);
@@ -98,16 +95,5 @@ public class ConfigurationServiceTests : IDisposable
         var result = _sut.ReadConfiguration();
 
         result.Applications.Should().BeEquivalentTo(apps);
-    }
-
-    [Fact]
-    public void ReadConfiguration_PreservesNullModifierIdleTimeout()
-    {
-        var config = MakeConfig(modifierIdleTimeoutMs: null);
-
-        _sut.WriteConfiguration(config);
-        var result = _sut.ReadConfiguration();
-
-        result.ModifierIdleTimeoutMs.Should().BeNull();
     }
 }

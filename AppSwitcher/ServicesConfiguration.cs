@@ -46,7 +46,6 @@ internal static class ServicesConfiguration
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
-        services.AddTransient<ModifierIdleTimer>();
         services.AddTransient<OverlayShowTimer>();
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();

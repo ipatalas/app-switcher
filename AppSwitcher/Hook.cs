@@ -10,7 +10,6 @@ namespace AppSwitcher;
 internal class Hook(
     ILogger<Hook> logger,
     Switcher switcher,
-    ModifierIdleTimer modifierIdleTimer,
     OverlayShowTimer overlayShowTimer,
     ElevatedWarningService elevatedWarningService,
     AppOverlayService overlayService) : IDisposable
@@ -33,7 +32,6 @@ internal class Hook(
     public void Start(Configuration.Configuration config)
     {
         _config = config;
-        modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
         overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
@@ -54,7 +52,6 @@ internal class Hook(
     public void UpdateConfiguration(Configuration.Configuration config)
     {
         _config = config;
-        modifierIdleTimer.Configure(onExpired: ResetModifierState, config.ModifierIdleTimeoutMs);
         overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
         // Reset state when configuration changes (especially if modifier key changes)
         ResetModifierState();
@@ -113,9 +110,6 @@ internal class Hook(
         if (e.IsKeyDown()) // modifier down
         {
             _letterKeyPressedWithModifier = false;
-            // Restart timer on each key repeat
-            modifierIdleTimer.Restart();
-
             if (!wasModifierDown && _config!.OverlayEnabled) // first press only — not a key repeat
             {
                 overlayShowTimer.Start();
@@ -126,7 +120,6 @@ internal class Hook(
             var wasOverlayVisible = overlayService.IsVisible;
             overlayShowTimer.Cancel();
             overlayService.Hide();
-            modifierIdleTimer.Cancel();
 
             if (!wasOverlayVisible && hasSideEffects)
             {
@@ -141,7 +134,6 @@ internal class Hook(
         {
             overlayShowTimer.Cancel();
             overlayService.Hide();
-            modifierIdleTimer.Cancel();
         }
     }
 
@@ -179,12 +171,7 @@ internal class Hook(
                     else
                     {
                         RefreshOrHideOverlay();
-                        modifierIdleTimer.Restart();
                     }
-                }
-                else // unbound letter key
-                {
-                    modifierIdleTimer.Cancel();
                 }
             }
         }
@@ -215,11 +202,6 @@ internal class Hook(
 
                     logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
                     RefreshOrHideOverlay();
-                    modifierIdleTimer.Restart();
-                }
-                else // no matching NextWindow app or window index out of range
-                {
-                    modifierIdleTimer.Cancel();
                 }
             }
         }
@@ -252,6 +234,5 @@ internal class Hook(
         _suppressedLetterKeys.Clear();
         overlayShowTimer.Cancel();
         overlayService.Hide();
-        modifierIdleTimer.Cancel();
     }
 }

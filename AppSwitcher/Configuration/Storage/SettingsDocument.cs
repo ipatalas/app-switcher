@@ -10,8 +10,6 @@ internal class SettingsDocument
     [BsonId]
     public int Id { get; set; }
 
-    public int? ModifierIdleTimeoutMs { get; init; }
-
     public Key Modifier { get; init; }
 
     public List<ApplicationConfigurationDocument> Applications { get; init; } = [];
@@ -28,7 +26,6 @@ internal class SettingsDocument
 
     public Configuration ToConfiguration() =>
         new(
-            ModifierIdleTimeoutMs,
             Modifier,
             Applications.Select(a => a.ToApplicationConfiguration()).ToList(),
             PulseBorderEnabled,
@@ -41,7 +38,6 @@ internal class SettingsDocument
         new()
         {
             Id = id,
-            ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs,
             Modifier = config.Modifier,
             Applications = config.Applications
                 .Select(ApplicationConfigurationDocument.FromApplicationConfiguration)

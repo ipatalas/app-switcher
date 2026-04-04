@@ -15,7 +15,6 @@ public class SettingsDocumentTests
         var doc = new SettingsDocument
         {
             Id = 1,
-            ModifierIdleTimeoutMs = 3000,
             Modifier = Key.LeftAlt,
             Applications =
             [
@@ -37,7 +36,6 @@ public class SettingsDocumentTests
         var result = doc.ToConfiguration();
 
         result.Should().BeEquivalentTo(new AppConfig(
-            ModifierIdleTimeoutMs: 3000,
             Modifier: Key.LeftAlt,
             Applications:
             [
@@ -55,25 +53,9 @@ public class SettingsDocumentTests
     }
 
     [Fact]
-    public void ToConfiguration_MapsNullModifierIdleTimeout()
-    {
-        var doc = new SettingsDocument
-        {
-            Modifier = Key.RightCtrl,
-            ModifierIdleTimeoutMs = null,
-            Applications = []
-        };
-
-        var result = doc.ToConfiguration();
-
-        result.ModifierIdleTimeoutMs.Should().BeNull();
-    }
-
-    [Fact]
     public void FromConfiguration_MapsAllFields()
     {
         var config = new AppConfig(
-            ModifierIdleTimeoutMs: 5000,
             Modifier: Key.RightCtrl,
             Applications:
             [
@@ -94,7 +76,6 @@ public class SettingsDocumentTests
         result.Should().BeEquivalentTo(new SettingsDocument
         {
             Id = 42,
-            ModifierIdleTimeoutMs = 5000,
             Modifier = Key.RightCtrl,
             Applications =
             [
@@ -118,7 +99,6 @@ public class SettingsDocumentTests
     public void RoundTrip_PreservesAllData()
     {
         var original = new AppConfig(
-            ModifierIdleTimeoutMs: 1500,
             Modifier: Key.LeftShift,
             Applications:
             [

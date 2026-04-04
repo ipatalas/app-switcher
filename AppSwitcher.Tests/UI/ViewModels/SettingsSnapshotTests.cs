@@ -9,7 +9,6 @@ namespace AppSwitcher.Tests.UI.ViewModels;
 public class SettingsSnapshotTests
 {
     private static SettingsSnapshot Default() => new(
-        ModifierIdleTimeoutMs: 1000,
         ModifierKey: Key.LeftCtrl,
         Applications: [new ApplicationShortcutSnapshot(Key.A, "notepad.exe", false, CycleMode.NextApp)],
         PulseBorderEnabled: true,
@@ -31,15 +30,6 @@ public class SettingsSnapshotTests
     public void Equals_ReturnsFalse_WhenOtherIsNull()
     {
         Default().Should().NotBe(null);
-    }
-
-    [Fact]
-    public void Equals_ReturnsFalse_WhenModifierIdleTimeoutMsDiffers()
-    {
-        var a = Default();
-        var b = a with { ModifierIdleTimeoutMs = 9999 };
-
-        a.Should().NotBe(b);
     }
 
     [Fact]
@@ -135,15 +125,6 @@ public class SettingsSnapshotTests
     {
         var a = Default() with { Applications = [] };
         var b = Default() with { Applications = [] };
-
-        a.Should().Be(b);
-    }
-
-    [Fact]
-    public void Equals_ReturnsTrue_WhenModifierIdleTimeoutMsIsNullInBoth()
-    {
-        var a = Default() with { ModifierIdleTimeoutMs = null };
-        var b = Default() with { ModifierIdleTimeoutMs = null };
 
         a.Should().Be(b);
     }

@@ -13,7 +13,7 @@ public class ConfigurationValidatorTests
     private readonly ConfigurationValidator _sut = new(NullLogger<ConfigurationValidator>.Instance);
 
     private static AppConfig MakeConfig(Key modifier, params ApplicationConfiguration[] apps) =>
-        new(null, modifier, [.. apps], true, AppThemeSetting.System, true, 1000, true);
+        new(modifier, [.. apps], true, AppThemeSetting.System, true, 1000, true);
 
     private static ApplicationConfiguration MakeApp(Key key, string processPath) =>
         new(key, processPath, CycleMode.NextApp, false);

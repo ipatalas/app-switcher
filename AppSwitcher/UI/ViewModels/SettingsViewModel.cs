@@ -54,10 +54,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
-    private int? _modifierIdleTimeoutMs;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
     private bool _pulseBorderEnabled = true;
 
     // see https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute -> DWMWA_BORDER_COLOR
@@ -119,7 +115,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
         var config = _configurationManager.GetConfiguration()!;
         ModifierKey = config.Modifier;
-        ModifierIdleTimeoutMs = config.ModifierIdleTimeoutMs;
         PulseBorderEnabled = config.PulseBorderEnabled;
         Theme = config.Theme;
         OverlayEnabled = config.OverlayEnabled;
@@ -190,7 +185,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     private SettingsSnapshot CreateCurrentSnapshot()
     {
-        return new SettingsSnapshot(ModifierIdleTimeoutMs, ModifierKey,
+        return new SettingsSnapshot(ModifierKey,
             Applications.Select(app =>
                     new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode, app.Type, app.Aumid))
                 .ToList(),
@@ -250,7 +245,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             throw new InvalidOperationException("Simulated failure in SaveAndClose");
 #endif
             var newConfig = new Configuration.Configuration(
-                ModifierIdleTimeoutMs,
                 ModifierKey,
                 Applications.Select(app =>
                     new ApplicationConfiguration(
