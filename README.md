@@ -51,6 +51,13 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exa
 > **Windows SmartScreen may appear on first launch.**
 > As an independent release, AppSwitcher has not built strong SmartScreen reputation yet. If prompted, click **More info** then **Run anyway**.
 
+## 🗺️ Roadmap
+
+- **Peek mode:** show target app as long as hotkey is held down and then bring back the original app when released.
+- **Custom key combinations:** allow more complex hotkeys, for example `Ctrl+Shift+T`.
+- **Dynamic bindings:** automatically assign letters based on app name
+- **More modifiers:** add Caps Lock and function keys as optional modifiers.
+
 ---
 
 ## 💽 Installation and requirements
