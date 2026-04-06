@@ -33,8 +33,13 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
         return GetPackagedAppInfo(package);
     }
 
-    public PackagedAppInfo? GetByAumid(string aumid)
+    public PackagedAppInfo? GetByAumid(string? aumid)
     {
+        if (string.IsNullOrEmpty(aumid))
+        {
+            return null;
+        }
+
         var packageManager = new PackageManager();
         var packageFamilyName = aumid.Split('!')[0];
 

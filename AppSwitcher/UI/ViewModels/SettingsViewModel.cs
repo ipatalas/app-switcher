@@ -148,11 +148,11 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         {
             var isPackaged = app.Type == ApplicationType.Packaged;
             var packagedApp = isPackaged
-                ? _packagedAppsService.GetByAumid(app.Aumid!)
+                ? _packagedAppsService.GetByAumid(app.Aumid)
                 : null;
 
-            var processIcon = isPackaged
-                ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
+            var processIcon = isPackaged && packagedApp != null
+                ? _iconExtractor.GetByIconPath(packagedApp.IconPath)
                 : _iconExtractor.GetByProcessPath(app.ProcessPath);
 
             return new ApplicationShortcutViewModel

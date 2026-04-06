@@ -180,7 +180,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
                 .FirstOrDefault(kv => path.StartsWith(kv.Key, StringComparison.OrdinalIgnoreCase))
                 .Value;
 
-        public PackagedAppInfo? GetByAumid(string aumid) =>
+        public PackagedAppInfo? GetByAumid(string? aumid) =>
             _packages.Values.FirstOrDefault(p => p.Aumid.Equals(aumid, StringComparison.OrdinalIgnoreCase));
     }
 
