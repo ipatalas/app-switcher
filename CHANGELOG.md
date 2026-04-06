@@ -21,8 +21,8 @@
 - Add new overlay window when modifier key is held
 - Delete Startup shortcut when AppSwitcher is uninstalled
 - Change defaults:
-  - Start if not running: false -> true
-  - ModifierIdleTimer: 2000 ms -> 0 ms (most people don't need it at all and it could have annoying side effects)
+  - Start if not running: false → true
+  - ModifierIdleTimer: 2000 ms → 0 ms (most people don't need it at all, and it could have annoying side effects)
 - Fix settings file not gracefully closed upon application exit
 
 ## [1.7.4] - 2026-03-24
@@ -35,7 +35,7 @@
 - Minor fixes
 
 ## [1.7.2] - 2026-03-13
-- Add installer (both installer and portable versions) to the release assetsq
+- Add installer (both installer and portable versions) to the release assets
 - Fix Settings window not showing up in foreground when opened with double-click on the tray icon
 - Other minor fixes and improvements
 
@@ -74,7 +74,7 @@
 - Always suppress the modifier key
 
 ## [1.1.0] - 2024-06-18
-- Add support for different CycleMode(s) - see more in the [README](README.md#cycle-mode)
+- Add support for different CycleMode(s) - see more in the [docs](https://app-switcher.com/docs/configuration/cycle-modes/)
 - Optional trace logging to help with debugging
 
 ## [1.0.0] - 2024-06-07
