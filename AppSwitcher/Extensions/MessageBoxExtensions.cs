@@ -1,4 +1,6 @@
 
+using Wpf.Ui.Controls;
+
 namespace AppSwitcher.Extensions;
 
 public static class MessageBoxExtensions
@@ -7,8 +9,8 @@ public static class MessageBoxExtensions
     /// Sync version of ShowDialogAsync, for use in contexts where async/await is not possible (e.g. application startup).
     /// </summary>
     /// <param name="messageBox"></param>
-    public static void ShowSync(this Wpf.Ui.Controls.MessageBox messageBox)
+    public static MessageBoxResult ShowSync(this Wpf.Ui.Controls.MessageBox messageBox)
     {
-        messageBox.ShowDialogAsync().GetAwaiter().GetResult();
+        return messageBox.ShowDialogAsync().GetAwaiter().GetResult();
     }
 }
