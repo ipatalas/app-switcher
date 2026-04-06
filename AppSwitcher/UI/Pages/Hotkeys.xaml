@@ -115,22 +115,51 @@
                                         VerticalAlignment="Center"
                                         TextTrimming="CharacterEllipsis" />
 
-                                    <ui:Button Grid.Column="3" HorizontalAlignment="Right"
-                                               Margin="0,0,20,0"
-                                               Command="{Binding DataContext.RemoveApplicationCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                               CommandParameter="{Binding}">
-                                        <ui:Button.Style>
-                                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ui:Button.Style>
-                                        <ui:SymbolIcon Symbol="Delete24" />
-                                    </ui:Button>
+                                    <StackPanel Grid.Column="3"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,20,0">
+
+                                        <ui:SymbolIcon Symbol="Warning24"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"
+                                                       Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                                       ToolTipService.InitialShowDelay="300">
+                                            <ui:SymbolIcon.ToolTip>
+                                                <ToolTip MaxWidth="500" HasDropShadow="True">
+                                                    <TextBlock Text="{Binding ValidationError}"
+                                                               TextWrapping="Wrap" />
+                                                </ToolTip>
+                                            </ui:SymbolIcon.ToolTip>
+                                            <ui:SymbolIcon.Style>
+                                                <Style TargetType="ui:SymbolIcon">
+                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasValidationError}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ui:SymbolIcon.Style>
+                                        </ui:SymbolIcon>
+
+                                        <ui:Button Command="{Binding DataContext.RemoveApplicationCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}">
+                                            <ui:Button.Style>
+                                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ui:Button.Style>
+                                            <ui:SymbolIcon Symbol="Delete24" />
+                                        </ui:Button>
+
+                                    </StackPanel>
                                 </Grid>
                             </ui:CardExpander.Header>
                             <Grid Margin="0">

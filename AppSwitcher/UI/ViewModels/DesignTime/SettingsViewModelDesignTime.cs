@@ -4,15 +4,15 @@ using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels.DesignTime;
 
-internal class SettingsViewModelDesignTime : SettingsViewModel
+internal class SettingsViewModelDesignTime: SettingsViewModel
 {
     public SettingsViewModelDesignTime()
     {
         var defaultIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
 
+        // cannot set LaunchAtStartup here because it has side effects and design time breaks
         ModifierKey = Key.Apps;
         PulseBorderEnabled = true;
-        LaunchAtStartup = true;
         Theme = AppThemeSetting.System;
         Applications =
         [
@@ -71,4 +71,14 @@ internal class SettingsViewModelDesignTime : SettingsViewModel
             }
         ];
     }
+
+    // public List<ApplicationShortcutViewModel> Applications { get; set; }
+    //
+    // public AppThemeSetting Theme { get; set; }
+    //
+    // public bool LaunchAtStartup { get; set; }
+    //
+    // public bool PulseBorderEnabled { get; set; }
+    //
+    // public Key ModifierKey { get; set; }
 }

@@ -7,12 +7,27 @@ internal record ApplicationValidationError(
     IReadOnlyList<ApplicationShortcutViewModel> AffectedApps,
     string Message);
 
-internal class ApplicationsValidator
+internal class ApplicationsValidator(ConfigurationValidator configValidator)
 {
     public IReadOnlyList<ApplicationValidationError> Validate(
         IReadOnlyList<ApplicationShortcutViewModel> applications)
     {
         List<ApplicationValidationError> errors = [];
+
+        foreach (var app in applications)
+        {
+            if (app.Key == (Key)(-1))
+            {
+                // in listening mode, too soon to show error
+                continue;
+            }
+
+            var result = configValidator.ValidateApplication(app);
+            if (result.IsError)
+            {
+                errors.Add(new ApplicationValidationError([app], result.Message));
+            }
+        }
 
         var nonNextAppCycleSameLetterError = applications
             .Where(a => a.Key != Key.None)

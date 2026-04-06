@@ -27,7 +27,18 @@ public record ApplicationConfiguration(
     CycleMode CycleMode,
     bool StartIfNotRunning,
     ApplicationType Type = ApplicationType.Win32,
-    string? Aumid = null)
+    string? Aumid = null) : IApplicationConfiguration
 {
     public string ProcessName => Path.GetFileName(ProcessPath);
+}
+
+public interface IApplicationConfiguration
+{
+    string ProcessName { get; }
+    Key Key { get; }
+    string ProcessPath { get; }
+    CycleMode CycleMode { get; }
+    bool StartIfNotRunning { get; }
+    ApplicationType Type { get; }
+    string? Aumid { get; }
 }

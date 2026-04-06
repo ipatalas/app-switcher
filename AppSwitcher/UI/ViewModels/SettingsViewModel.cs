@@ -21,7 +21,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IconExtractor _iconExtractor = null!;
     private readonly ISnackbarService _snackbarService = null!;
     private readonly IPackagedAppsService _packagedAppsService = null!;
-    private readonly ApplicationsValidator _validator = new();
+    private readonly ApplicationsValidator _validator = null!;
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
     private SettingsSnapshot _originalSnapshot = null!;
@@ -109,19 +109,15 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     public bool CanSave => IsDirty && !HasValidationErrors;
 
-    public string? ValidationSummary =>
-        HasValidationErrors
-            ? string.Join(Environment.NewLine, Applications
-                .Where(a => a.ValidationError is not null)
-                .Select(a => a.ValidationError)
-                .Distinct())
-            : null;
+    public string? ValidationSummary { get; private set; }
 
     protected SettingsViewModel()
     {
     }
 
-    public SettingsViewModel(AutoStart autoStart, ConfigurationManager configurationManager, IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService)
+    public SettingsViewModel(AutoStart autoStart, ConfigurationManager configurationManager,
+        IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService,
+        ApplicationsValidator validator)
     {
         _autoStart = autoStart;
         _configurationManager = configurationManager;
@@ -129,6 +125,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         _snackbarService = snackbarService;
         _packagedAppsService = packagedAppsService;
         _launchAtStartup = autoStart.IsEnabled();
+        _validator = validator;
         LoadConfiguration();
     }
 
@@ -188,16 +185,23 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
         foreach (var app in Applications)
         {
-            app.ValidationError = null;
+            app.ClearErrors();
         }
 
         foreach (var error in errors)
         {
             foreach (var app in error.AffectedApps)
             {
-                app.ValidationError = error.Message;
+                app.AddError(error.Message);
             }
         }
+
+        ValidationSummary = errors.Count switch
+        {
+            > 1 => "More than 1 error found...",
+            1 => errors[0].Message,
+            _ => null
+        };
 
         OnPropertyChanged(nameof(HasValidationErrors));
         OnPropertyChanged(nameof(CanSave));
@@ -249,7 +253,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
         var viewModel = new ApplicationShortcutViewModel
         {
-            Key = Key.None,
+            Key = (Key)(-1),
             ProcessPath = args.ProcessPath,
             ProcessName = args.ProcessName,
             Type = args.Type,
@@ -344,7 +348,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     }
 }
 
-internal partial class ApplicationShortcutViewModel : ObservableObject
+internal partial class ApplicationShortcutViewModel : ObservableObject, IApplicationConfiguration
 {
     [ObservableProperty] private Key _key;
 
@@ -362,6 +366,29 @@ internal partial class ApplicationShortcutViewModel : ObservableObject
     public bool HasValidationError => ValidationError is not null;
 
     public ImageSource? ProcessIcon { get; init; }
+
+    public void AddError(string error)
+    {
+        if (ValidationError is null)
+        {
+            ValidationError = error;
+        }
+        else
+        {
+            ValidationError = $"• {ValidationError}{Environment.NewLine}• {error}".Trim();
+        }
+
+        OnPropertyChanged(nameof(HasValidationError));
+        OnPropertyChanged(nameof(ValidationError));
+    }
+
+    public void ClearErrors()
+    {
+        ValidationError = null;
+
+        OnPropertyChanged(nameof(HasValidationError));
+        OnPropertyChanged(nameof(ValidationError));
+    }
 }
 
 internal record ThemeOption(AppThemeSetting Value, string DisplayName);

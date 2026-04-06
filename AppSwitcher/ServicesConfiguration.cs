@@ -38,6 +38,7 @@ internal static class ServicesConfiguration
 
         services.AddTransient<ConfigurationService>();
         services.AddTransient<ConfigurationValidator>();
+        services.AddTransient<ApplicationsValidator>();
         services.AddTransient<MigrationRunner>();
         services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();

@@ -55,13 +55,11 @@ internal class ConfigurationManager(
         try
         {
             var config = configService.ReadConfiguration();
+            configValidator.ValidateAndLog(config);
 
-            if (configValidator.ValidateAndLog(config).Status == ValidationResultStatus.Success)
-            {
-                _currentConfiguration = config;
-                logger.LogInformation("Configuration loaded successfully");
-                ConfigurationChanged?.Invoke(config);
-            }
+            _currentConfiguration = config;
+            logger.LogInformation("Configuration loaded successfully");
+            ConfigurationChanged?.Invoke(config);
         }
         catch (Exception ex)
         {

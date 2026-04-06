@@ -103,6 +103,12 @@ public partial class KeyAssignmentButton : UserControl
 
         if (e.Key == Key.Escape)
         {
+            if (Key == (Key)(-1))
+            {
+                // -1 skips the validation but None will already show it
+                // this code will be only called when user cancels initial key assignment
+                SetCurrentValue(KeyProperty, Key.None);
+            }
             StopListening();
             e.Handled = true;
             return;

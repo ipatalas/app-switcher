@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Input;
 
@@ -35,38 +36,58 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
 
         foreach (var app in configuration.Applications)
         {
-            if (app.Type == ApplicationType.Packaged)
+            var result = ValidateApplication(app);
+            if (result.Status == ValidationResultStatus.Error)
             {
-                if (string.IsNullOrWhiteSpace(app.Aumid))
-                {
-                    return ValidationResult.Error(app.ProcessName, "Packaged application AUMID must be set");
-                }
+                return result;
             }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(app.ProcessPath))
-                {
-                    return ValidationResult.Error("Application process must be set correctly");
-                }
+        }
 
-                if (!File.Exists(app.ProcessPath))
-                {
-                    return ValidationResult.Error("Application process path invalid - file does not exist");
-                }
-            }
+        return ValidationResult.Success;
+    }
 
-            if (app.Key is Key.None or not (>=Key.A and <= Key.Z))
+    public ValidationResult ValidateApplication(IApplicationConfiguration app)
+    {
+        if (app.Type == ApplicationType.Packaged)
+        {
+            if (string.IsNullOrWhiteSpace(app.Aumid))
             {
-                return ValidationResult.Error(app.ProcessName, "Application key was not detected correctly - is should be a single letter");
+                return ValidationResult.Error(app.ProcessName, "Packaged application AUMID must be set. Re-add the application to fix it.");
             }
+        }
+        else
+        {
+            if (!File.Exists(app.ProcessPath))
+            {
+                return ValidationResult.Error(app.ProcessName,"Application process path missing or invalid. Re-add the application to fix it.");
+            }
+        }
+
+        if (app.Key is Key.None or not (>=Key.A and <= Key.Z))
+        {
+            return ValidationResult.Error(app.ProcessName, "Application key invalid - it should be a single letter");
         }
 
         return ValidationResult.Success;
     }
 }
 
-internal record ValidationResult(ValidationResultStatus Status, string? Process, string? Message)
+internal record ValidationResult
 {
+    private ValidationResult(ValidationResultStatus Status, string? Process, string? Message)
+    {
+        this.Status = Status;
+        this.Process = Process;
+        this.Message = Message;
+    }
+
+    [MemberNotNullWhen(true, nameof(Message))]
+    public bool IsError => Status == ValidationResultStatus.Error;
+
+    public ValidationResultStatus Status { get; }
+    public string? Process { get; }
+    public string? Message { get; }
+
     public static ValidationResult Success => new(ValidationResultStatus.Success, null, null);
     public static ValidationResult Error(string message) => new(ValidationResultStatus.Error, null, message);
     public static ValidationResult Error(string process, string message) => new(ValidationResultStatus.Error, process, message);
