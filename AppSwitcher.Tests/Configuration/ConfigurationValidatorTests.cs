@@ -68,7 +68,7 @@ public class ConfigurationValidatorTests
         var result = _sut.ValidateAndLog(MakeConfig(Key.LeftCtrl, MakeApp(Key.A, processPath)));
 
         result.Status.Should().Be(ValidationResultStatus.Error);
-        result.Message.Should().Contain("process must be set correctly");
+        result.Message.Should().Contain("process path missing or invalid");
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class ConfigurationValidatorTests
             MakeConfig(Key.LeftCtrl, MakeApp(Key.A, @"C:\nonexistent\fake_app_12345.exe")));
 
         result.Status.Should().Be(ValidationResultStatus.Error);
-        result.Message.Should().Contain("file does not exist");
+        result.Message.Should().Contain("process path missing or invalid");
     }
 
     [Theory]
@@ -143,11 +143,12 @@ public class ConfigurationValidatorTests
     {
         // Validation is short-circuit: returns on first error found
         var result = _sut.ValidateAndLog(MakeConfig(Key.LeftCtrl,
-            MakeApp(Key.A, ""),
-            MakeApp(Key.B, "")));
+            MakeApp(Key.A, "A"),
+            MakeApp(Key.B, "B")));
 
         result.Status.Should().Be(ValidationResultStatus.Error);
-        result.Message.Should().Contain("process must be set correctly");
+        result.Message.Should().Contain("process path missing or invalid");
+        result.Process.Should().Be("A");
     }
 
     [Fact]
