@@ -56,6 +56,7 @@ internal partial class MainWindowViewModel : ObservableObject
             if (_settings is not { IsLoaded: true })
             {
                 _settings = _serviceProvider.GetRequiredService<Settings>();
+                _settings.Owner = Application.Current.MainWindow;
                 _settings.Closed += (_, _) => _settings = null;
                 _settings.Show();
                 _settings.Activate();
