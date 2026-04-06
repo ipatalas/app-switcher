@@ -1,4 +1,5 @@
 using AppSwitcher.Configuration;
+using AppSwitcher.Extensions;
 using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,6 +22,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     private string _searchText = string.Empty;
 
     private readonly RunningApplicationsService _runningApplicationsService = null!;
+    private readonly ProcessHelper _processHelper = null!;
 
     public event Action<ApplicationSelectionArgs>? ApplicationSelected;
 
@@ -38,9 +40,10 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         ]);
     }
 
-    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService)
+    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService, ProcessHelper processHelper)
     {
         _runningApplicationsService = runningApplicationsService;
+        _processHelper = processHelper;
     }
 
     public void Refresh(IEnumerable<string> excludedProcessNames)
@@ -81,10 +84,23 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-            ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
-                ProcessName: Path.GetFileName(dialog.FileName),
-                ProcessPath: dialog.FileName,
-                Type: ApplicationType.Win32));
+            if (_processHelper.IsWindowsExecutable(dialog.FileName))
+            {
+                ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
+                    ProcessName: Path.GetFileName(dialog.FileName),
+                    ProcessPath: dialog.FileName,
+                    Type: ApplicationType.Win32));
+            }
+            else
+            {
+                new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = "Invalid application",
+                    Content = "The selected file is not a valid Windows executable.",
+                    CloseButtonIcon = new Wpf.Ui.Controls.SymbolIcon(Wpf.Ui.Controls.SymbolRegular.ErrorCircle24),
+                    CloseButtonText = "OK",
+                }.ShowSync();
+            }
         }
     }
 }

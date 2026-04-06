@@ -8,6 +8,8 @@ namespace AppSwitcher.Utils;
 internal class ProcessHelper(ILogger<ProcessHelper> logger)
 {
     private const int ERROR_ACCESS_DENIED = 5;
+    private const int SCS_32BIT_BINARY = 0;
+    private const int SCS_64BIT_BINARY = 6;
 
     public bool NeedsElevation(uint processId)
     {
@@ -21,6 +23,16 @@ internal class ProcessHelper(ILogger<ProcessHelper> logger)
             }
 
             logger.LogWarning("Failed to open process (PROCESS_QUERY_INFORMATION) - error code: {ErrorCode}", lastError);
+        }
+
+        return false;
+    }
+
+    public bool IsWindowsExecutable(string path)
+    {
+        if (PInvoke.GetBinaryType(path, out var type))
+        {
+            return type is SCS_32BIT_BINARY or SCS_64BIT_BINARY;
         }
 
         return false;

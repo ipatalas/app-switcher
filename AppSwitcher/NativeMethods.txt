@@ -1,5 +1,6 @@
 ﻿ShowWindow
 SetForegroundWindow
+GetBinaryType
 GetForegroundWindow
 GetShellWindow
 GetCurrentThreadId
