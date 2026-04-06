@@ -12,7 +12,7 @@ internal sealed record SettingsSnapshot(
     int OverlayShowDelayMs,
     bool OverlayKeepOpenWhileModifierHeld)
 {
-    // This is needed because regular record equality would do only reference comparison for Applications
+    // This is needed because regular record equality would do only reference comparison for Applications collection
     public bool Equals(SettingsSnapshot? other)
     {
         if (other is null)
@@ -38,7 +38,7 @@ internal sealed record SettingsSnapshot(
 
 internal sealed record ApplicationShortcutSnapshot(
     Key Key,
-    string ProcessName,
+    string ProcessPath,
     bool StartIfNotRunning,
     CycleMode CycleMode,
     ApplicationType Type = ApplicationType.Win32,

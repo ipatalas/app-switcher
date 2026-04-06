@@ -212,7 +212,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     {
         return new SettingsSnapshot(ModifierKey,
             Applications.Select(app =>
-                    new ApplicationShortcutSnapshot(app.Key, app.ProcessName, app.StartIfNotRunning, app.CycleMode, app.Type, app.Aumid))
+                    new ApplicationShortcutSnapshot(app.Key, app.ProcessPath, app.StartIfNotRunning, app.CycleMode, app.Type, app.Aumid))
                 .ToList(),
             PulseBorderEnabled,
             Theme,
