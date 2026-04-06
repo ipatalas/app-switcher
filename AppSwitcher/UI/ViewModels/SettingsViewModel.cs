@@ -13,6 +13,9 @@ namespace AppSwitcher.UI.ViewModels;
 
 internal partial class SettingsViewModel : ObservableObject, IDisposable
 {
+    private static readonly TimeSpan SnackbarTimeoutShort = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan SnackbarTimeoutLong = TimeSpan.FromSeconds(5);
+
     private readonly AutoStart _autoStart = null!;
     private readonly ConfigurationManager _configurationManager = null!;
     private readonly IconExtractor _iconExtractor = null!;
@@ -221,6 +224,17 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void AddApplication(ApplicationSelectionArgs args)
     {
+        if (Applications.Any(a => a.ProcessName.Equals(args.ProcessName, StringComparison.OrdinalIgnoreCase)))
+        {
+            _snackbarService.Show(
+                "Application already added",
+                $"The application \"{args.ProcessName}\" is already in the list.",
+                ControlAppearance.Caution,
+                new SymbolIcon { Symbol = SymbolRegular.Warning20 },
+                SnackbarTimeoutShort);
+            return;
+        }
+
         var defaultIcon =
             _iconExtractor.GetByProcessPath(
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
@@ -289,7 +303,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                     "Your changes have been applied.",
                     ControlAppearance.Success,
                     new SymbolIcon { Symbol = SymbolRegular.Checkmark20 },
-                    TimeSpan.FromSeconds(2));
+                    SnackbarTimeoutShort);
             }
         }
         catch (Exception)
@@ -299,7 +313,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 "An error occurred while saving. Please try again.",
                 ControlAppearance.Danger,
                 new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
-                TimeSpan.FromSeconds(5));
+                SnackbarTimeoutLong);
         }
     }
 
@@ -320,7 +334,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 "Could not reload the configuration.",
                 ControlAppearance.Danger,
                 new SymbolIcon { Symbol = SymbolRegular.ErrorCircle20 },
-                TimeSpan.FromSeconds(5));
+                SnackbarTimeoutLong);
         }
     }
 
