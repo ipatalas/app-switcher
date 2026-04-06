@@ -1,5 +1,16 @@
 # Change Log
 
+## [1.8.2] - 2026-04-06
+- Fix bug where unsaved setting changes were discarded when switching focus to another window and back to Settings window again
+- Removed Modifier Idle Timer - legacy feature, no longer needed, there's a better way to handle elevated target window
+- Moved Launch at startup setting to the General page
+- Fix random frozen UI when adding new application in the settings
+- Fix contrast issues for selected/mouse over items in add application flyout
+- Fix bug when it was possible to add duplicate app using Browse for file option
+- Fix bug when it was possible to add non-executable file using Browse for file option
+- Fix bug when app would freeze when Settings window was open and user tries to exit the app from the tray menu
+- Other minor fixes and improvements
+
 ## [1.8.1] - 2026-04-02
 - Change modifier suppression - only suppress when configured modifier can have side effects
 - Add new warning when switching to elevated process from non-elevated AppSwitcher
@@ -24,7 +35,7 @@
 - Minor fixes
 
 ## [1.7.2] - 2026-03-13
-- Add installer (both installer and portable versions) to the release assets
+- Add installer (both installer and portable versions) to the release assetsq
 - Fix Settings window not showing up in foreground when opened with double-click on the tray icon
 - Other minor fixes and improvements
 
