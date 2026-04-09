@@ -13,6 +13,7 @@
         Background="Transparent"
         Topmost="True"
         ShowInTaskbar="False"
+        ShowActivated="False"
         WindowStartupLocation="Manual"
         SizeToContent="WidthAndHeight"
         d:DataContext="{d:DesignInstance viewModels:AppOverlayViewModel}">
