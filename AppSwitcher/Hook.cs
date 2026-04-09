@@ -24,10 +24,13 @@ internal class Hook(
         Key.Capital, // toggles Caps Lock state
     }.ToFrozenSet();
 
+    private const int SyntheticModifierTapMaxDurationMs = 200;
+
     private readonly KeyboardHook _hook = new();
     private Configuration.Configuration? _config;
     private bool _modifierDown;
     private bool _letterKeyPressedWithModifier;
+    private long _modifierPressedAtTick;
     private readonly HashSet<Key> _suppressedLetterKeys = [];
 
     public void Start(Configuration.Configuration config)
@@ -111,9 +114,13 @@ internal class Hook(
         if (e.IsKeyDown()) // modifier down
         {
             _letterKeyPressedWithModifier = false;
-            if (!wasModifierDown && _config!.OverlayEnabled) // first press only — not a key repeat
+            if (!wasModifierDown) // first press only — not a key repeat
             {
-                overlayShowTimer.Start();
+                _modifierPressedAtTick = Environment.TickCount64;
+                if (_config!.OverlayEnabled)
+                {
+                    overlayShowTimer.Start();
+                }
             }
         }
         else if (!_letterKeyPressedWithModifier) // modifier up without any letter key pressed
@@ -127,8 +134,16 @@ internal class Hook(
                 // No letter key was pressed while the modifier was held, so we send a synthetic key event for the modifier itself
                 // This allows the modifier key to function normally when pressed and released on its own
                 // without interfering with the app switching functionality
-                var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
-                logger.LogDebug("Sent synthetic key for modifier {Key}, success: {Result}", e.InputEvent.Key, result);
+                var pressDurationMs = Environment.TickCount64 - _modifierPressedAtTick;
+                if (pressDurationMs <= SyntheticModifierTapMaxDurationMs)
+                {
+                    var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
+                    logger.LogDebug("Sent synthetic key for modifier {Key}, press duration {Duration}ms, success: {Result}", e.InputEvent.Key, pressDurationMs, result);
+                }
+                else
+                {
+                    logger.LogDebug("Skipped synthetic key for modifier {Key} - press duration {Duration}ms exceeded threshold", e.InputEvent.Key, pressDurationMs);
+                }
             }
         }
         else // modifier up after letter key was pressed
