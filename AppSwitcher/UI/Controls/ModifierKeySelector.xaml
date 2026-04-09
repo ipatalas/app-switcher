@@ -112,16 +112,21 @@
                        Click="ModifierButton_Click"
                        Padding="5,0,0,7"
                        Style="{StaticResource KeyCapStyle}">
+                <ui:Button.Resources>
+                    <Style TargetType="Path">
+                        <Setter Property="Fill" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type ui:Button}}}"></Setter>
+                    </Style>
+                </ui:Button.Resources>
                 <Viewbox Width="16" Height="16">
                     <Canvas Width="10" Height="11">
                         <Canvas.RenderTransform>
                             <MatrixTransform Matrix="0.947, 0, 0, 0.949, -0.19, 0.354"/>
                         </Canvas.RenderTransform>
 
-                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 10.7,5.95 V 10.8 L 5.13,9.93 V 5.95 Z" />
-                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 5.13,1.13 10.7,0.326 V 5.1 H 5.13 Z" />
-                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 4.39,5.91 V 9.86 L 0.264,9.29 V 5.91 Z" />
-                        <Path Fill="{DynamicResource TextFillColorPrimaryBrush}" Data="M 0.261,1.77 4.39,1.2 V 5.15 H 0.263 Z" />
+                        <Path Data="M 10.7,5.95 V 10.8 L 5.13,9.93 V 5.95 Z" />
+                        <Path Data="M 5.13,1.13 10.7,0.326 V 5.1 H 5.13 Z" />
+                        <Path Data="M 4.39,5.91 V 9.86 L 0.264,9.29 V 5.91 Z" />
+                        <Path Data="M 0.261,1.77 4.39,1.2 V 5.15 H 0.263 Z" />
                     </Canvas>
                 </Viewbox>
             </ui:Button>
