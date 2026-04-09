@@ -21,6 +21,7 @@ internal class Hook(
         Key.LeftAlt, // opens menu
         Key.RightAlt, // opens menu on keyboard layouts without AltGr
         Key.Apps, // opens context menu
+        Key.Capital, // toggles Caps Lock state
     }.ToFrozenSet();
 
     private readonly KeyboardHook _hook = new();

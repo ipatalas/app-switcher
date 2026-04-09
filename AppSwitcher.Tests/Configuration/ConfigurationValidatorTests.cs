@@ -38,6 +38,7 @@ public class ConfigurationValidatorTests
     [InlineData(Key.RightAlt)]
     [InlineData(Key.Apps)]
     [InlineData(Key.RightShift)]
+    [InlineData(Key.Capital)]
     public void ValidateAndLog_ReturnsSuccess_ForEachValidModifier(Key modifier)
     {
         var result = _sut.ValidateAndLog(MakeConfig(modifier));

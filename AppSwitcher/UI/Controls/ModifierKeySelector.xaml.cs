@@ -42,6 +42,7 @@ public partial class ModifierKeySelector : UserControl
 
     private void UpdateButtonStates()
     {
+        CapsLockButton.Appearance = GetButtonAppearance(Key.CapsLock);
         LeftShiftButton.Appearance = GetButtonAppearance(Key.LeftShift);
         LeftCtrlButton.Appearance = GetButtonAppearance(Key.LeftCtrl);
         LeftAltButton.Appearance = GetButtonAppearance(Key.LeftAlt);
