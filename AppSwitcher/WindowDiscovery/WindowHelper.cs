@@ -142,6 +142,10 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
 
         var position = new Point(window.left, window.top);
         var size = new Size(window.right - window.left, window.bottom - window.top);
+        if (size.IsEmpty)
+        {
+            return null;
+        }
 
         var processImageName = processPathExtractor.GetProcessImageName(processId);
         if (processImageName is null)
