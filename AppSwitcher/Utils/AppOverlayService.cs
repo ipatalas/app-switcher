@@ -23,8 +23,12 @@ internal class AppOverlayService(
 
     public bool IsVisible { get; private set; }
 
+    private volatile int _showToken;
+
     public void Show(IReadOnlyList<ApplicationConfiguration> applications)
     {
+        var token = Interlocked.Increment(ref _showToken);
+
         var allWindows = windowHelper.GetWindows();
         var runningProcessNames = allWindows
             .Select(w => Path.GetFileName(w.ProcessImageName))
@@ -45,11 +49,13 @@ internal class AppOverlayService(
                 needsElevationProcessNames.Contains(app.ProcessName)))
             .ToList();
 
-        Application.Current.Dispatcher.BeginInvoke(() => ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots));
+        Application.Current.Dispatcher.BeginInvoke(() => ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots, token));
     }
 
     public void Hide()
     {
+        Interlocked.Increment(ref _showToken);
+
         Application.Current.Dispatcher.BeginInvoke(() =>
         {
             window.Hide();
@@ -85,7 +91,8 @@ internal class AppOverlayService(
     private void ApplyToViewModel(
         List<WindowSnapshot> focusedWindows,
         string? focusedAppName,
-        List<AppSnapshot> appSnapshots)
+        List<AppSnapshot> appSnapshots,
+        int token)
     {
         // Icon extraction and BitmapImage construction must happen on the UI thread
         var focusedWindowItems = focusedWindows
@@ -111,6 +118,11 @@ internal class AppOverlayService(
         // to avoid showing a blank/stale frame before content is ready.
         Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, () =>
         {
+            if (_showToken != token)
+            {
+                return;
+            }
+
             window.Show();
             IsVisible = true;
             logger.LogDebug(
