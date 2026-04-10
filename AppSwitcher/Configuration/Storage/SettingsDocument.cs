@@ -24,6 +24,8 @@ internal class SettingsDocument
 
     public bool OverlayKeepOpenWhileModifierHeld { get; init; }
 
+    public bool PeekEnabled { get; init; }
+
     public Configuration ToConfiguration() =>
         new(
             Modifier,
@@ -32,7 +34,8 @@ internal class SettingsDocument
             Theme,
             OverlayEnabled,
             OverlayShowDelayMs,
-            OverlayKeepOpenWhileModifierHeld);
+            OverlayKeepOpenWhileModifierHeld,
+            PeekEnabled);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -46,6 +49,7 @@ internal class SettingsDocument
             Theme = config.Theme,
             OverlayEnabled = config.OverlayEnabled,
             OverlayShowDelayMs = config.OverlayShowDelayMs,
-            OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld
+            OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld,
+            PeekEnabled = config.PeekEnabled
         };
 }

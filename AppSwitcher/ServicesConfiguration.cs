@@ -45,6 +45,7 @@ internal static class ServicesConfiguration
         services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();
         services.AddSingleton<Hook>();
+        services.AddSingleton<Peeker>();
         services.AddTransient<WindowEnumerator>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();

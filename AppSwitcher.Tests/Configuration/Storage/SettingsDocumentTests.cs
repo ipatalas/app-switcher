@@ -49,7 +49,8 @@ public class SettingsDocumentTests
             Theme: AppThemeSetting.Dark,
             OverlayEnabled: true,
             OverlayShowDelayMs: 500,
-            OverlayKeepOpenWhileModifierHeld: true));
+            OverlayKeepOpenWhileModifierHeld: true,
+            PeekEnabled: false));
     }
 
     [Fact]
@@ -69,7 +70,8 @@ public class SettingsDocumentTests
             Theme: AppThemeSetting.Light,
             OverlayEnabled: true,
             OverlayShowDelayMs: 500,
-            OverlayKeepOpenWhileModifierHeld: true);
+            OverlayKeepOpenWhileModifierHeld: true,
+            PeekEnabled: false);
 
         var result = SettingsDocument.FromConfiguration(config: config, id: 42);
 
@@ -109,7 +111,8 @@ public class SettingsDocumentTests
             Theme: AppThemeSetting.System,
             OverlayEnabled: true,
             OverlayShowDelayMs: 500,
-            OverlayKeepOpenWhileModifierHeld: true);
+            OverlayKeepOpenWhileModifierHeld: true,
+            PeekEnabled: false);
 
         var roundTripped = SettingsDocument.FromConfiguration(original, 1).ToConfiguration();
 

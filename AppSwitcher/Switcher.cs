@@ -103,7 +103,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
         if (appConfig.CycleMode == CycleMode.Hide)
         {
             logger.LogDebug("Hiding {ProcessName}", appConfig.ProcessName);
-            HideWindow(window);
+            HideWindow(window.Handle);
         }
         else if (appConfig.CycleMode == CycleMode.NextWindow)
         {
@@ -138,7 +138,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
         return matchingWindows.First(w => !_nextWindows.Contains(w.Handle));
     }
 
-    private void ActivateWindow(ApplicationWindow window)
+    internal void ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
     {
         var hwnd = window.Handle;
         if (PInvoke.IsIconic(hwnd))
@@ -183,7 +183,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
             }
         }
 
-        if (configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
+        if (pulseBorder && configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
         {
             // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
             _ = PulseBorder(hwnd, Color.Gold, 100);
@@ -219,9 +219,8 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
         }
     }
 
-    private void HideWindow(ApplicationWindow window)
+    internal void HideWindow(HWND hwnd)
     {
-        var hwnd = window.Handle;
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 

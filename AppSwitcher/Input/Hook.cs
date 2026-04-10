@@ -1,5 +1,6 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.Overlay;
+using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
@@ -11,6 +12,8 @@ namespace AppSwitcher.Input;
 internal class Hook(
     ILogger<Hook> logger,
     Switcher switcher,
+    Peeker peeker,
+    WindowEnumerator windowEnumerator,
     OverlayShowTimer overlayShowTimer,
     ElevatedWarningService elevatedWarningService,
     AppOverlayService overlayService) : IDisposable
@@ -151,6 +154,7 @@ internal class Hook(
         {
             overlayShowTimer.Cancel();
             overlayService.Hide();
+            FinishPeek();
         }
     }
 
@@ -162,6 +166,7 @@ internal class Hook(
         {
             e.SuppressKeyPress = true;
             logger.LogDebug("Suppressing key up for previously suppressed letter {Key}", e.InputEvent.Key);
+            FinishPeek();
         }
         else if (_modifierDown)
         {
@@ -175,21 +180,45 @@ internal class Hook(
                 if (matchingApps.Count > 0)
                 {
                     e.SuppressKeyPress = true;
-                    _suppressedLetterKeys.Add(letter);
+                    if (_suppressedLetterKeys.Add(letter))
+                    {
+                        logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
+                        var currentWindow = windowEnumerator.GetCurrentWindow();
+                        var window = switcher.Execute(matchingApps);
+                        if (_config.PeekEnabled && window is not null && currentWindow is not null && currentWindow.ProcessId != window.ProcessId)
+                        {
+                            peeker.Arm(currentWindow, window);
+                            if (!overlayService.IsVisible)
+                            {
+                                // do not show overlay if peek mode is arming
+                                overlayShowTimer.Cancel();
+                            }
+                        }
 
-                    logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
-                    var window = switcher.Execute(matchingApps);
-                    if (window is { NeedsElevation: true })
-                    {
-                        // switching to elevated app so need to reset the state to avoid ghost modifier side effect
-                        ResetModifierState();
-                        elevatedWarningService.Show();
-                    }
-                    else
-                    {
-                        RefreshOrHideOverlay();
+                        if (window is { NeedsElevation: true })
+                        {
+                            // switching to elevated app so need to reset the state to avoid ghost modifier side effect
+                            ResetModifierState();
+                            elevatedWarningService.Show();
+                        }
+                        else
+                        {
+                            RefreshOrHideOverlay();
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    private void FinishPeek()
+    {
+        if (peeker.TryFinish(out var peekResult))
+        {
+            switcher.ActivateWindow(peekResult.PreviousWindow, pulseBorder: false);
+            if (peekResult.TargetWasMinimized)
+            {
+                switcher.HideWindow(peekResult.TargetHandle);
             }
         }
     }
@@ -249,6 +278,7 @@ internal class Hook(
     {
         _modifierDown = false;
         _suppressedLetterKeys.Clear();
+        peeker.Cancel();
         overlayShowTimer.Cancel();
         overlayService.Hide();
     }

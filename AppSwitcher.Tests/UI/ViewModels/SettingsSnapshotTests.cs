@@ -15,7 +15,8 @@ public class SettingsSnapshotTests
         Theme: AppThemeSetting.System,
         OverlayEnabled: true,
         OverlayShowDelayMs: 1000,
-        OverlayKeepOpenWhileModifierHeld: false);
+        OverlayKeepOpenWhileModifierHeld: false,
+        PeekEnabled: false);
 
     [Fact]
     public void Equals_ReturnsTrue_WhenAllFieldsAreEqual()
@@ -82,6 +83,15 @@ public class SettingsSnapshotTests
     {
         var a = Default();
         var b = a with { OverlayKeepOpenWhileModifierHeld = true };
+
+        a.Should().NotBe(b);
+    }
+
+    [Fact]
+    public void Equals_ReturnsFalse_WhenPeekEnabledDiffers()
+    {
+        var a = Default();
+        var b = a with { PeekEnabled = true };
 
         a.Should().NotBe(b);
     }

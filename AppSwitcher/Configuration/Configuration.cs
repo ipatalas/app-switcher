@@ -18,7 +18,8 @@ internal record Configuration(
     AppThemeSetting Theme,
     bool OverlayEnabled,
     int OverlayShowDelayMs,
-    bool OverlayKeepOpenWhileModifierHeld);
+    bool OverlayKeepOpenWhileModifierHeld,
+    bool PeekEnabled);
 
 [DebuggerDisplay("{Key} -> {ProcessName} (Type: {Type}, CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(

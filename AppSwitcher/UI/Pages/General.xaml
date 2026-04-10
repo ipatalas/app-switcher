@@ -118,6 +118,29 @@
                 </ui:CardControl.Content>
             </ui:CardControl>
 
+            <ui:CardControl Margin="0,4,0,0"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Eye24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Peek mode"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Hold the modifier key to switch to an app, then release to automatically return to your previous window."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:ToggleSwitch IsChecked="{Binding PeekEnabled, Mode=TwoWay}"
+                                     HorizontalContentAlignment="Left"
+                                     OffContent="Off"
+                                     OnContent="On" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

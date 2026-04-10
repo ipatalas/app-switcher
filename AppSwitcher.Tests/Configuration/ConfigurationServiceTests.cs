@@ -20,7 +20,8 @@ public class ConfigurationServiceTests : IDisposable
         AppThemeSetting theme = AppThemeSetting.System,
         bool overlayEnabled = true,
         int overlayShowDelayMs = 1000,
-        bool overlayKeepOpenWhileModifierHeld = true)
+        bool overlayKeepOpenWhileModifierHeld = true,
+        bool peekEnabled = false)
     {
         return new AppConfig(
             Modifier: modifier,
@@ -29,7 +30,8 @@ public class ConfigurationServiceTests : IDisposable
             Theme: theme,
             OverlayEnabled: overlayEnabled,
             OverlayShowDelayMs: overlayShowDelayMs,
-            OverlayKeepOpenWhileModifierHeld: overlayKeepOpenWhileModifierHeld);
+            OverlayKeepOpenWhileModifierHeld: overlayKeepOpenWhileModifierHeld,
+            PeekEnabled: peekEnabled);
     }
 
 
@@ -52,7 +54,8 @@ public class ConfigurationServiceTests : IDisposable
             Theme: AppThemeSetting.System,
             OverlayEnabled: false,
             OverlayShowDelayMs: 1000,
-            OverlayKeepOpenWhileModifierHeld: true));
+            OverlayKeepOpenWhileModifierHeld: true,
+            PeekEnabled: false));
     }
 
     [Fact]

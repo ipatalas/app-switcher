@@ -10,7 +10,8 @@ internal sealed record SettingsSnapshot(
     AppThemeSetting Theme,
     bool OverlayEnabled,
     int OverlayShowDelayMs,
-    bool OverlayKeepOpenWhileModifierHeld)
+    bool OverlayKeepOpenWhileModifierHeld,
+    bool PeekEnabled)
 {
     // This is needed because regular record equality would do only reference comparison for Applications collection
     public bool Equals(SettingsSnapshot? other)
@@ -26,13 +27,14 @@ internal sealed record SettingsSnapshot(
                OverlayEnabled == other.OverlayEnabled &&
                OverlayShowDelayMs == other.OverlayShowDelayMs &&
                OverlayKeepOpenWhileModifierHeld == other.OverlayKeepOpenWhileModifierHeld &&
+               PeekEnabled == other.PeekEnabled &&
                Applications.SequenceEqual(other.Applications);
     }
 
     public override int GetHashCode()
     {
         return HashCode.Combine(ModifierKey, PulseBorderEnabled, Theme, OverlayEnabled,
-            OverlayShowDelayMs, OverlayKeepOpenWhileModifierHeld, Applications.Count);
+            OverlayShowDelayMs, OverlayKeepOpenWhileModifierHeld, PeekEnabled, Applications.Count);
     }
 }
 
