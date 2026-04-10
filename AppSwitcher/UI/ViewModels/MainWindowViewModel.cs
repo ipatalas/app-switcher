@@ -1,6 +1,5 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.UI.Windows;
-using AppSwitcher.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;

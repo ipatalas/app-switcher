@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Windows.Threading;
 using Application = System.Windows.Application;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.Overlay;
 
 internal class ElevatedWarningService : IDisposable
 {

@@ -1,5 +1,5 @@
 using AppSwitcher.UI.ViewModels;
-using AppSwitcher.Utils;
+using AppSwitcher.WindowDiscovery;
 using System.Windows.Input;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;

@@ -1,4 +1,4 @@
-namespace AppSwitcher.Utils;
+namespace AppSwitcher;
 #if !DEBUG
 using System.Reflection;
 #endif

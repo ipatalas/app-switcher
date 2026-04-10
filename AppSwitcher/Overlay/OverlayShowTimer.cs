@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.Overlay;
 
 internal class OverlayShowTimer(ILogger<OverlayShowTimer> logger) : IDisposable
 {

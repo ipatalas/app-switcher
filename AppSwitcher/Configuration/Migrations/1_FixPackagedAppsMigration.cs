@@ -1,4 +1,4 @@
-using AppSwitcher.Utils;
+using AppSwitcher.WindowDiscovery;
 using LiteDB;
 using System.Windows.Input;
 

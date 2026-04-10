@@ -1,21 +1,19 @@
-using AppSwitcher.Utils;
+using AppSwitcher.Overlay;
 using AwesomeAssertions;
 using Xunit;
 
-namespace AppSwitcher.Tests.Utils;
+namespace AppSwitcher.Tests.Overlay;
 
-public class TitleSuffixHelperTests
+public class WindowTitleParserTests
 {
-    private readonly TitleSuffixHelper _sut = new();
-
     public class FindCommonSuffix
     {
-        private readonly TitleSuffixHelper _sut = new();
+        private readonly WindowTitleParser _sut = new();
 
         [Fact]
         public void ReturnsNull_WhenListIsEmpty()
         {
-            _sut.FindCommonSuffix(Array.Empty<string>()).Should().BeNull();
+            _sut.FindCommonSuffix([]).Should().BeNull();
         }
 
         [Fact]
@@ -61,12 +59,12 @@ public class TitleSuffixHelperTests
         [Fact]
         public void ReturnsSuffix_WhenAllTitlesShareAppNameSuffix()
         {
-            var titles = new[]
-            {
+            string[] titles =
+            [
                 "Welcome - Visual Studio Code",
                 "README.md - Visual Studio Code",
                 "src/main.cs - Visual Studio Code"
-            };
+            ];
 
             _sut.FindCommonSuffix(titles).Should().Be(" - Visual Studio Code");
         }
@@ -81,7 +79,7 @@ public class TitleSuffixHelperTests
 
     public class StripSuffix
     {
-        private readonly TitleSuffixHelper _sut = new();
+        private readonly WindowTitleParser _sut = new();
 
         [Fact]
         public void ReturnsTitleUnchanged_WhenSuffixIsNull()

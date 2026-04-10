@@ -1,4 +1,5 @@
 using AppSwitcher.Extensions;
+using AppSwitcher.Startup;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
@@ -13,7 +14,7 @@ internal static class ServiceCollectionExtensions
         var builder = new CliBuilder();
         builder
             .AddCommand("--log-all-windows", "Log all windows to log file",
-                sp => sp.GetRequiredService<WindowHelper>().LogAllWindows())
+                sp => sp.GetRequiredService<WindowEnumerator>().LogAllWindows())
             .AddCommand("--enable-auto-start", "Add application to system Startup",
                 sp =>
                 {

@@ -1,6 +1,6 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
-using AppSwitcher.Utils;
+using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JetBrains.Annotations;
@@ -22,7 +22,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     private string _searchText = string.Empty;
 
     private readonly RunningApplicationsService _runningApplicationsService = null!;
-    private readonly ProcessHelper _processHelper = null!;
+    private readonly ProcessInspector _processInspector = null!;
 
     public event Action<ApplicationSelectionArgs>? ApplicationSelected;
 
@@ -40,10 +40,10 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         ]);
     }
 
-    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService, ProcessHelper processHelper)
+    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService, ProcessInspector processInspector)
     {
         _runningApplicationsService = runningApplicationsService;
-        _processHelper = processHelper;
+        _processInspector = processInspector;
     }
 
     public void Refresh(IEnumerable<string> excludedProcessNames)
@@ -84,7 +84,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-            if (_processHelper.IsWindowsExecutable(dialog.FileName))
+            if (_processInspector.IsWindowsExecutable(dialog.FileName))
             {
                 ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
                     ProcessName: Path.GetFileName(dialog.FileName),

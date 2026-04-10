@@ -1,11 +1,12 @@
 using AppSwitcher.Extensions;
-using AppSwitcher.Utils;
+using AppSwitcher.Overlay;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
 using System.Windows.Input;
+using AppConfig = AppSwitcher.Configuration.Configuration;
 
-namespace AppSwitcher;
+namespace AppSwitcher.Input;
 
 internal class Hook(
     ILogger<Hook> logger,
@@ -27,13 +28,13 @@ internal class Hook(
     private const int SyntheticModifierTapMaxDurationMs = 200;
 
     private readonly KeyboardHook _hook = new();
-    private Configuration.Configuration? _config;
+    private AppConfig? _config;
     private bool _modifierDown;
     private bool _letterKeyPressedWithModifier;
     private long _modifierPressedAtTick;
     private readonly HashSet<Key> _suppressedLetterKeys = [];
 
-    public void Start(Configuration.Configuration config)
+    public void Start(AppConfig config)
     {
         _config = config;
         overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
@@ -53,7 +54,7 @@ internal class Hook(
         _hook.Dispose();
     }
 
-    public void UpdateConfiguration(Configuration.Configuration config)
+    public void UpdateConfiguration(AppConfig config)
     {
         _config = config;
         overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
@@ -137,7 +138,7 @@ internal class Hook(
                 var pressDurationMs = Environment.TickCount64 - _modifierPressedAtTick;
                 if (pressDurationMs <= SyntheticModifierTapMaxDurationMs)
                 {
-                    var result = KeyboardHelper.SendSyntheticKeyDownUp(e.InputEvent.Key);
+                    var result = KeyboardInput.SendSyntheticKeyDownUp(e.InputEvent.Key);
                     logger.LogDebug("Sent synthetic key for modifier {Key}, press duration {Duration}ms, success: {Result}", e.InputEvent.Key, pressDurationMs, result);
                 }
                 else

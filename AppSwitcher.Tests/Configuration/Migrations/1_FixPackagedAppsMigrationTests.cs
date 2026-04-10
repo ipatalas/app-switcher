@@ -1,6 +1,6 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Configuration.Migrations;
-using AppSwitcher.Utils;
+using AppSwitcher.WindowDiscovery;
 using LiteDB;
 using System.Windows.Input;
 using Xunit;

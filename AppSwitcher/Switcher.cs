@@ -12,7 +12,7 @@ using Windows.Win32.Graphics.Dwm;
 
 namespace AppSwitcher;
 
-internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, ConfigurationManager configurationManager)
+internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
 {
     private readonly List<HWND> _nextWindows = [];
 
@@ -23,7 +23,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
             return Execute(appGroup[0]);
         }
 
-        var currentWindow = windowHelper.GetCurrentWindow();
+        var currentWindow = windowEnumerator.GetCurrentWindow();
         var currentIndex = appGroup
             .Select((app, i) => new { app, i })
             .FirstOrDefault(x => currentWindow?.ProcessImageName.EndsWith(x.app.ProcessName, StringComparison.CurrentCultureIgnoreCase) == true)
@@ -36,8 +36,8 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
 
     public bool SwitchToWindowByIndex(IReadOnlyList<ApplicationConfiguration> applications, int index)
     {
-        var allWindows = windowHelper.GetWindows();
-        var focusedAppWindows = windowHelper.GetFocusedAppWindows(allWindows, applications);
+        var allWindows = windowEnumerator.GetWindows();
+        var focusedAppWindows = windowEnumerator.GetFocusedAppWindows(allWindows, applications);
         var focusedAppWindow = focusedAppWindows.FocusedWindow!;
         if (index < 0 || index >= focusedAppWindows.Count)
         {
@@ -64,7 +64,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
     /// <returns>app window that was just focused (only if switching between apps)</returns>
     private ApplicationWindow? Execute(ApplicationConfiguration appConfig)
     {
-        var topLevelWindows = windowHelper.GetWindows();
+        var topLevelWindows = windowEnumerator.GetWindows();
         var matchingWindows = topLevelWindows.Where(w =>
                 w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
@@ -90,7 +90,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
             return null;
         }
 
-        var currentWindow = windowHelper.GetCurrentWindow();
+        var currentWindow = windowEnumerator.GetCurrentWindow();
 
         if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.NextApp)
         {
@@ -119,7 +119,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowHelper windowHelper, Con
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
     {
         logger.LogTrace("Matching windows:");
-        windowHelper.LogWindows(LogLevel.Trace, matchingWindows);
+        windowEnumerator.LogWindows(LogLevel.Trace, matchingWindows);
 
         if (!_nextWindows.Contains(window.Handle))
         {

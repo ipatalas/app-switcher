@@ -8,14 +8,14 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Application = System.Windows.Application;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.Overlay;
 
 internal class AppOverlayService(
     AppOverlayWindow window,
     AppOverlayViewModel viewModel,
-    WindowHelper windowHelper,
+    WindowEnumerator windowEnumerator,
     IconExtractor iconExtractor,
-    TitleSuffixHelper titleSuffixHelper,
+    WindowTitleParser windowTitleParser,
     ILogger<AppOverlayService> logger)
 {
     private record WindowSnapshot(string Title, string ProcessPath, bool IsActive = false);
@@ -29,7 +29,7 @@ internal class AppOverlayService(
     {
         var token = Interlocked.Increment(ref _showToken);
 
-        var allWindows = windowHelper.GetWindows();
+        var allWindows = windowEnumerator.GetWindows();
         var runningProcessNames = allWindows
             .Select(w => Path.GetFileName(w.ProcessImageName))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -68,18 +68,18 @@ internal class AppOverlayService(
         IReadOnlyList<ApplicationWindow> allWindows,
         IReadOnlyList<ApplicationConfiguration> applications)
     {
-        var focusedWindows = windowHelper.GetFocusedAppWindows(allWindows, applications);
+        var focusedWindows = windowEnumerator.GetFocusedAppWindows(allWindows, applications);
         if (focusedWindows.Count < 1)
         {
             return (null, []);
         }
 
-        var currentWindow = windowHelper.GetCurrentWindow();
+        var currentWindow = windowEnumerator.GetCurrentWindow();
         var focusedWindow = focusedWindows.FocusedWindow!;
-        var commonSuffix = titleSuffixHelper.FindCommonSuffix(focusedWindows.AllWindows.Select(w => w.Title).ToList());
+        var commonSuffix = windowTitleParser.FindCommonSuffix(focusedWindows.AllWindows.Select(w => w.Title).ToList());
         var snapshots = focusedWindows.AllWindows
             .Select(w => new WindowSnapshot(
-                titleSuffixHelper.StripSuffix(w.Title, commonSuffix),
+                windowTitleParser.StripSuffix(w.Title, commonSuffix),
                 focusedWindow.ProcessImageName,
                 w.Handle == currentWindow?.Handle))
             .ToList();

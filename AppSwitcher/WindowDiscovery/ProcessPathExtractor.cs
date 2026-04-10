@@ -1,19 +1,17 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 using System.Buffers;
-using System.IO;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Threading;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
 public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProcessPathExtractor
 {
     private const uint ERROR_INSUFFICIENT_BUFFER = 122;
 
-    public string ? GetProcessImageName(uint processId)
+    public string? GetProcessImageName(uint processId)
     {
         using var processHandle =
             PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false,
@@ -32,24 +30,6 @@ public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProce
         }
 
         return processImageName;
-    }
-
-    public string? GetPathFromRegistry(string processNameWithExtension)
-    {
-        var keyName = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{processNameWithExtension}";
-
-        var searchLocations = new[] { Registry.CurrentUser, Registry.LocalMachine };
-
-        foreach (var searchLocation in searchLocations)
-        {
-            using var key = searchLocation.OpenSubKey(keyName);
-            if (key?.GetValue("") is string path && File.Exists(path))
-            {
-                return path;
-            }
-        }
-
-        return null;
     }
 
     private unsafe string? GetProcessImageName(HANDLE handle)

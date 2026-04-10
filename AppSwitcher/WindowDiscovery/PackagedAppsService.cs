@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
 internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPackagedAppsService
 {

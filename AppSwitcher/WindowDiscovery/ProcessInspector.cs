@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.System.Threading;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
-internal class ProcessHelper(ILogger<ProcessHelper> logger)
+internal class ProcessInspector(ILogger<ProcessInspector> logger)
 {
     private const int ERROR_ACCESS_DENIED = 5;
     private const int SCS_32BIT_BINARY = 0;

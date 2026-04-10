@@ -2,7 +2,7 @@ using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
 public class IconExtractor
 {

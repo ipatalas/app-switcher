@@ -1,5 +1,4 @@
 ﻿using AppSwitcher.Configuration;
-using AppSwitcher.Utils;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +9,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor processPathExtractor, ProcessHelper processHelper)
+internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, ProcessInspector processInspector)
 {
     public List<ApplicationWindow> GetWindows()
     {
@@ -164,7 +163,7 @@ internal class WindowHelper(ILogger<WindowHelper> logger, IProcessPathExtractor 
                 hwnd, Path.GetFileName(processImageName), hresult);
         }
 
-        var needsElevation = processHelper.NeedsElevation(processId);
+        var needsElevation = processInspector.NeedsElevation(processId);
 
         return new ApplicationWindow(hwnd, title, processId, processImageName, placement.showCmd, position, size,
             style, styleEx, cloaked != 0, needsElevation);

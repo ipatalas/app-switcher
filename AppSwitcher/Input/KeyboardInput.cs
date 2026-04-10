@@ -3,9 +3,9 @@ using System.Windows.Input;
 using Windows.Win32;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.Input;
 
-internal static class KeyboardHelper
+internal static class KeyboardInput
 {
     public static bool SendSyntheticKeyDownUp(Key key)
     {

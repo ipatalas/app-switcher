@@ -1,12 +1,11 @@
-using AppSwitcher.WindowDiscovery;
 using System.IO;
 using System.Windows.Media;
 
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
 internal record RunningApplicationInfo(string ProcessName, string ProcessImageName, ImageSource? Icon, bool IsPackagedApp);
 
-internal class RunningApplicationsService(WindowHelper windowHelper, IconExtractor iconExtractor, IPackagedAppsService packagedAppsService)
+internal class RunningApplicationsService(WindowEnumerator windowEnumerator, IconExtractor iconExtractor, IPackagedAppsService packagedAppsService)
 {
     public IReadOnlyList<RunningApplicationInfo> GetRunningApplications(IEnumerable<string> excludedProcessNames)
     {
@@ -17,7 +16,7 @@ internal class RunningApplicationsService(WindowHelper windowHelper, IconExtract
 
         var packagedApps = packagedAppsService.GetInstalledPaths();
 
-        return windowHelper.GetWindows()
+        return windowEnumerator.GetWindows()
             .Select(w => (Name: Path.GetFileName(w.ProcessImageName), Path: w.ProcessImageName, Directory: Path.GetDirectoryName(w.ProcessImageName)!))
             .DistinctBy(item => item.Name.ToLowerInvariant())
             .Where(item => !excluded.Contains(item.Name.ToLowerInvariant()))

@@ -1,6 +1,6 @@
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.Overlay;
 
-internal class TitleSuffixHelper
+internal class WindowTitleParser
 {
     private static readonly string[] Separators = [" - ", " — ", " | ", " : "];
 

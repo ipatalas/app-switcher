@@ -1,8 +1,8 @@
 using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
+using AppSwitcher.Input;
 using AppSwitcher.UI.Windows;
-using AppSwitcher.Utils;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

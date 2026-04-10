@@ -2,11 +2,13 @@ using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.Configuration.Migrations;
 using AppSwitcher.Extensions;
+using AppSwitcher.Input;
+using AppSwitcher.Overlay;
+using AppSwitcher.Startup;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.WindowDiscovery;
 using AppSwitcher.UI.Windows;
-using AppSwitcher.Utils;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -43,7 +45,7 @@ internal static class ServicesConfiguration
         services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();
         services.AddSingleton<Hook>();
-        services.AddTransient<WindowHelper>();
+        services.AddTransient<WindowEnumerator>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
@@ -51,10 +53,10 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
-        services.AddTransient<TitleSuffixHelper>();
+        services.AddTransient<WindowTitleParser>();
         services.AddTransient<AppOverlayService>();
         services.AddSingleton<ElevatedWarningService>();
-        services.AddTransient<ProcessHelper>();
+        services.AddTransient<ProcessInspector>();
 
         services.AddCliHandler();
 

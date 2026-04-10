@@ -1,4 +1,4 @@
-namespace AppSwitcher.Utils;
+namespace AppSwitcher.WindowDiscovery;
 
 internal interface IPackagedAppsService
 {

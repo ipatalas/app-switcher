@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
-             xmlns:utils="clr-namespace:AppSwitcher.Utils"
+             xmlns:utils="clr-namespace:AppSwitcher.WindowDiscovery"
              mc:Ignorable="d"
              x:ClassModifier="internal"
              d:DataContext="{d:DesignInstance viewModels:AddApplicationFlyoutViewModel, IsDesignTimeCreatable=True}"

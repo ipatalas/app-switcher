@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace AppSwitcher;
+namespace AppSwitcher.Startup;
 
 internal class AutoStart(ILogger<AutoStart> logger)
 {

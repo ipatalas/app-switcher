@@ -1,4 +1,3 @@
-using AppSwitcher.Utils;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,11 +19,11 @@ internal partial class AboutViewModel : ObservableObject
 {
     private readonly ILogger<AboutViewModel> _logger = null!;
     private readonly ISnackbarService _snackbarService = null!;
-    private readonly WindowHelper _windowHelper = null!;
+    private readonly WindowEnumerator _windowEnumerator = null!;
 
     public string AppName => "AppSwitcher";
 
-    public string AppVersion { get; } = "Version " + Utils.AppVersion.Version;
+    public string AppVersion { get; } = "Version " + AppSwitcher.AppVersion.Version;
 
     public string AppWebsite => "https://app-switcher.com";
 
@@ -39,11 +38,11 @@ internal partial class AboutViewModel : ObservableObject
         AppIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
     }
 
-    public AboutViewModel(IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowHelper windowHelper)
+    public AboutViewModel(IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowEnumerator windowEnumerator)
     {
         _logger = logger;
         _snackbarService = snackbarService;
-        _windowHelper = windowHelper;
+        _windowEnumerator = windowEnumerator;
         AppIcon = iconExtractor.GetByProcessPath(Environment.ProcessPath ?? string.Empty);
     }
 
@@ -100,7 +99,7 @@ internal partial class AboutViewModel : ObservableObject
 #if DEBUG_ERROR_HANDLING
             throw new InvalidOperationException("Simulated failure in CopyDiagnostics");
 #endif
-            var windows = _windowHelper.GetAllWindows();
+            var windows = _windowEnumerator.GetAllWindows();
             var csv = BuildCsv(windows);
             System.Windows.Clipboard.SetText(csv);
 
