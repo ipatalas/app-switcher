@@ -18,7 +18,7 @@ public class PeekerTests : IDisposable
             Handle: default,
             Title: "Test",
             ProcessId: processId,
-            ProcessImageName: "test.exe",
+            ProcessImagePath: "test.exe",
             State: state,
             Position: default,
             Size: new Size(100, 100),

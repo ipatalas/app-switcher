@@ -28,8 +28,9 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
         _targetHandle = targetWindow.Handle;
         _targetWasMinimized = targetWindow.State == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED;
         _timer = new System.Threading.Timer(_ => Activate(), null, PeekThresholdMs, Timeout.Infinite);
-        logger.LogDebug("Peek armed (threshold: {ThresholdMs}ms, target was minimized: {WasMinimized})",
-            PeekThresholdMs, _targetWasMinimized);
+        logger.LogDebug(
+            "Peek armed (threshold: {ThresholdMs}ms, target was minimized: {WasMinimized}, previous window: {ProcessName}/{Handle})",
+            PeekThresholdMs, _targetWasMinimized, previousWindow.ProcessName, previousWindow.Handle);
     }
 
     private void Activate()

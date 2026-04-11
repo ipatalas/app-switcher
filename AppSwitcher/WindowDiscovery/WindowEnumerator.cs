@@ -74,7 +74,7 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
             return FocusedAppWindows.Empty;
         }
 
-        var currentProcessName = Path.GetFileName(currentWindow.ProcessImageName).ToLowerInvariant();
+        var currentProcessName = Path.GetFileName(currentWindow.ProcessImagePath).ToLowerInvariant();
         var focusedApp = applications.FirstOrDefault(a =>
             a.ProcessName.Equals(currentProcessName, StringComparison.InvariantCultureIgnoreCase) &&
             a.CycleMode == CycleMode.NextWindow);
@@ -85,7 +85,7 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         }
 
         var focusedAppWindows = allWindows
-            .Where(w => w.ProcessImageName.EndsWith(focusedApp.ProcessName, StringComparison.OrdinalIgnoreCase))
+            .Where(w => w.ProcessImagePath.EndsWith(focusedApp.ProcessName, StringComparison.OrdinalIgnoreCase))
             .OrderBy(static w => (IntPtr)w.Handle) // stable order, independent of Z-order / focus
             .Take(10) // only 10 digit keys available
             .ToList();
@@ -104,7 +104,7 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         {
             logger.Log(level,
                 "PID/Handle: {ProcessId}/{Handle}, {ProcessName} ({ProductName}), {Title}, {State}, {WindowStyle}, {WindowStyleEx}, {IsCloaked}",
-                item.ProcessId, item.Handle, item.ProcessImageName, item.GetProductName(), item.Title, item.State,
+                item.ProcessId, item.Handle, item.ProcessImagePath, item.GetProductName(), item.Title, item.State,
                 WindowStyleHelpers.GetString(item.Style), WindowStyleHelpers.GetString(item.StyleEx),
                 item.IsCloaked ? "Cloaked" : "Visible");
         }
@@ -146,8 +146,8 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
             return null;
         }
 
-        var processImageName = processPathExtractor.GetProcessImageName(processId);
-        if (processImageName is null)
+        var processImagePath = processPathExtractor.GetProcessImagePath(processId);
+        if (processImagePath is null)
         {
             return null;
         }
@@ -160,12 +160,12 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         if (hresult != 0)
         {
             logger.LogWarning("Failed to get cloaked attribute for window {Handle} ({ProcessName}), HRESULT: {HResult}",
-                hwnd, Path.GetFileName(processImageName), hresult);
+                hwnd, Path.GetFileName(processImagePath), hresult);
         }
 
         var needsElevation = processInspector.NeedsElevation(processId);
 
-        return new ApplicationWindow(hwnd, title, processId, processImageName, placement.showCmd, position, size,
+        return new ApplicationWindow(hwnd, title, processId, processImagePath, placement.showCmd, position, size,
             style, styleEx, cloaked != 0, needsElevation);
     }
 

@@ -125,13 +125,13 @@ internal partial class AboutViewModel : ObservableObject
     private static string BuildCsv(IReadOnlyList<ApplicationWindow> windows)
     {
         var sb = new StringBuilder(windows.Count * 500);
-        sb.AppendLine("ProcessId,Handle,ProcessImageName,ProductName,Title,State,Style,StyleEx,IsCloaked");
+        sb.AppendLine("ProcessId,Handle,ProcessImagePath,ProductName,Title,State,Style,StyleEx,IsCloaked");
         foreach (var w in windows)
         {
             sb.AppendLine(string.Join(",",
                 w.ProcessId,
                 w.Handle,
-                CsvEscape(w.ProcessImageName),
+                CsvEscape(w.ProcessImagePath),
                 CsvEscape(w.GetProductName()),
                 CsvEscape(w.Title),
                 w.State,

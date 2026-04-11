@@ -26,7 +26,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
         var currentWindow = windowEnumerator.GetCurrentWindow();
         var currentIndex = appGroup
             .Select((app, i) => new { app, i })
-            .FirstOrDefault(x => currentWindow?.ProcessImageName.EndsWith(x.app.ProcessName, StringComparison.CurrentCultureIgnoreCase) == true)
+            .FirstOrDefault(x => currentWindow?.ProcessImagePath.EndsWith(x.app.ProcessName, StringComparison.CurrentCultureIgnoreCase) == true)
             ?.i ?? -1;
 
         var nextApp = appGroup[(currentIndex + 1) % appGroup.Count];
@@ -50,7 +50,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
             return true;
         }
 
-        var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImageName);
+        var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImagePath);
 
         logger.LogDebug("Switching to window #{Number} of {AppName}", index + 1, appName);
         ActivateWindow(focusedAppWindows[index]);
@@ -66,7 +66,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
     {
         var topLevelWindows = windowEnumerator.GetWindows();
         var matchingWindows = topLevelWindows.Where(w =>
-                w.ProcessImageName.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
+                w.ProcessImagePath.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
         var window = matchingWindows.FirstOrDefault();
         if (window is null)

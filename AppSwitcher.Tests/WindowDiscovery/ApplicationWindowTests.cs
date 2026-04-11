@@ -18,7 +18,7 @@ public class ApplicationWindowTests
             Handle: default,
             Title: title,
             ProcessId: 1,
-            ProcessImageName: "test.exe",
+            ProcessImagePath: "test.exe",
             State: default,
             Position: default,
             Size: new Size(width, height),

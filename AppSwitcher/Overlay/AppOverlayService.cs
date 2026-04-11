@@ -31,12 +31,12 @@ internal class AppOverlayService(
 
         var allWindows = windowEnumerator.GetWindows();
         var runningProcessNames = allWindows
-            .Select(w => Path.GetFileName(w.ProcessImageName))
+            .Select(w => Path.GetFileName(w.ProcessImagePath))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var needsElevationProcessNames = allWindows
             .Where(w => w.NeedsElevation)
-            .Select(w => Path.GetFileName(w.ProcessImageName))
+            .Select(w => Path.GetFileName(w.ProcessImagePath))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var (focusedAppName, focusedWindows) = GetFocusedWindowData(allWindows, applications);
@@ -80,10 +80,10 @@ internal class AppOverlayService(
         var snapshots = focusedWindows.AllWindows
             .Select(w => new WindowSnapshot(
                 windowTitleParser.StripSuffix(w.Title, commonSuffix),
-                focusedWindow.ProcessImageName,
+                focusedWindow.ProcessImagePath,
                 w.Handle == currentWindow?.Handle))
             .ToList();
-        var appName = focusedWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedWindow.ProcessImageName);
+        var appName = focusedWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedWindow.ProcessImagePath);
 
         return (appName, snapshots);
     }

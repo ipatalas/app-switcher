@@ -2,5 +2,5 @@ namespace AppSwitcher.WindowDiscovery;
 
 public interface IProcessPathExtractor
 {
-    string? GetProcessImageName(uint processId);
+    string? GetProcessImagePath(uint processId);
 }

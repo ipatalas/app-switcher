@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -11,7 +12,7 @@ internal record ApplicationWindow(
     HWND Handle,
     string Title,
     uint ProcessId,
-    string ProcessImageName,
+    string ProcessImagePath,
     SHOW_WINDOW_CMD State,
     Point Position,
     Size Size,
@@ -26,9 +27,11 @@ internal record ApplicationWindow(
         !StyleEx.HasFlag(WindowStyleEx.WS_EX_TOOLWINDOW) &&
         !IsCloaked;
 
+    public string ProcessName => Path.GetFileName(ProcessImagePath);
+
     public unsafe string? GetProductName()
     {
-        var verInfoSize = PInvoke.GetFileVersionInfoSize(ProcessImageName);
+        var verInfoSize = PInvoke.GetFileVersionInfoSize(ProcessImagePath);
         if (verInfoSize <= 0)
         {
             return null;
@@ -36,7 +39,7 @@ internal record ApplicationWindow(
 
         var versionInfo = new byte[verInfoSize];
 
-        if (PInvoke.GetFileVersionInfo(ProcessImageName, versionInfo))
+        if (PInvoke.GetFileVersionInfo(ProcessImagePath, versionInfo))
         {
             fixed (byte* pVersion = versionInfo)
             {

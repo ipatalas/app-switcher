@@ -68,7 +68,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     {
         ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
             ProcessName: application.ProcessName,
-            ProcessPath: application.ProcessImageName,
+            ProcessPath: application.ProcessImagePath,
             Type: application.IsPackagedApp ? ApplicationType.Packaged : ApplicationType.Win32));
     }
 

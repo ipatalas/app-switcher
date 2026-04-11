@@ -11,7 +11,7 @@ public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProce
 {
     private const uint ERROR_INSUFFICIENT_BUFFER = 122;
 
-    public string? GetProcessImageName(uint processId)
+    public string? GetProcessImagePath(uint processId)
     {
         using var processHandle =
             PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false,
@@ -22,17 +22,17 @@ public class ProcessPathExtractor(ILogger<ProcessPathExtractor> logger) : IProce
             return null;
         }
 
-        var processImageName = GetProcessImageName((HANDLE)processHandle.DangerousGetHandle());
-        if (processImageName is null)
+        var processImagePath = GetProcessImagePath((HANDLE)processHandle.DangerousGetHandle());
+        if (processImagePath is null)
         {
             logger.LogWarning("Failed to get process image name for process {ProcessId}", processId);
             return null;
         }
 
-        return processImageName;
+        return processImagePath;
     }
 
-    private unsafe string? GetProcessImageName(HANDLE handle)
+    private unsafe string? GetProcessImagePath(HANDLE handle)
     {
         const int startLength = (int)PInvoke.MAX_PATH;
 
