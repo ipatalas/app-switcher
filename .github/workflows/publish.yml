@@ -29,8 +29,17 @@ jobs:
         run: |
           choco push "ipatalas-appswitcher.$($env:ver).nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
 
+  trigger-scoop-update:
+    if: ${{ vars.ENABLE_SCOOP_UPDATE == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Scoop update workflow
+        run: |
+          gh workflow run excavator.yml --repo "ipatalas/scoop-bucket" --ref main
+        env:
+          GH_TOKEN: ${{ secrets.SCOOP_TRIGGER_TOKEN }}
+
   deploy-website:
-    needs: push-chocolatey
-    if: ${{ always() && (needs.push-chocolatey.result == 'success' || needs.push-chocolatey.result == 'skipped') }}
     uses: ./.github/workflows/website.yml
     secrets: inherit
