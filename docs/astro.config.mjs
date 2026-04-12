@@ -46,8 +46,9 @@ export default defineConfig({
 					items: [
 						{ label: 'Choosing a Modifier Key', slug: 'configuration/choosing-modifier' },
 						{ label: 'Assigning Hotkeys', slug: 'configuration/hotkeys' },
-						{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
-						{ label: 'Startup & Tray', slug: 'configuration/startup' },
+					{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
+					{ label: 'Peek Mode', slug: 'configuration/peek-mode' },
+					{ label: 'Startup & Tray', slug: 'configuration/startup' },
 					],
 				},
 				{

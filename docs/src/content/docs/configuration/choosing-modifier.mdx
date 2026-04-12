@@ -33,6 +33,7 @@ The following modifiers have side effects that AppSwitcher suppresses:
 | **Apps** (Menu key) | Opens a context menu at the cursor | `Apps+B` switches to browser *and* shows a context menu |
 | **Win** | Opens the Windows Start menu | `Win+B` switches to browser *and* opens Start |
 | **Left Alt** | Activates the menu bar in some apps (e.g. File Explorer, Office) | `Alt+B` switches to browser *and* triggers a menu in the previously focused app |
+| **Caps Lock** | Toggles the Caps Lock state | `CapsLock+B` switches to browser *and* toggles capitalisation |
 
 All of these are currently suppressed by AppSwitcher, so you can use them safely
 as modifiers without worrying about unwanted side effects.
@@ -68,17 +69,23 @@ as an AppSwitcher modifier will conflict with everyday actions.
 
 ## Recommended Modifiers
 
-### Apps key (Menu key) ✅ Best choice for most users
+### Caps Lock ✅ Best choice for most users
 
-The `Apps` key sits between the right `Alt` and `Ctrl` keys on most full-size keyboards.
-It is almost never used by other applications, has its side effect suppressed by AppSwitcher,
-and is easy to reach without moving your hand far from the home row.
+`Caps Lock` is present on every keyboard, sits right on the home row, and has no conflicting shortcuts — nothing in Windows or any application uses it as a modifier.
+Its toggle side effect is suppressed by AppSwitcher when used in a hotkey combination, and brief presses (tap without holding another key) are not suppressed, so it continues to work normally as a capitalisation toggle.
+The only reason to prefer another option is if you rely on caps lock frequently for typing.
 
-**Ideal pattern:** `Apps+letter` (e.g. `Apps+C` → VS Code, `Apps+T` → Terminal)
+### Apps key (Menu key) ✅ Great choice if your keyboard has it
 
-### Right Ctrl ✅
+The `Apps` key has no other purpose — repurposing it as a modifier loses nothing.
+Its context menu side effect is suppressed by AppSwitcher, and no application uses it in shortcuts.
+The drawbacks are availability and reach: it is absent on most laptops and any keyboard smaller than full-size, and on keyboards that do have it, it sits on the far right — requiring a significant hand movement away from the home row.
 
-The `Right Ctrl` key is a solid choice if you prefer a more familiar modifier. It doesn't have any side effects that need blocking, and AppSwitcher will only block it when used in a hotkey combination, so you won't lose access to `Left Ctrl` shortcuts like `Ctrl+C` for copy.
+### Right Ctrl ✅ Solid fallback
+
+The `Right Ctrl` key has no side effects and leaves all `Left Ctrl` shortcuts (`Ctrl+C`, `Ctrl+V`, etc.) completely intact.
+It shares the same availability problem as the Apps key — often absent on compact keyboards — and sits even further right, making it the least ergonomic of the three.
+It is a reliable choice when Caps Lock is not an option and the Apps key is unavailable.
 
 ### Shift ⚠️ Usable with care
 
@@ -96,8 +103,9 @@ Pressing `Win` alone will still open the Start menu, but will be blocked when he
 
 | Modifier | Safe to use? | Recommendation |
 | -------- | ------------ | -------------- |
-| **Apps** | ✅ Yes | Best default choice |
-| **Right Ctrl** | ✅ Yes | Won't break `Left Ctrl-C` |
+| **Caps Lock** | ✅ Yes | Best default — home row, universal, no conflicts |
+| **Apps** | ✅ Yes | Excellent if your keyboard has it |
+| **Right Ctrl** | ✅ Yes | Solid fallback; won't break `Left Ctrl` shortcuts |
 | **Right Shift** | ✅ Yes | Works well if you only use the other `Shift` key for uppercase letters |
 | **Win** | ⚠️ Mostly | Avoid combos already claimed by Windows |
 | **Right Alt** | ⚠️ Mostly | Can be problematic on non-US layouts |

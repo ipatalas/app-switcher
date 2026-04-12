@@ -1,0 +1,48 @@
+---
+title: Peek Mode
+description: Use peek mode to glance at another app and snap back to where you were automatically.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Peek mode lets you **glance at another app and return to your previous window automatically** - without ever lifting your hands from the keyboard.
+
+## How to Enable
+
+<Steps>
+1. Open **Settings** (double-click the tray icon).
+2. Go to the **General** tab → **Behavior** section.
+3. Toggle **Peek mode** on.
+</Steps>
+
+Peek mode is **off by default**.
+
+## How It Works
+
+With peek mode enabled, every cross-process switch becomes a reversible peek:
+
+1. Hold your modifier key and press an app's hotkey — the target app comes to the front.
+2. **Release the modifier key** (or the hotkey itself) — AppSwitcher automatically switches you back to the window you were in before.
+
+The return is instantaneous: no extra keypress, no context menu, no delay.
+
+<Aside type="tip">
+  Peek mode is ideal for quickly checking a chat message, glancing at a reference document, or confirming a build status — then snapping straight back to your editor.
+</Aside>
+
+## When Peek Does Not Arm
+
+Peek mode only arms under specific conditions. It will **not** activate when:
+
+- You switch between windows of the **same application** (e.g. cycling between two browser windows). Peek is a cross-process feature.
+- You use a **numeric shortcut** (`Modifier + 1–0`) to select a window. Only letter-key hotkeys arm peek mode.
+
+## Staying in the Target App
+
+If you want to **stay** in the app you peeked at, press its hotkey a second time before releasing the modifier. This re-arms peek towards the original window, and releasing the modifier will return you there — effectively making the current window your new starting point.
+
+Alternatively, simply click anywhere in the target app with the mouse. Mouse interaction is not tracked by peek mode, so the automatic return will still fire when you release the modifier, but you will have already interacted with the window you wanted.
+
+<Aside type="note">
+  Peek mode will not work when switching to an **elevated (Administrator) app**. AppSwitcher resets its state on those switches for safety — see [Elevated Apps](/docs/advanced/elevated-apps) for details.
+</Aside>
