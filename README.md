@@ -12,7 +12,7 @@ Back on Windows, Alt+Tab felt slow and unpredictable for the same workflow, so I
 
 <details>
 <summary>▶ See it in action</summary>
-<video src="https://github.com/user-attachments/assets/19c24843-4465-41b0-ac8d-437cccc3430d" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/5f5708a0-c384-4bd3-894e-73f334be37f6" controls width="100%"></video>
 </details>
 
 ---
