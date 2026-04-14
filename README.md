@@ -31,12 +31,13 @@ You stop thinking about where a window is and just jump there.
 
 ## ✨ Key features
 
-- **Three Intelligent Cycle Modes:**
+- [**Three Intelligent Cycle Modes:**](https://app-switcher.com/docs/configuration/cycle-modes/)
     * `NextApp`: Cycle between different apps assigned to the same key.
     * `NextWindow`: Cycle through all open windows of a *single* app (great for multi-instance browsers).
     * `Hide`: Minimize the app if you press the hotkey while it's already focused (the ultimate "toggle").
 - **Start if not running:** optional per-app setting to start the app when no matching process is running.
 - **Packaged app support:** works with modern Windows packaged apps (for example Windows Terminal) in addition to classic desktop apps.
+- [**Peek mode:**](https://app-switcher.com/docs/configuration/peek-mode/) hold the hotkey to peek at the target app and release to return to the original app.
 - **Lightweight desktop app:** native C#/.NET app with a tray-first workflow.
 
 ## 🔒 Power user ethics
@@ -53,10 +54,10 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exa
 
 ## 🗺️ Roadmap
 
-- **Peek mode:** show target app as long as hotkey is held down and then bring back the original app when released.
+- ~~**Peek mode:** show target app as long as hotkey is held down and then bring back the original app when released.~~
 - **Custom key combinations:** allow more complex hotkeys, for example `Ctrl+Shift+T`.
 - **Dynamic bindings:** automatically assign letters based on app name
-- **More modifiers:** add Caps Lock and function keys as optional modifiers.
+- **More modifiers:** add ~~Caps Lock~~ and function keys as optional modifiers.
 
 ---
 
