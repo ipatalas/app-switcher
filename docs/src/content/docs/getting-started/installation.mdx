@@ -29,6 +29,7 @@ Before installing, make sure your system meets the following requirements:
 | **Installer (.exe)** | Standard Windows installer, adds AppSwitcher to Programs | Most users                    |
 | **Portable (.zip)**  | Extract and run — no installation needed                 | USB sticks, no-install setups |
 | **Scoop**            | See below in `Scoop` section                             | Developers, automated setups  |
+| **Winget**           | See below in `Winget` section                            | Developers, automated setups  |
 {/* | **Chocolatey**       | `choco install ipatalas-appswitcher`                     | Developers, automated setups  | */}
 
 ## Installing
@@ -60,21 +61,26 @@ Before installing, make sure your system meets the following requirements:
 
   </TabItem> */}
   <TabItem label="Scoop">
-
     If you have [Scoop](https://scoop.sh/) installed, run the following in your terminal:
-
     ```
     scoop bucket add ipatalas https://github.com/ipatalas/scoop-bucket
     scoop install ipatalas/app-switcher
     ```
-
     To upgrade to the latest version later:
-
     ```
     scoop update
     scoop update app-switcher
     ```
-
+  </TabItem>
+  <TabItem label="Winget">
+    If you have [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) installed, run the following in a terminal:
+    ```
+    winget install ipatalas.AppSwitcher
+    ```
+    To upgrade to the latest version later:
+    ```
+    winget upgrade ipatalas.AppSwitcher
+    ```
   </TabItem>
   <TabItem label="Portable">
 
