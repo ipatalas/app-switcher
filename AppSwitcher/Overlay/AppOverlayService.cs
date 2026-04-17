@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Application = System.Windows.Application;
+using System.Windows;
 
 namespace AppSwitcher.Overlay;
 

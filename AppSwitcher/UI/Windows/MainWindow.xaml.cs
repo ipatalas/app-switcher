@@ -1,6 +1,5 @@
 ﻿using AppSwitcher.UI.ViewModels;
 using System.Windows;
-using Application = System.Windows.Application;
 
 namespace AppSwitcher.UI.Windows;
 

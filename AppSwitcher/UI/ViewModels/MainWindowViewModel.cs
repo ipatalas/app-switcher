@@ -5,8 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Windows;
 using Wpf.Ui.Controls;
-using Application = System.Windows.Application;
 using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace AppSwitcher.UI.ViewModels;

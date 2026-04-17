@@ -1,7 +1,7 @@
 using AppSwitcher.UI.Windows;
 using Microsoft.Extensions.Logging;
 using System.Windows.Threading;
-using Application = System.Windows.Application;
+using System.Windows;
 
 namespace AppSwitcher.Overlay;
 
@@ -12,7 +12,7 @@ internal class ElevatedWarningService : IDisposable
 
     private readonly ElevatedWarningWindow _window;
     private readonly ILogger<ElevatedWarningService> _logger;
-    private System.Threading.Timer? _dismissTimer;
+    private Timer? _dismissTimer;
     private int _showCounter;
 
     public ElevatedWarningService(ElevatedWarningWindow window, ILogger<ElevatedWarningService> logger)
@@ -45,7 +45,7 @@ internal class ElevatedWarningService : IDisposable
     {
         _window.StartCountdown(autoDismissMs);
         _dismissTimer?.Dispose();
-        _dismissTimer = new System.Threading.Timer(
+        _dismissTimer = new Timer(
             callback: _ =>
             {
                 Application.Current.Dispatcher.BeginInvoke(() => _window.Hide());

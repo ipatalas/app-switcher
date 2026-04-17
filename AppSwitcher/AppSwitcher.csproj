@@ -25,6 +25,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="NativeMethods.txt" />
     <AdditionalFiles Include="NativeMethods.txt" />
     <None Update=".portable">
