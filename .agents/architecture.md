@@ -6,6 +6,8 @@
 AppSwitcher/
 ├── Configuration/       # Configuration loading, validation, hot-reload
 ├── Extensions/          # Extension methods
+├── Input/               # Keyboard hook, key state machine, dynamic mode
+├── Overlay/             # Overlay window coordination (AppOverlayService, timer)
 ├── UI/
 │   ├── Controls/        # Custom WPF controls
 │   ├── Pages/           # WPF pages
@@ -65,3 +67,11 @@ _logger.LogDebug("Switching to {ProcessName}", appConfig.NormalizedProcessName);
 - **KeyboardHookLite**: Global keyboard hook
 - **NLog**: Logging implementation
 - **Microsoft.Windows.CsWin32**: P/Invoke source generator
+
+## Singleton Constraint
+
+`Hook` is registered as `AddSingleton`. Any service injected into `Hook` must also be a singleton (or stateless). Injecting a scoped or transient service will silently capture it for the application lifetime.
+
+## LiteDB / SettingsDocument
+
+`SettingsDocument` handles missing LiteDB fields via C# property initializers — no migration needed when adding new `bool` fields. Existing records get the initializer default (`false`). Only use `SeedDefaults` in `ConfigurationService` when a new-user default differs from `false`.
