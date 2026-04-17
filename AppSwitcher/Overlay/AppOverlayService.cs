@@ -114,7 +114,7 @@ internal class AppOverlayService(
             .Select((w, i) => new OverlayAppItem(IndexToKey(i), w.Title, iconExtractor.GetByProcessPath(w.ProcessPath), w.IsActive))
             .ToList();
 
-        var processPath = focusedWindows.FirstOrDefault()?.ProcessPath;
+        var processPath = focusedWindows.FirstOrDefault()?.ProcessPath ?? windowEnumerator.GetCurrentWindow()?.ProcessImagePath;
 
         var running = new List<OverlayAppItem>();
         var launchable = new List<OverlayAppItem>();
