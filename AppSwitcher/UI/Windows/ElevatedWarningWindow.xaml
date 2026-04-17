@@ -22,65 +22,86 @@
         <!-- Floating card container -->
         <Border x:Name="CardBorder"
                 CornerRadius="12"
-                Padding="14,12"
                 Width="300"
                 Background="{DynamicResource SolidBackgroundFillColorSecondaryBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Opacity="0.97">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <!--
+                Inner clip border — Clip geometry (set in code-behind) rounds the bottom
+                corners without touching the outer card's drop shadow.
+            -->
+            <Border x:Name="CardContent" CornerRadius="12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="2" />
+                    </Grid.RowDefinitions>
 
-                <!-- Shield icon -->
-                <ui:SymbolIcon Grid.Column="0"
-                               Symbol="Shield24"
-                               FontSize="32"
-                               Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                               VerticalAlignment="Top"
-                               Margin="0,1,12,0" />
+                    <!-- Card content -->
+                    <Grid Grid.Row="0"
+                          Margin="14,12,14,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                <!-- Message content -->
-                <StackPanel Grid.Column="1">
-                    <TextBlock Text="Elevated application"
-                               FontWeight="SemiBold"
-                               FontSize="13"
-                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <!-- Shield icon -->
+                        <ui:SymbolIcon Grid.Column="0"
+                                       Symbol="Shield24"
+                                       FontSize="32"
+                                       Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                       VerticalAlignment="Top"
+                                       Margin="0,1,12,0" />
 
-                    <TextBlock Text="AppSwitcher can no longer detect your keystrokes while an elevated app is in focus."
-                               FontSize="12"
-                               Opacity="0.7"
-                               TextWrapping="Wrap"
-                               Margin="0,4,0,0"
-                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <!-- Message content -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Elevated application"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                    <ui:HyperlinkButton Content="Learn more"
-                                       Padding="0"
+                            <TextBlock Text="AppSwitcher can no longer detect your keystrokes while an elevated app is in focus."
                                        FontSize="12"
-                                       Margin="-3,4,0,0"
-                                       HorizontalAlignment="Left"
-                                       NavigateUri="https://app-switcher.com/elevated-apps/" />
-                </StackPanel>
+                                       Opacity="0.7"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                <!-- Dismiss button -->
-                <ui:Button Grid.Column="2"
-                           Appearance="Transparent"
-                           Width="24"
-                           Height="24"
-                           Padding="2"
-                           MinWidth="0"
-                           VerticalAlignment="Top"
-                           Margin="8,-2,-4,0"
-                           ToolTip="Dismiss"
-                           Click="OnDismissClick">
-                    <ui:SymbolIcon Symbol="Dismiss20"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                </ui:Button>
-            </Grid>
+                            <ui:HyperlinkButton Content="Learn more"
+                                                Padding="0"
+                                                FontSize="12"
+                                                Margin="-3,4,0,0"
+                                                HorizontalAlignment="Left"
+                                                NavigateUri="https://app-switcher.com/elevated-apps/" />
+                        </StackPanel>
+
+                        <!-- Dismiss button -->
+                        <ui:Button Grid.Column="2"
+                                   Appearance="Transparent"
+                                   Width="24"
+                                   Height="24"
+                                   Padding="2"
+                                   MinWidth="0"
+                                   VerticalAlignment="Top"
+                                   Margin="8,-2,-4,0"
+                                   ToolTip="Dismiss"
+                                   Click="OnDismissClick">
+                            <ui:SymbolIcon Symbol="Dismiss20"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </ui:Button>
+                    </Grid>
+
+                    <!-- Auto-dismiss countdown bar — drains left-to-right over the dismiss duration -->
+                    <Rectangle x:Name="CountdownBar"
+                               Grid.Row="1"
+                               HorizontalAlignment="Left"
+                               Width="300"
+                               Fill="{DynamicResource SystemFillColorCautionBrush}" />
+                </Grid>
+            </Border>
         </Border>
 
     </Border>

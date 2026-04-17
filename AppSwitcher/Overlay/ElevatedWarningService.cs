@@ -43,6 +43,7 @@ internal class ElevatedWarningService : IDisposable
 
     private void ScheduleDismiss(int autoDismissMs = AutoDismissMs)
     {
+        _window.StartCountdown(autoDismissMs);
         _dismissTimer?.Dispose();
         _dismissTimer = new System.Threading.Timer(
             callback: _ =>
@@ -64,6 +65,7 @@ internal class ElevatedWarningService : IDisposable
     {
         _logger.LogDebug("Elevated warning: mouse entered, dismiss paused");
         CancelDismiss();
+        _window.PauseCountdown();
     }
 
     private void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
