@@ -45,6 +45,8 @@ internal static class ServicesConfiguration
         services.AddImplementationsOf<IMigration>(ServiceLifetime.Transient);
         services.AddSingleton<ConfigurationManager>();
         services.AddSingleton<Hook>();
+        services.AddSingleton<DynamicModeService>();
+        services.AddSingleton<AppNameResolver>();
         services.AddSingleton<Peeker>();
         services.AddTransient<WindowEnumerator>();
         services.AddTransient<Switcher>();
@@ -54,6 +56,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
+        services.AddTransient<IWindowEnumerator, WindowEnumerator>();
         services.AddTransient<WindowTitleParser>();
         services.AddTransient<AppOverlayService>();
         services.AddSingleton<ElevatedWarningService>();

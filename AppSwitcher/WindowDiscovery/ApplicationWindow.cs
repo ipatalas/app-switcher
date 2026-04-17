@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
@@ -29,45 +27,5 @@ internal record ApplicationWindow(
 
     public string ProcessName => Path.GetFileName(ProcessImagePath);
 
-    public unsafe string? GetProductName()
-    {
-        var verInfoSize = PInvoke.GetFileVersionInfoSize(ProcessImagePath);
-        if (verInfoSize <= 0)
-        {
-            return null;
-        }
-
-        var versionInfo = new byte[verInfoSize];
-
-        if (PInvoke.GetFileVersionInfo(ProcessImagePath, versionInfo))
-        {
-            fixed (byte* pVersion = versionInfo)
-            {
-                if (PInvoke.VerQueryValue(pVersion, @"\VarFileInfo\Translation", out var pTranslations,
-                        out var len))
-                {
-                    var ptr = new IntPtr(pTranslations);
-                    var transCount = (int)len / 4; // Each translation is 4 bytes (2 for language, 2 for codepage)
-                    for (var i = 0; i < transCount; i++)
-                    {
-                        var offset = i * 4;
-                        var langId = (ushort)Marshal.ReadInt16(ptr, offset);
-                        var codePage = (ushort)Marshal.ReadInt16(ptr, offset + 2);
-
-                        var subBlock = @$"\StringFileInfo\{langId:X4}{codePage:X4}\ProductName";
-                        if (PInvoke.VerQueryValue(pVersion, subBlock, out var pValue, out _))
-                        {
-                            var name = Marshal.PtrToStringUni(new IntPtr(pValue));
-                            if (!string.IsNullOrEmpty(name))
-                            {
-                                return name;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
+    public string? GetProductName() => FileVersionInfo.GetVersionInfo(ProcessImagePath).ProductName;
 }

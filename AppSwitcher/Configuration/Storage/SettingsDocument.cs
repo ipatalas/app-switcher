@@ -26,6 +26,8 @@ internal class SettingsDocument
 
     public bool PeekEnabled { get; init; }
 
+    public bool DynamicModeEnabled { get; init; } = false;
+
     public Configuration ToConfiguration() =>
         new(
             Modifier,
@@ -35,7 +37,8 @@ internal class SettingsDocument
             OverlayEnabled,
             OverlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld,
-            PeekEnabled);
+            PeekEnabled,
+            DynamicModeEnabled);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -50,6 +53,7 @@ internal class SettingsDocument
             OverlayEnabled = config.OverlayEnabled,
             OverlayShowDelayMs = config.OverlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld,
-            PeekEnabled = config.PeekEnabled
+            PeekEnabled = config.PeekEnabled,
+            DynamicModeEnabled = config.DynamicModeEnabled
         };
 }

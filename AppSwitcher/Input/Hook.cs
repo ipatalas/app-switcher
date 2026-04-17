@@ -3,7 +3,6 @@ using AppSwitcher.Overlay;
 using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
-using System.Collections.Frozen;
 using System.Windows.Input;
 using AppConfig = AppSwitcher.Configuration.Configuration;
 
@@ -16,7 +15,8 @@ internal class Hook(
     WindowEnumerator windowEnumerator,
     OverlayShowTimer overlayShowTimer,
     ElevatedWarningService elevatedWarningService,
-    AppOverlayService overlayService) : IDisposable
+    AppOverlayService overlayService,
+    DynamicModeService dynamicModeService) : IDisposable
 {
     private const int SyntheticModifierTapMaxDurationMs = 200;
 
@@ -30,7 +30,7 @@ internal class Hook(
     {
         _config = config;
         _stateMachine.Configure(config.Modifier);
-        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(config.Applications, config.DynamicModeEnabled), config.OverlayShowDelayMs);
         logger.LogInformation("Starting hook");
         _hook.KeyboardPressed += Hook_KeyboardPressed;
     }
@@ -51,7 +51,7 @@ internal class Hook(
     {
         _config = config;
         _stateMachine.Configure(config.Modifier);
-        overlayShowTimer.Configure(onExpired: () => overlayService.Show(_config!.Applications), config.OverlayShowDelayMs);
+        overlayShowTimer.Configure(onExpired: () => overlayService.Show(config.Applications, config.DynamicModeEnabled), config.OverlayShowDelayMs);
         // Reset state when configuration changes (especially if modifier key changes)
         ResetModifierState();
     }
@@ -180,6 +180,12 @@ internal class Hook(
         ArgumentNullException.ThrowIfNull(_config);
 
         var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+
+        if (matchingApps.Count == 0 && _config.DynamicModeEnabled)
+        {
+            matchingApps = [.. dynamicModeService.GetAppsForKey(letter, _config.Applications)];
+        }
+
         if (matchingApps.Count > 0)
         {
             e.SuppressKeyPress = true;
@@ -245,7 +251,7 @@ internal class Hook(
 
         if (_config.OverlayKeepOpenWhileModifierHeld && overlayService.IsVisible)
         {
-            overlayService.Show(_config.Applications);
+            overlayService.Show(_config.Applications, _config.DynamicModeEnabled);
         }
         else
         {

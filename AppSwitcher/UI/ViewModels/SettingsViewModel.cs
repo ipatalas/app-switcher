@@ -92,6 +92,10 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private bool _peekEnabled;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
+    private bool _dynamicModeEnabled;
+
+    [ObservableProperty]
     private bool _launchAtStartup;
 
     partial void OnLaunchAtStartupChanged(bool value)
@@ -144,6 +148,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         OverlayShowDelayMs = config.OverlayShowDelayMs;
         OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld;
         PeekEnabled = config.PeekEnabled;
+        DynamicModeEnabled = config.DynamicModeEnabled;
 
         _dirtyTracker?.Dispose();
 
@@ -225,7 +230,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             OverlayEnabled,
             OverlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld,
-            PeekEnabled);
+            PeekEnabled,
+            DynamicModeEnabled);
     }
 
     public IEnumerable<string> BoundProcessNames => Applications.Select(a => a.ProcessName);
@@ -302,7 +308,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 OverlayEnabled,
                 OverlayShowDelayMs,
                 OverlayKeepOpenWhileModifierHeld,
-                PeekEnabled);
+                PeekEnabled,
+                DynamicModeEnabled);
 
             if (_configurationManager.UpdateConfiguration(newConfig))
             {

@@ -193,6 +193,29 @@
                               ItemTemplate="{StaticResource AppItemTemplate}" />
             </StackPanel>
 
+            <!-- Dynamic apps section -->
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShowDynamicApps}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <TextBlock Text="Dynamic apps"
+                           FontSize="11"
+                           Opacity="0.6"
+                           Margin="0,8,0,6"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <ItemsControl ItemsSource="{Binding DynamicApps}"
+                              ItemTemplate="{StaticResource AppItemTemplate}" />
+            </StackPanel>
+
         </StackPanel>
         </Border>
 

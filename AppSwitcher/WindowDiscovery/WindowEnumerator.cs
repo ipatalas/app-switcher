@@ -1,4 +1,4 @@
-﻿using AppSwitcher.Configuration;
+using AppSwitcher.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +9,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, ProcessInspector processInspector)
+internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, ProcessInspector processInspector) : IWindowEnumerator
 {
     public List<ApplicationWindow> GetWindows()
     {

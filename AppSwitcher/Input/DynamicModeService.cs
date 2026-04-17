@@ -1,0 +1,80 @@
+using AppSwitcher.Configuration;
+using AppSwitcher.Extensions;
+using AppSwitcher.WindowDiscovery;
+using Microsoft.Extensions.Logging;
+using System.Windows.Input;
+
+namespace AppSwitcher.Input;
+
+internal class DynamicModeService(IWindowEnumerator windowEnumerator, AppNameResolver appNameResolver, ILogger<DynamicModeService> logger)
+{
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(10);
+
+    private List<ApplicationWindow>? _windowsCache;
+    private DateTimeOffset _cacheExpiry;
+
+    public IReadOnlyList<ApplicationConfiguration> GetAllDynamicApps(
+        IReadOnlyList<ApplicationConfiguration> staticApps,
+        IReadOnlyList<ApplicationWindow> windows)
+    {
+        using var _ = logger.MeasureTime("GetAllDynamicApps");
+        var staticKeys = staticApps.Select(a => a.Key).ToHashSet();
+        var excludedProcessNames = GetExcludedProcessNames(staticApps);
+
+        return windows
+            .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
+            .Where(x => !excludedProcessNames.Contains(x.ProcessName))
+            .Select(w => (Window: w, Key: appNameResolver.GetDynamicKey(w.ProcessImagePath)))
+            .Where(x => x.Key.HasValue && !staticKeys.Contains(x.Key.Value))
+            .Select(x => new ApplicationConfiguration(
+                Key: x.Key!.Value,
+                ProcessPath: x.Window.ProcessImagePath,
+                CycleMode: CycleMode.NextApp,
+                StartIfNotRunning: false))
+            .ToList();
+    }
+
+    public IReadOnlyList<ApplicationConfiguration> GetAppsForKey(
+        Key letter,
+        IReadOnlyList<ApplicationConfiguration> staticApps)
+    {
+        if (staticApps.Any(a => a.Key == letter))
+        {
+            return [];
+        }
+
+        var windows = GetCachedWindows();
+        var excludedProcessNames = GetExcludedProcessNames(staticApps);
+
+        return windows
+            .Where(w => !excludedProcessNames.Contains(w.ProcessName))
+            .Where(w => appNameResolver.GetDynamicKey(w.ProcessImagePath) == letter)
+            .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
+            .Select(w => new ApplicationConfiguration(
+                Key: letter,
+                ProcessPath: w.ProcessImagePath,
+                CycleMode: CycleMode.NextApp,
+                StartIfNotRunning: false))
+            .ToList();
+    }
+
+    private static HashSet<string> GetExcludedProcessNames(IReadOnlyList<ApplicationConfiguration> staticApps)
+    {
+        return staticApps
+            .Select(a => a.ProcessName)
+            .Concat(["appswitcher.exe"])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private List<ApplicationWindow> GetCachedWindows()
+    {
+        if (_windowsCache is not null && DateTimeOffset.UtcNow < _cacheExpiry)
+        {
+            return _windowsCache;
+        }
+
+        _windowsCache = windowEnumerator.GetWindows();
+        _cacheExpiry = DateTimeOffset.UtcNow + CacheDuration;
+        return _windowsCache;
+    }
+}

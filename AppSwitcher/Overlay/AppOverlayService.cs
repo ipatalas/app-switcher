@@ -1,4 +1,5 @@
 using AppSwitcher.Configuration;
+using AppSwitcher.Input;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.WindowDiscovery;
@@ -16,6 +17,7 @@ internal class AppOverlayService(
     WindowEnumerator windowEnumerator,
     IconExtractor iconExtractor,
     WindowTitleParser windowTitleParser,
+    DynamicModeService dynamicModeService,
     ILogger<AppOverlayService> logger)
 {
     private record WindowSnapshot(string Title, string ProcessPath, bool IsActive = false);
@@ -25,7 +27,7 @@ internal class AppOverlayService(
 
     private volatile int _showToken;
 
-    public void Show(IReadOnlyList<ApplicationConfiguration> applications)
+    public void Show(IReadOnlyList<ApplicationConfiguration> applications, bool dynamicModeEnabled)
     {
         var token = Interlocked.Increment(ref _showToken);
 
@@ -49,7 +51,19 @@ internal class AppOverlayService(
                 needsElevationProcessNames.Contains(app.ProcessName)))
             .ToList();
 
-        Application.Current.Dispatcher.BeginInvoke(() => ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots, token));
+        var dynamicSnapshots = dynamicModeEnabled
+            ? dynamicModeService.GetAllDynamicApps(applications, allWindows)
+                .Select(app => new AppSnapshot(
+                    app.Key,
+                    Path.GetFileNameWithoutExtension(app.ProcessName),
+                    app.ProcessPath,
+                    IsRunning: true,
+                    needsElevationProcessNames.Contains(app.ProcessName)))
+                .ToList()
+            : [];
+
+        Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots, dynamicSnapshots, token));
     }
 
     public void Hide()
@@ -92,6 +106,7 @@ internal class AppOverlayService(
         List<WindowSnapshot> focusedWindows,
         string? focusedAppName,
         List<AppSnapshot> appSnapshots,
+        List<AppSnapshot> dynamicSnapshots,
         int token)
     {
         // Icon extraction and BitmapImage construction must happen on the UI thread
@@ -112,7 +127,16 @@ internal class AppOverlayService(
             (app.IsRunning ? running : launchable).Add(item);
         }
 
-        viewModel.Update(focusedWindowItems, focusedAppName, running, launchable);
+        var dynamic = dynamicSnapshots
+            .Select(app => new OverlayAppItem(
+                app.Key,
+                app.DisplayName,
+                iconExtractor.GetByProcessPath(app.ProcessPath),
+                IsActive: app.ProcessPath == processPath,
+                app.NeedsElevation))
+            .ToList();
+
+        viewModel.Update(focusedWindowItems, focusedAppName, running, launchable, dynamic);
 
         // Show the window after WPF's data-binding (priority 8) and render (priority 7) passes
         // to avoid showing a blank/stale frame before content is ready.
@@ -126,8 +150,8 @@ internal class AppOverlayService(
             window.Show();
             IsVisible = true;
             logger.LogDebug(
-                "Overlay shown: {Windows} focused windows, {Running} running, {Launchable} launchable apps",
-                focusedWindowItems.Count, running.Count, launchable.Count);
+                "Overlay shown: {Windows} focused windows, {Running} running, {Launchable} launchable, {Dynamic} dynamic apps",
+                focusedWindowItems.Count, running.Count, launchable.Count, dynamic.Count);
         });
     }
 

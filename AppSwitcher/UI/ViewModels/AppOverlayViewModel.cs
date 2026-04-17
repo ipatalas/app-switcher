@@ -14,10 +14,12 @@ public partial class AppOverlayViewModel : ObservableObject
     public ObservableCollection<OverlayAppItem> FocusedAppWindows { get; } = [];
     public ObservableCollection<OverlayAppItem> RunningApps { get; } = [];
     public ObservableCollection<OverlayAppItem> LaunchableApps { get; } = [];
+    public ObservableCollection<OverlayAppItem> DynamicApps { get; } = [];
 
     public bool ShowFocusedAppWindows => FocusedAppWindows.Count > 1;
     public bool ShowRunningApps => RunningApps.Count > 0;
     public bool ShowLaunchableApps => LaunchableApps.Count > 0;
+    public bool ShowDynamicApps => DynamicApps.Count > 0;
 
     [ObservableProperty]
     private string? _focusedAppName;
@@ -45,13 +47,19 @@ public partial class AppOverlayViewModel : ObservableObject
         LaunchableApps = new ObservableCollection<OverlayAppItem>([
             new(Key.E, "explorer", explorerIcon)
         ]);
+
+        DynamicApps = new ObservableCollection<OverlayAppItem>([
+            new(Key.S, "spotify", null),
+            new(Key.T, "terminal", null)
+        ]);
     }
 
     public void Update(
         IEnumerable<OverlayAppItem> focusedWindows,
         string? focusedAppName,
         IEnumerable<OverlayAppItem> running,
-        IEnumerable<OverlayAppItem> launchable)
+        IEnumerable<OverlayAppItem> launchable,
+        IEnumerable<OverlayAppItem> dynamic)
     {
         FocusedAppWindows.Clear();
         foreach (var item in focusedWindows)
@@ -71,10 +79,17 @@ public partial class AppOverlayViewModel : ObservableObject
             LaunchableApps.Add(item);
         }
 
+        DynamicApps.Clear();
+        foreach (var item in dynamic)
+        {
+            DynamicApps.Add(item);
+        }
+
         FocusedAppName = focusedAppName;
 
         OnPropertyChanged(nameof(ShowFocusedAppWindows));
         OnPropertyChanged(nameof(ShowRunningApps));
         OnPropertyChanged(nameof(ShowLaunchableApps));
+        OnPropertyChanged(nameof(ShowDynamicApps));
     }
 }

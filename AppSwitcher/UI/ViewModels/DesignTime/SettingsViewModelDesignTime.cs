@@ -14,6 +14,7 @@ internal class SettingsViewModelDesignTime: SettingsViewModel
         ModifierKey = Key.Apps;
         PulseBorderEnabled = true;
         Theme = AppThemeSetting.System;
+        DynamicModeEnabled = true;
         Applications =
         [
             new()

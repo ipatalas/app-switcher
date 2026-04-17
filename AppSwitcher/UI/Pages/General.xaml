@@ -95,6 +95,29 @@
                 </ui:CardControl.Content>
             </ui:CardControl>
 
+            <ui:CardControl Margin="0,0,0,4"
+                            Padding="20,10,20,10"
+                            Icon="{ui:SymbolIcon Flash24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Dynamic Mode"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock Appearance="Secondary"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Text="Automatically assigns hotkey letters to running apps based on their name. Letters already assigned to a static shortcut are not affected."
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:CardControl.Content>
+                    <ui:ToggleSwitch IsChecked="{Binding DynamicModeEnabled, Mode=TwoWay}"
+                                     HorizontalContentAlignment="Left"
+                                     OffContent="Off"
+                                     OnContent="On" />
+                </ui:CardControl.Content>
+            </ui:CardControl>
+
             <ui:CardControl Padding="20,10,20,10"
                             Icon="{ui:SymbolIcon Sparkle24}">
                 <ui:CardControl.Header>

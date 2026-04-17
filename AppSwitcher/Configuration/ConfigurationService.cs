@@ -1,7 +1,7 @@
 using AppSwitcher.Configuration.Storage;
+using AppSwitcher.Extensions;
 using LiteDB;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using System.Windows.Input;
 
 namespace AppSwitcher.Configuration;
@@ -13,7 +13,7 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
 
     public Configuration ReadConfiguration()
     {
-        var sw = Stopwatch.StartNew();
+        using var _ = logger.MeasureTime("ReadConfiguration");
 
         try
         {
@@ -33,15 +33,11 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
             logger.LogError(ex, "Error reading configuration from database");
             throw;
         }
-        finally
-        {
-            logger.LogDebug("Read configuration in {ElapsedMs}ms", sw.ElapsedMilliseconds);
-        }
     }
 
     public void WriteConfiguration(Configuration config)
     {
-        var sw = Stopwatch.StartNew();
+        using var _ = logger.MeasureTime("WriteConfiguration");
 
         try
         {
@@ -54,10 +50,6 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
         {
             logger.LogError(ex, "Error writing configuration to database");
             throw;
-        }
-        finally
-        {
-            logger.LogDebug("Wrote configuration in {ElapsedMs}ms", sw.ElapsedMilliseconds);
         }
     }
 
@@ -72,7 +64,8 @@ internal class ConfigurationService(LiteDatabase database, ILogger<Configuration
             Theme = AppThemeSetting.System,
             OverlayEnabled = false,
             OverlayShowDelayMs = 1000,
-            OverlayKeepOpenWhileModifierHeld = true
+            OverlayKeepOpenWhileModifierHeld = true,
+            DynamicModeEnabled = true
         };
 
         collection.Insert(defaults);
