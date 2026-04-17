@@ -12,11 +12,26 @@ using Windows.Win32.Graphics.Dwm;
 
 namespace AppSwitcher;
 
+internal sealed record AppSwitchResult(
+    uint? ProcessId,
+    string ProcessPath,
+    HWND Handle,
+    SHOW_WINDOW_CMD State,
+    bool NeedsElevation,
+    bool WasStarted)
+{
+    public static AppSwitchResult FromApplicationWindow(ApplicationWindow w) =>
+        new(w.ProcessId, w.ProcessImagePath, w.Handle, SHOW_WINDOW_CMD.SW_SHOW, w.NeedsElevation, WasStarted: false);
+
+    public static AppSwitchResult FromStarted(string processPath) =>
+        new(null, processPath, HWND.Null, SHOW_WINDOW_CMD.SW_SHOW, NeedsElevation: false, WasStarted: true);
+};
+
 internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
 {
     private readonly List<HWND> _nextWindows = [];
 
-    public ApplicationWindow? Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
+    public AppSwitchResult? Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
     {
         if (appGroup.Count == 1)
         {
@@ -62,7 +77,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
     /// </summary>
     /// <param name="appConfig">configuration of target app</param>
     /// <returns>app window that was just focused (only if switching between apps)</returns>
-    private ApplicationWindow? Execute(ApplicationConfiguration appConfig)
+    private AppSwitchResult? Execute(ApplicationConfiguration appConfig)
     {
         var topLevelWindows = windowEnumerator.GetWindows();
         var matchingWindows = topLevelWindows.Where(w =>
@@ -84,7 +99,8 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
                     Process.Start(appConfig.ProcessPath);
                     logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
                 }
-                return null;
+
+                return AppSwitchResult.FromStarted(appConfig.ProcessPath);
             }
             logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);
             return null;
@@ -97,7 +113,7 @@ internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumera
             _nextWindows.Clear();
             logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
             ActivateWindow(window);
-            return window;
+            return AppSwitchResult.FromApplicationWindow(window);
         }
 
         if (appConfig.CycleMode == CycleMode.Hide)

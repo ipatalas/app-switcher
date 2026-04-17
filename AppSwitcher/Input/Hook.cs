@@ -3,6 +3,7 @@ using AppSwitcher.Overlay;
 using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
+using System.Windows;
 using System.Windows.Input;
 using AppConfig = AppSwitcher.Configuration.Configuration;
 
@@ -16,6 +17,7 @@ internal class Hook(
     OverlayShowTimer overlayShowTimer,
     ElevatedWarningService elevatedWarningService,
     AppOverlayService overlayService,
+    ProcessInspector processInspector,
     DynamicModeService dynamicModeService) : IDisposable
 {
     private const int SyntheticModifierTapMaxDurationMs = 200;
@@ -193,10 +195,10 @@ internal class Hook(
             {
                 logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                 var currentWindow = windowEnumerator.GetCurrentWindow();
-                var window = switcher.Execute(matchingApps);
-                if (_config.PeekEnabled && window is not null && currentWindow is not null && currentWindow.ProcessId != window.ProcessId)
+                var result = switcher.Execute(matchingApps);
+                if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null && currentWindow.ProcessId != result.ProcessId)
                 {
-                    peeker.Arm(currentWindow, window);
+                    peeker.Arm(currentWindow, result);
                     if (!overlayService.IsVisible)
                     {
                         // do not show overlay if peek mode is arming
@@ -204,7 +206,7 @@ internal class Hook(
                     }
                 }
 
-                if (window is { NeedsElevation: true })
+                if (result is { NeedsElevation: true })
                 {
                     // switching to elevated app so need to reset the state to avoid ghost modifier side effect
                     ResetModifierState();
@@ -213,9 +215,30 @@ internal class Hook(
                 else
                 {
                     RefreshOrHideOverlay();
+                    if (result?.WasStarted == true)
+                    {
+                        MonitorPotentialElevation(result);
+                    }
                 }
             }
         }
+    }
+
+    private void MonitorPotentialElevation(AppSwitchResult result)
+    {
+        _ = Task.Run(async () =>
+        {
+            var elevated = await processInspector.WaitForPotentialElevation(result.ProcessPath);
+            if (elevated)
+            {
+                logger.LogDebug("Newly started process {ProcessPath} is elevated, showing warning", result.ProcessPath);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ResetModifierState();
+                    elevatedWarningService.Show();
+                });
+            }
+        });
     }
 
     private void HandleDigitPressed(KeyboardHookEventArgs e, Key digit)

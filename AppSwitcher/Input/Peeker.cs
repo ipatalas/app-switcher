@@ -15,19 +15,19 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
 {
     internal const int PeekThresholdMs = 400;
 
-    private System.Threading.Timer? _timer;
+    private Timer? _timer;
     private ApplicationWindow? _previousWindow;
     private HWND _targetHandle;
     private bool _targetWasMinimized;
     private volatile bool _active; // written from ThreadPool timer callback, read from hook thread
 
-    public void Arm(ApplicationWindow previousWindow, ApplicationWindow targetWindow)
+    public void Arm(ApplicationWindow previousWindow, AppSwitchResult result)
     {
         Cancel();
         _previousWindow = previousWindow;
-        _targetHandle = targetWindow.Handle;
-        _targetWasMinimized = targetWindow.State == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED;
-        _timer = new System.Threading.Timer(_ => Activate(), null, PeekThresholdMs, Timeout.Infinite);
+        _targetHandle = result.Handle;
+        _targetWasMinimized = result.State == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED;
+        _timer = new Timer(_ => Activate(), null, PeekThresholdMs, Timeout.Infinite);
         logger.LogDebug(
             "Peek armed (threshold: {ThresholdMs}ms, target was minimized: {WasMinimized}, previous window: {ProcessName}/{Handle})",
             PeekThresholdMs, _targetWasMinimized, previousWindow.ProcessName, previousWindow.Handle);

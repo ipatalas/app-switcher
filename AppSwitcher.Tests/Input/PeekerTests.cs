@@ -27,6 +27,15 @@ public class PeekerTests : IDisposable
             IsCloaked: false,
             NeedsElevation: false);
 
+    private static AppSwitchResult MakeResult(uint processId = 1, SHOW_WINDOW_CMD state = SHOW_WINDOW_CMD.SW_NORMAL) =>
+        new(
+            ProcessId: processId,
+            ProcessPath: "test.exe",
+            Handle: default,
+            State: state,
+            NeedsElevation: false,
+            WasStarted: false);
+
     [Fact]
     public void TryFinish_ReturnsFalse_WhenNeverArmed()
     {
@@ -38,7 +47,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public async Task TryFinish_ReturnsFalse_WhenReleasedBeforeThreshold()
     {
-        _sut.Arm(MakeWindow(processId: 1), MakeWindow(processId: 2));
+        _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2));
 
         await Task.Delay(Peeker.PeekThresholdMs / 2);
         var result = _sut.TryFinish(out _);
@@ -50,7 +59,7 @@ public class PeekerTests : IDisposable
     public async Task TryFinish_ReturnsTrue_AndReturnsPreviousWindow_WhenReleasedAfterThreshold()
     {
         var previousWindow = MakeWindow(processId: 1);
-        _sut.Arm(previousWindow, MakeWindow(processId: 2));
+        _sut.Arm(previousWindow, MakeResult(processId: 2));
 
         await Task.Delay(Peeker.PeekThresholdMs + 100);
         var result = _sut.TryFinish(out var peekResult);
@@ -62,7 +71,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public void TryFinish_ReturnsFalse_AfterCancel()
     {
-        _sut.Arm(MakeWindow(processId: 1), MakeWindow(processId: 2));
+        _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2));
         _sut.Cancel();
 
         var result = _sut.TryFinish(out _);
@@ -73,7 +82,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public async Task TryFinish_ReturnsFalse_WhenCalledTwice()
     {
-        _sut.Arm(MakeWindow(processId: 1), MakeWindow(processId: 2));
+        _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2));
         await Task.Delay(Peeker.PeekThresholdMs + 100);
 
         _sut.TryFinish(out _);
@@ -85,7 +94,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public async Task Cancel_PreventsPeekFromFiring_EvenAfterThreshold()
     {
-        _sut.Arm(MakeWindow(processId: 1), MakeWindow(processId: 2));
+        _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2));
         _sut.Cancel();
 
         await Task.Delay(Peeker.PeekThresholdMs + 100);
@@ -97,7 +106,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public async Task TryFinish_ReturnsTargetWasMinimized_True_WhenTargetWasMinimized()
     {
-        var minimizedTarget = MakeWindow(processId: 2, state: SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
+        var minimizedTarget = MakeResult(processId: 2, state: SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
         _sut.Arm(MakeWindow(processId: 1), minimizedTarget);
 
         await Task.Delay(Peeker.PeekThresholdMs + 100);
@@ -109,7 +118,7 @@ public class PeekerTests : IDisposable
     [Fact]
     public async Task TryFinish_ReturnsTargetWasMinimized_False_WhenTargetWasNotMinimized()
     {
-        var normalTarget = MakeWindow(processId: 2, state: SHOW_WINDOW_CMD.SW_NORMAL);
+        var normalTarget = MakeResult(processId: 2, state: SHOW_WINDOW_CMD.SW_NORMAL);
         _sut.Arm(MakeWindow(processId: 1), normalTarget);
 
         await Task.Delay(Peeker.PeekThresholdMs + 100);
