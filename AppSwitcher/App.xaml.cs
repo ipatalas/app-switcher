@@ -52,6 +52,8 @@ public partial class App
             return;
         }
 
+        HandleUnhandledExceptions();
+
         var configuration = NLog.LogManager.Configuration;
         if (configuration != null)
         {
@@ -104,6 +106,29 @@ public partial class App
         {
             _hook?.UpdateConfiguration(newConfig);
             ApplyTheme(newConfig.Theme);
+        };
+    }
+
+    private void HandleUnhandledExceptions()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+        {
+            var ex = args.ExceptionObject as Exception;
+            var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
+            logger?.LogError(ex, "Unhandled exception occurred");
+
+            Current.Dispatcher.Invoke(() =>
+            {
+                new MessageBox
+                {
+                    Title = "Unexpected error",
+                    Content = "An unexpected error occurred. Please check the logs for more details.",
+                    CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
+                    CloseButtonText = "Quit",
+                    CloseButtonAppearance = ControlAppearance.Danger,
+                }.ShowSync();
+                Current.Shutdown(1);
+            });
         };
     }
 
