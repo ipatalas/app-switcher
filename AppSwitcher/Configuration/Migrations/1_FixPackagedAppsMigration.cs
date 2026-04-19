@@ -29,7 +29,7 @@ internal class FixPackagedAppsMigration(IPackagedAppsService packagedAppsService
         {
             if (app.Type == ApplicationType.Win32)
             {
-                var info = packagedAppsService.GetByInstalledPath(app.ProcessPath);
+                var info = packagedAppsService.GetByInstalledPath(app.ProcessPath, null);
                 if (info is not null)
                 {
                     updatedApps.Add(new ApplicationConfigurationDocument

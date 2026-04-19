@@ -257,7 +257,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
 
         var packagedApp = args.Type == ApplicationType.Packaged
-            ? _packagedAppsService.GetByInstalledPath(args.ProcessPath)
+            ? _packagedAppsService.GetByInstalledPath(args.ProcessPath, args.ProcessId)
             : null;
 
         var processIcon = args.Type == ApplicationType.Packaged

@@ -20,6 +20,8 @@ internal sealed record AppSwitchResult(
     bool NeedsElevation,
     bool WasStarted)
 {
+    public string ProcessName { get; } = Path.GetFileName(ProcessPath);
+
     public static AppSwitchResult FromApplicationWindow(ApplicationWindow w) =>
         new(w.ProcessId, w.ProcessImagePath, w.Handle, SHOW_WINDOW_CMD.SW_SHOW, w.NeedsElevation, WasStarted: false);
 

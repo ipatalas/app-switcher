@@ -34,9 +34,9 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         var explorerIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/explorer.png"));
 
         _filteredApplications = new ObservableCollection<RunningApplicationInfo>([
-            new("chrome.exe", "chrome.exe", chromeIcon, false),
-            new("notepad.exe", "notepad.exe", notepadIcon, false),
-            new("explorer.exe", "explorer.exe", explorerIcon, false)
+            new(0, "chrome.exe", "chrome.exe", chromeIcon, false),
+            new(0, "notepad.exe", "notepad.exe", notepadIcon, false),
+            new(0, "explorer.exe", "explorer.exe", explorerIcon, false)
         ]);
     }
 
@@ -69,6 +69,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
             ProcessName: application.ProcessName,
             ProcessPath: application.ProcessImagePath,
+            ProcessId: application.ProcessId,
             Type: application.IsPackagedApp ? ApplicationType.Packaged : ApplicationType.Win32));
     }
 
@@ -89,6 +90,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
                 ApplicationSelected?.Invoke(new ApplicationSelectionArgs(
                     ProcessName: Path.GetFileName(dialog.FileName),
                     ProcessPath: dialog.FileName,
+                    ProcessId: null,
                     Type: ApplicationType.Win32));
             }
             else

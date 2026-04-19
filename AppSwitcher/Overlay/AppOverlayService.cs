@@ -1,4 +1,5 @@
 using AppSwitcher.Configuration;
+using AppSwitcher.Extensions;
 using AppSwitcher.Input;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.UI.Windows;
@@ -18,10 +19,11 @@ internal class AppOverlayService(
     IconExtractor iconExtractor,
     WindowTitleParser windowTitleParser,
     DynamicModeService dynamicModeService,
+    IPackagedAppsService packagedAppsService,
     ILogger<AppOverlayService> logger)
 {
     private record WindowSnapshot(string Title, string ProcessPath, bool IsActive = false);
-    private record AppSnapshot(Key Key, string DisplayName, string ProcessPath, bool IsRunning, bool NeedsElevation);
+    private record AppSnapshot(Key Key, string DisplayName, string ProcessPath, string? PackagedAppIconPath, bool IsRunning, bool NeedsElevation);
 
     public bool IsVisible { get; private set; }
 
@@ -31,14 +33,15 @@ internal class AppOverlayService(
     {
         var token = Interlocked.Increment(ref _showToken);
 
+        var measureTime = logger.MeasureTime("Show overlay prep");
         var allWindows = windowEnumerator.GetWindows();
-        var runningProcessNames = allWindows
-            .Select(w => Path.GetFileName(w.ProcessImagePath))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var runningProcesses = allWindows
+            .DistinctBy(w => w.ProcessName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(n => n.ProcessName, StringComparer.OrdinalIgnoreCase);
 
         var needsElevationProcessNames = allWindows
             .Where(w => w.NeedsElevation)
-            .Select(w => Path.GetFileName(w.ProcessImagePath))
+            .Select(w => w.ProcessName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var (focusedAppName, focusedWindows) = GetFocusedWindowData(allWindows, applications);
@@ -47,7 +50,8 @@ internal class AppOverlayService(
                 app.Key,
                 Path.GetFileNameWithoutExtension(app.ProcessName),
                 app.ProcessPath,
-                runningProcessNames.Contains(app.ProcessName),
+                GetIconPath(app),
+                runningProcesses.ContainsKey(app.ProcessName),
                 needsElevationProcessNames.Contains(app.ProcessName)))
             .ToList();
 
@@ -57,13 +61,28 @@ internal class AppOverlayService(
                     app.Key,
                     Path.GetFileNameWithoutExtension(app.ProcessName),
                     app.ProcessPath,
+                    GetIconPath(app),
                     IsRunning: true,
                     needsElevationProcessNames.Contains(app.ProcessName)))
                 .ToList()
             : [];
 
+        measureTime.Dispose();
+
         Application.Current.Dispatcher.BeginInvoke(() =>
             ApplyToViewModel(focusedWindows, focusedAppName, appSnapshots, dynamicSnapshots, token));
+        return;
+
+        string? GetIconPath(ApplicationConfiguration app)
+        {
+            if (app.Type == ApplicationType.Win32)
+            {
+                return null;
+            }
+
+            var processId = runningProcesses.GetValueOrDefault(app.ProcessName)?.ProcessId;
+            return packagedAppsService.GetByInstalledPath(app.ProcessPath, processId)?.IconPath;
+        }
     }
 
     public void Hide()
@@ -88,14 +107,13 @@ internal class AppOverlayService(
             return (null, []);
         }
 
-        var currentWindow = windowEnumerator.GetCurrentWindow();
         var focusedWindow = focusedWindows.FocusedWindow!;
         var commonSuffix = windowTitleParser.FindCommonSuffix(focusedWindows.AllWindows.Select(w => w.Title).ToList());
         var snapshots = focusedWindows.AllWindows
             .Select(w => new WindowSnapshot(
                 windowTitleParser.StripSuffix(w.Title, commonSuffix),
                 focusedWindow.ProcessImagePath,
-                w.Handle == currentWindow?.Handle))
+                w.Handle == focusedWindow.Handle))
             .ToList();
         var appName = focusedWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedWindow.ProcessImagePath);
 
@@ -120,20 +138,12 @@ internal class AppOverlayService(
         var launchable = new List<OverlayAppItem>();
         foreach (var app in appSnapshots)
         {
-            var isActive = app.ProcessPath == processPath;
-            var name = app.DisplayName;
-            var item = new OverlayAppItem(app.Key, name, iconExtractor.GetByProcessPath(app.ProcessPath), isActive,
-                app.NeedsElevation);
+            var item = CreateOverlayAppItem(app);
             (app.IsRunning ? running : launchable).Add(item);
         }
 
         var dynamic = dynamicSnapshots
-            .Select(app => new OverlayAppItem(
-                app.Key,
-                app.DisplayName,
-                iconExtractor.GetByProcessPath(app.ProcessPath),
-                IsActive: app.ProcessPath == processPath,
-                app.NeedsElevation))
+            .Select(CreateOverlayAppItem)
             .ToList();
 
         viewModel.Update(focusedWindowItems, focusedAppName, running, launchable, dynamic);
@@ -153,6 +163,14 @@ internal class AppOverlayService(
                 "Overlay shown: {Windows} focused windows, {Running} running, {Launchable} launchable, {Dynamic} dynamic apps",
                 focusedWindowItems.Count, running.Count, launchable.Count, dynamic.Count);
         });
+
+        OverlayAppItem CreateOverlayAppItem(AppSnapshot app)
+        {
+            var isActive = app.ProcessPath == processPath;
+            var icon = app.PackagedAppIconPath != null ? iconExtractor.GetByIconPath(app.PackagedAppIconPath) : iconExtractor.GetByProcessPath(app.ProcessPath);
+            var item = new OverlayAppItem(app.Key, app.DisplayName, icon, isActive, app.NeedsElevation);
+            return item;
+        }
     }
 
     // Key.D0 = 34, Key.D1 = 35, …, Key.D9 = 43 — sequential enum values; index 9 wraps to D0

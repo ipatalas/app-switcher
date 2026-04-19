@@ -3,6 +3,7 @@ using AppSwitcher.Overlay;
 using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
+using System.Collections.Frozen;
 using System.Windows;
 using System.Windows.Input;
 using AppConfig = AppSwitcher.Configuration.Configuration;

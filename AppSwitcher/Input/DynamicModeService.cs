@@ -2,11 +2,16 @@ using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Windows.Input;
 
 namespace AppSwitcher.Input;
 
-internal class DynamicModeService(IWindowEnumerator windowEnumerator, AppNameResolver appNameResolver, ILogger<DynamicModeService> logger)
+internal class DynamicModeService(
+    IWindowEnumerator windowEnumerator,
+    AppNameResolver appNameResolver,
+    ILogger<DynamicModeService> logger,
+    IPackagedAppsService packagedAppsService)
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(10);
 
@@ -20,6 +25,7 @@ internal class DynamicModeService(IWindowEnumerator windowEnumerator, AppNameRes
         using var _ = logger.MeasureTime("GetAllDynamicApps");
         var staticKeys = staticApps.Select(a => a.Key).ToHashSet();
         var excludedProcessNames = GetExcludedProcessNames(staticApps);
+        var packagedApps = packagedAppsService.GetInstalledPaths();
 
         return windows
             .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
@@ -30,7 +36,8 @@ internal class DynamicModeService(IWindowEnumerator windowEnumerator, AppNameRes
                 Key: x.Key!.Value,
                 ProcessPath: x.Window.ProcessImagePath,
                 CycleMode: CycleMode.NextApp,
-                StartIfNotRunning: false))
+                StartIfNotRunning: false,
+                Type: packagedApps.Contains(Path.GetDirectoryName(x.Window.ProcessImagePath)!) ? ApplicationType.Packaged : ApplicationType.Win32))
             .ToList();
     }
 

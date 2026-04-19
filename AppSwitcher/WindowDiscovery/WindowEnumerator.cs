@@ -74,9 +74,8 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
             return FocusedAppWindows.Empty;
         }
 
-        var currentProcessName = Path.GetFileName(currentWindow.ProcessImagePath).ToLowerInvariant();
         var focusedApp = applications.FirstOrDefault(a =>
-            a.ProcessName.Equals(currentProcessName, StringComparison.InvariantCultureIgnoreCase) &&
+            a.ProcessName.Equals(currentWindow.ProcessName, StringComparison.InvariantCultureIgnoreCase) &&
             a.CycleMode == CycleMode.NextWindow);
 
         if (focusedApp is null)

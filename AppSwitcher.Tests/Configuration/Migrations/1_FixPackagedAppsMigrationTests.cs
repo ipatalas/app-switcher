@@ -175,7 +175,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
         public IReadOnlySet<string> GetInstalledPaths() =>
             _packages.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        public PackagedAppInfo? GetByInstalledPath(string path) =>
+        public PackagedAppInfo? GetByInstalledPath(string path, uint? _) =>
             _packages
                 .FirstOrDefault(kv => path.StartsWith(kv.Key, StringComparison.OrdinalIgnoreCase))
                 .Value;
