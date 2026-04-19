@@ -12,8 +12,7 @@ internal class AppNameResolver
     /// </summary>
     public Key? GetDynamicKey(string processPath)
     {
-        var fileVersionInfo = FileVersionInfo.GetVersionInfo(processPath);
-        var companyName = fileVersionInfo.CompanyName;
+        var companyName = GetCompanyName(processPath);
         var processFilename = Path.GetFileNameWithoutExtension(processPath);
         var displayName = ResolveDisplayName(companyName, processFilename);
 
@@ -29,6 +28,18 @@ internal class AppNameResolver
         }
 
         return Key.A + (firstChar - 'A');
+    }
+
+    private static string? GetCompanyName(string processPath)
+    {
+        if (!File.Exists(processPath))
+        {
+            return null;
+        }
+
+        var fileVersionInfo = FileVersionInfo.GetVersionInfo(processPath);
+        var companyName = fileVersionInfo.CompanyName;
+        return companyName;
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ namespace AppSwitcher.WindowDiscovery;
 internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPackagedAppsService
 {
     // this never changes so no expiration
-    private readonly Dictionary<string, string> _aumidCache = new();
+    private readonly Dictionary<string, PackagedAppInfo> _packageCache = new();
 
     public IReadOnlySet<string> GetInstalledPaths()
     {
@@ -58,10 +58,9 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
 
     private PackagedAppInfo? GetPackagedAppInfo(Package package, uint? processId = null)
     {
-        if (_aumidCache.TryGetValue(package.InstalledPath, out var cachedAumid))
+        if (_packageCache.TryGetValue(package.InstalledPath, out var cachedApp))
         {
-            return new PackagedAppInfo(Aumid: cachedAumid,
-                IconPath: package.Logo.IsFile ? package.Logo.LocalPath : string.Empty);
+            return cachedApp;
         }
 
         var aumid = package.GetAppListEntries().FirstOrDefault()?.AppUserModelId;
@@ -74,10 +73,11 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
             }
         }
 
-        _aumidCache[package.InstalledPath] = aumid!;
-
-        return new PackagedAppInfo(Aumid: aumid!,
+        var result = new PackagedAppInfo(Aumid: aumid!,
             IconPath: package.Logo.IsFile ? package.Logo.LocalPath : string.Empty);
+        
+        _packageCache[package.InstalledPath] = result;
+        return result;
     }
 
     private string? GetAumidByProcessId(uint processId)

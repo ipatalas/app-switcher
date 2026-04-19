@@ -25,7 +25,7 @@ public partial class CycleModeSelector : UserControl
 
     private void CycleModeButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Wpf.Ui.Controls.Button { Tag: string tag })
+        if (sender is Button { Tag: string tag })
         {
             if (Enum.TryParse<CycleMode>(tag, out var cycleMode))
             {

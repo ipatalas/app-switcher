@@ -80,8 +80,16 @@ internal class AppOverlayService(
                 return null;
             }
 
-            var processId = runningProcesses.GetValueOrDefault(app.ProcessName)?.ProcessId;
-            return packagedAppsService.GetByInstalledPath(app.ProcessPath, processId)?.IconPath;
+            try
+            {
+                var processId = runningProcesses.GetValueOrDefault(app.ProcessName)?.ProcessId;
+                return packagedAppsService.GetByInstalledPath(app.ProcessPath, processId)?.IconPath;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to get icon path for {ProcessPath}", app.ProcessPath);
+                return null;
+            }
         }
     }
 

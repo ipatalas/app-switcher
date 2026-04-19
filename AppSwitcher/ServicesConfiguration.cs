@@ -59,7 +59,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IWindowEnumerator, WindowEnumerator>();
         services.AddTransient<WindowTitleParser>();
         services.AddTransient<AppOverlayService>();
-        services.AddSingleton<ElevatedWarningService>();
+        services.AddSingleton<WarningOverlayService>();
         services.AddTransient<ProcessInspector>();
 
         services.AddCliHandler();
@@ -68,7 +68,7 @@ internal static class ServicesConfiguration
         services.AddTransient<MainWindow>();
         services.AddTransient<Settings>();
         services.AddSingleton<AppOverlayWindow>();
-        services.AddSingleton<ElevatedWarningWindow>();
+        services.AddSingleton<WarningOverlayWindow>();
 
         // pages
         services.AddImplementationsOf<Page>(ServiceLifetime.Transient, registerAsConcreteType: true);
@@ -100,7 +100,7 @@ internal static class ServicesConfiguration
         }
         catch (Exception)
         {
-            new Wpf.Ui.Controls.MessageBox
+            new MessageBox
             {
                 Title = "Database error",
                 Content = $"An error occurred while reading the settings.\nFile might be corrupted. Please remove it and start over.\n\nPath:\n{dbPath}",

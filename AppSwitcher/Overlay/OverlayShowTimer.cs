@@ -4,7 +4,7 @@ namespace AppSwitcher.Overlay;
 
 internal class OverlayShowTimer(ILogger<OverlayShowTimer> logger) : IDisposable
 {
-    private System.Threading.Timer? _timer;
+    private Timer? _timer;
     private int _timeoutMs;
 
     private Action? _onExpired;
@@ -29,7 +29,7 @@ internal class OverlayShowTimer(ILogger<OverlayShowTimer> logger) : IDisposable
             return;
         }
 
-        _timer = new System.Threading.Timer(
+        _timer = new Timer(
             callback: _ =>
             {
                 logger.LogDebug("Overlay show timer expired");

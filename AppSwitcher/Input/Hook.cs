@@ -16,7 +16,7 @@ internal class Hook(
     Peeker peeker,
     WindowEnumerator windowEnumerator,
     OverlayShowTimer overlayShowTimer,
-    ElevatedWarningService elevatedWarningService,
+    WarningOverlayService warningOverlayService,
     AppOverlayService overlayService,
     ProcessInspector processInspector,
     DynamicModeService dynamicModeService) : IDisposable
@@ -220,11 +220,12 @@ internal class Hook(
                 {
                     // switching to elevated app so need to reset the state to avoid ghost modifier side effect
                     ResetModifierState();
-                    elevatedWarningService.Show();
+                    warningOverlayService.Show(WarningContent.Elevated);
                 }
                 else if (isAppStealingKeyEvents)
                 {
                     ResetModifierState();
+                    warningOverlayService.Show(WarningContent.KeyEventsStealing);
                 }
                 else
                 {
@@ -249,7 +250,7 @@ internal class Hook(
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     ResetModifierState();
-                    elevatedWarningService.Show();
+                    warningOverlayService.Show(WarningContent.Elevated);
                 });
             }
         });

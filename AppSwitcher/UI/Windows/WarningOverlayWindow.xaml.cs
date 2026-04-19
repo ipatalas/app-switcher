@@ -1,3 +1,4 @@
+using AppSwitcher.Overlay;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -6,13 +7,13 @@ using Wpf.Ui.Appearance;
 
 namespace AppSwitcher.UI.Windows;
 
-public partial class ElevatedWarningWindow : Window
+public partial class WarningOverlayWindow : Window
 {
     private Storyboard? _countdownStoryboard;
 
     public event EventHandler? DismissRequested;
 
-    public ElevatedWarningWindow()
+    public WarningOverlayWindow()
     {
         InitializeComponent();
 
@@ -23,16 +24,31 @@ public partial class ElevatedWarningWindow : Window
         ApplicationThemeManager.Changed += OnThemeChanged;
     }
 
+    internal void Configure(WarningContent content)
+    {
+        TitleText.Text = content.Title;
+        MessageText.Text = content.Message;
+        IconSymbol.Symbol = content.Icon;
+
+        if (content.LearnMoreUrl is not null)
+        {
+            LearnMoreLink.NavigateUri = content.LearnMoreUrl;
+            LearnMoreLink.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            LearnMoreLink.Visibility = Visibility.Collapsed;
+        }
+    }
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         ApplyShadowForTheme();
-        PositionWindow();
         UpdateContentClip();
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        PositionWindow();
         UpdateContentClip();
     }
 
@@ -54,13 +70,6 @@ public partial class ElevatedWarningWindow : Window
         CardBorder.Effect = isDark
             ? new DropShadowEffect { BlurRadius = 20, ShadowDepth = 0, Opacity = 0.25, Color = Colors.White }
             : new DropShadowEffect { BlurRadius = 24, ShadowDepth = 8, Direction = 270, Opacity = 0.4, Color = Colors.Black };
-    }
-
-    private void PositionWindow()
-    {
-        var workArea = SystemParameters.WorkArea;
-        Left = workArea.Right - ActualWidth - 20;
-        Top = workArea.Bottom - ActualHeight - 20;
     }
 
     private void UpdateContentClip()

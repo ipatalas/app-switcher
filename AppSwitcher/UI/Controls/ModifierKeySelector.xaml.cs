@@ -26,7 +26,7 @@ public partial class ModifierKeySelector : UserControl
 
     private void ModifierButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Wpf.Ui.Controls.Button { Tag: string tag })
+        if (sender is Button { Tag: string tag })
         {
             SelectedModifier = Enum.Parse<Key>(tag);
         }

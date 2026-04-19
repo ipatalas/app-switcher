@@ -36,7 +36,7 @@ internal partial class Settings
 
         if (_viewModel.IsDirty)
         {
-            var result = new Wpf.Ui.Controls.MessageBox
+            var result = new MessageBox
             {
                 Title = "Unsaved Changes",
                 Content = "You have unsaved changes. Closing this window will discard them. Are you sure?",

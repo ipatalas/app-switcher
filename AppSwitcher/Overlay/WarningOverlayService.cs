@@ -5,17 +5,17 @@ using System.Windows;
 
 namespace AppSwitcher.Overlay;
 
-internal class ElevatedWarningService : IDisposable
+internal class WarningOverlayService : IDisposable
 {
     private const int AutoDismissMs = 5000;
     private const int MaxShowCount = 3;
 
-    private readonly ElevatedWarningWindow _window;
-    private readonly ILogger<ElevatedWarningService> _logger;
+    private readonly WarningOverlayWindow _window;
+    private readonly ILogger<WarningOverlayService> _logger;
+    private readonly Dictionary<WarningContent, int> _showCounters = [];
     private Timer? _dismissTimer;
-    private int _showCounter;
 
-    public ElevatedWarningService(ElevatedWarningWindow window, ILogger<ElevatedWarningService> logger)
+    public WarningOverlayService(WarningOverlayWindow window, ILogger<WarningOverlayService> logger)
     {
         _window = window;
         _logger = logger;
@@ -25,18 +25,21 @@ internal class ElevatedWarningService : IDisposable
         _window.DismissRequested += OnDismissRequested;
     }
 
-    public void Show()
+    public void Show(WarningContent content)
     {
-        if (_showCounter++ >= MaxShowCount)
+        _showCounters.TryGetValue(content, out var count);
+        if (count >= MaxShowCount)
         {
-            // only show it 3 times
             return;
         }
+
+        _showCounters[content] = count + 1;
 
         ScheduleDismiss();
 
         Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, () =>
         {
+            _window.Configure(content);
             _window.Show();
         });
     }
@@ -63,20 +66,20 @@ internal class ElevatedWarningService : IDisposable
 
     private void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
     {
-        _logger.LogDebug("Elevated warning: mouse entered, dismiss paused");
+        _logger.LogDebug("Warning overlay: mouse entered, dismiss paused");
         CancelDismiss();
         _window.PauseCountdown();
     }
 
     private void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
     {
-        _logger.LogDebug("Elevated warning: mouse left, dismiss rescheduled");
+        _logger.LogDebug("Warning overlay: mouse left, dismiss rescheduled");
         ScheduleDismiss(2000);
     }
 
     private void OnDismissRequested(object? sender, EventArgs e)
     {
-        _logger.LogDebug("Elevated warning manually dismissed");
+        _logger.LogDebug("Warning overlay manually dismissed");
         CancelDismiss();
         Application.Current.Dispatcher.BeginInvoke(() => _window.Hide());
     }
