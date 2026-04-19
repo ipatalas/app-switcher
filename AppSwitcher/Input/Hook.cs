@@ -29,6 +29,12 @@ internal class Hook(
     private readonly HashSet<Key> _suppressedLetterKeys = [];
     private readonly HashSet<Key> _suppressedDigitKeys = [];
 
+    // there are apps which run un-elevated will still steal key events
+    private readonly FrozenSet<string> _processesStealingKeyEvents = new[]
+    {
+        "WindowsSandboxRemoteSession.exe", // Windows Sandbox window intercepts key events when active
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
     public void Start(AppConfig config)
     {
         _config = config;
@@ -197,7 +203,10 @@ internal class Hook(
                 logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
                 var currentWindow = windowEnumerator.GetCurrentWindow();
                 var result = switcher.Execute(matchingApps);
-                if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null && currentWindow.ProcessId != result.ProcessId)
+                var isAppStealingKeyEvents = result != null && _processesStealingKeyEvents.Contains(result.ProcessName);
+
+                if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null &&
+                    currentWindow.ProcessId != result.ProcessId && !isAppStealingKeyEvents)
                 {
                     peeker.Arm(currentWindow, result);
                     if (!overlayService.IsVisible)
@@ -212,6 +221,10 @@ internal class Hook(
                     // switching to elevated app so need to reset the state to avoid ghost modifier side effect
                     ResetModifierState();
                     elevatedWarningService.Show();
+                }
+                else if (isAppStealingKeyEvents)
+                {
+                    ResetModifierState();
                 }
                 else
                 {
