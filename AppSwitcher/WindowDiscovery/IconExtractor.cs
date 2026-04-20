@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -7,6 +8,7 @@ namespace AppSwitcher.WindowDiscovery;
 public class IconExtractor
 {
     private readonly Dictionary<string, ImageSource> _images = new();
+    private ImageSource? _defaultIcon;
 
     public ImageSource? GetByProcessPath(string processPath)
     {
@@ -51,6 +53,14 @@ public class IconExtractor
         {
             return null;
         }
+    }
+
+    public ImageSource GetDefaultIcon()
+    {
+        _defaultIcon ??= GetByProcessPath(
+            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll")!;
+
+        return _defaultIcon;
     }
 
     private static BitmapImage? LoadIconFromExe(string path)

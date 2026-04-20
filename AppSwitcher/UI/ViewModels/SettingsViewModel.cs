@@ -197,9 +197,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
         _dirtyTracker?.Dispose();
 
-        var defaultIcon =
-            _iconExtractor.GetByProcessPath(
-                Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
         Applications = new ObservableCollection<ApplicationShortcutViewModel>(config.Applications.Select(app =>
         {
             var isPackaged = app.Type == ApplicationType.Packaged;
@@ -220,7 +217,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                 CycleMode = app.CycleMode,
                 Type = app.Type,
                 Aumid = app.Aumid,
-                ProcessIcon = processIcon ?? defaultIcon
+                ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon()
             };
         }).ToList());
 
@@ -249,9 +246,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             Applications.Select(a => new ApplicationConfiguration(a.Key, a.ProcessPath, a.CycleMode, a.StartIfNotRunning, a.Type, a.Aumid)).ToList(),
             windows);
 
-        var defaultIcon = _iconExtractor.GetByProcessPath(
-            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
-
         DynamicApplications = new ObservableCollection<DynamicApplicationViewModel>(
             dynamicConfigs.Select(cfg =>
             {
@@ -262,7 +256,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
                     ProcessName = cfg.ProcessName,
                     ProcessPath = cfg.ProcessPath,
                     Type = cfg.Type,
-                    ProcessIcon = icon ?? defaultIcon
+                    ProcessIcon = icon
                 };
             }));
     }
@@ -340,10 +334,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var defaultIcon =
-            _iconExtractor.GetByProcessPath(
-                Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
-
         var packagedApp = args.Type == ApplicationType.Packaged
             ? _packagedAppsService.GetByInstalledPath(args.ProcessPath, args.ProcessId)
             : null;
@@ -359,7 +349,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             ProcessName = args.ProcessName,
             Type = args.Type,
             Aumid = packagedApp?.Aumid,
-            ProcessIcon = processIcon ?? defaultIcon,
+            ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),
             StartIfNotRunning = true
         };
 
@@ -382,8 +372,6 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         }
 
         var icon = _iconExtractor.GetByProcessPath(dynamic.ProcessPath);
-        var defaultIcon = _iconExtractor.GetByProcessPath(
-            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
 
         var viewModel = new ApplicationShortcutViewModel
         {
@@ -391,7 +379,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
             ProcessPath = dynamic.ProcessPath,
             ProcessName = dynamic.ProcessName,
             Type = dynamic.Type,
-            ProcessIcon = icon ?? defaultIcon,
+            ProcessIcon = icon ?? _iconExtractor.GetDefaultIcon(),
             StartIfNotRunning = true
         };
 
