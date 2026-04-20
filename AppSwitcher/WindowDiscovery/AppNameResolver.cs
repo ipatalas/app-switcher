@@ -46,7 +46,7 @@ internal class AppNameResolver
     /// Pure resolution logic: derives a display name from version info and process filename.
     /// If CompanyName contains "Microsoft" and the filename starts with "ms", the "ms" prefix is stripped.
     /// </summary>
-    internal static string ResolveDisplayName(string? companyName, string processFilename)
+    internal static string ResolveDisplayName(string? companyName, string? processFilename)
     {
         if (string.IsNullOrEmpty(processFilename))
         {

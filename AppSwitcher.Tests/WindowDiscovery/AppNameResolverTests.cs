@@ -60,7 +60,7 @@ public class AppNameResolverTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void ResolveDisplayName_ReturnsEmpty_WhenFilenameIsEmpty(string processFilename)
+    public void ResolveDisplayName_ReturnsEmpty_WhenFilenameIsEmpty(string? processFilename)
     {
         var result = AppNameResolver.ResolveDisplayName("Microsoft Corporation", processFilename);
 

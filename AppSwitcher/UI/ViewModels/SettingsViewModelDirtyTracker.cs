@@ -7,9 +7,9 @@ namespace AppSwitcher.UI.ViewModels;
 internal class SettingsViewModelDirtyTracker : IDisposable
 {
     private readonly SettingsViewModel _model;
-    private readonly Action _onChange;
+    private readonly Action<string> _onChange;
 
-    public SettingsViewModelDirtyTracker(SettingsViewModel model, Action onChange)
+    public SettingsViewModelDirtyTracker(SettingsViewModel model, Action<string> onChange)
     {
         _model = model ?? throw new ArgumentNullException(nameof(model));
         _onChange = onChange ?? throw new ArgumentNullException(nameof(onChange));
@@ -30,13 +30,13 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             case nameof(_model.OverlayKeepOpenWhileModifierHeld):
             case nameof(_model.PeekEnabled):
             case nameof(_model.DynamicModeEnabled):
-                _onChange();
+                _onChange(e.PropertyName);
                 break;
             case nameof(_model.Applications):
                 // Collection reference changed → resubscribe
                 UnhookCollection();
                 HookCollection(_model.Applications);
-                _onChange();
+                _onChange(e.PropertyName);
                 break;
         }
     }
@@ -59,7 +59,7 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             }
         }
 
-        _onChange();
+        _onChange(nameof(_model.Applications));
     }
 
     private void ApplicationItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -70,7 +70,7 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             return;
         }
 
-        _onChange();
+        _onChange($"{nameof(_model.Applications)}.{e.PropertyName ?? "unknown"}");
     }
 
     private void HookCollection(ObservableCollection<ApplicationShortcutViewModel> collection)

@@ -14,7 +14,7 @@ internal class SettingsViewModelDesignTime: SettingsViewModel
         ModifierKey = Key.Apps;
         PulseBorderEnabled = true;
         Theme = AppThemeSetting.System;
-        DynamicModeEnabled = true;
+        DynamicModeEnabled = false;
         Applications =
         [
             new()
@@ -71,15 +71,33 @@ internal class SettingsViewModelDesignTime: SettingsViewModel
                 ProcessIcon = defaultIcon
             }
         ];
-    }
 
-    // public List<ApplicationShortcutViewModel> Applications { get; set; }
-    //
-    // public AppThemeSetting Theme { get; set; }
-    //
-    // public bool LaunchAtStartup { get; set; }
-    //
-    // public bool PulseBorderEnabled { get; set; }
-    //
-    // public Key ModifierKey { get; set; }
+        DynamicApplications =
+        [
+            new()
+            {
+                Key = Key.S,
+                ProcessName = "Slack.exe",
+                ProcessPath = "C:\\Program Files\\Slack\\Slack.exe",
+                ProcessIcon = defaultIcon,
+            },
+
+            new()
+            {
+                Key = Key.N,
+                ProcessName = "notepad.exe",
+                ProcessPath = "C:\\Windows\\System32\\notepad.exe",
+                ProcessIcon = defaultIcon,
+            },
+
+            new()
+            {
+                Key = Key.F,
+                ProcessName = "firefox.exe",
+                ProcessPath = "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+                ProcessIcon = defaultIcon,
+            }
+
+        ];
+    }
 }

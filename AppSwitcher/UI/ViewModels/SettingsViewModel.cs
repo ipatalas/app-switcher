@@ -1,4 +1,5 @@
 using AppSwitcher.Configuration;
+using AppSwitcher.Input;
 using AppSwitcher.Startup;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,6 +24,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ISnackbarService _snackbarService = null!;
     private readonly IPackagedAppsService _packagedAppsService = null!;
     private readonly ApplicationsValidator _validator = null!;
+    private readonly DynamicModeService _dynamicModeService = null!;
+    private readonly IWindowEnumerator _windowEnumerator = null!;
 
     private SettingsViewModelDirtyTracker? _dirtyTracker;
     private SettingsSnapshot _originalSnapshot = null!;
@@ -55,6 +58,11 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(HasNoApplications));
         OnPropertyChanged(nameof(IsDirty));
         OnPropertyChanged(nameof(CanSave));
+
+        if (DynamicModeEnabled)
+        {
+            LoadDynamicApps();
+        }
     }
 
     [ObservableProperty]
@@ -96,6 +104,41 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private bool _dynamicModeEnabled;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDynamicApplications))]
+    private ObservableCollection<DynamicApplicationViewModel> _dynamicApplications = [];
+
+    partial void OnDynamicApplicationsChanged(
+        ObservableCollection<DynamicApplicationViewModel>? oldValue,
+        ObservableCollection<DynamicApplicationViewModel> newValue)
+    {
+        if (oldValue is not null)
+        {
+            oldValue.CollectionChanged -= OnDynamicApplicationsCollectionChanged;
+        }
+
+        newValue.CollectionChanged += OnDynamicApplicationsCollectionChanged;
+    }
+
+    private void OnDynamicApplicationsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(HasDynamicApplications));
+    }
+
+    partial void OnDynamicModeEnabledChanged(bool value)
+    {
+        if (value)
+        {
+            LoadDynamicApps();
+        }
+        else
+        {
+            DynamicApplications.Clear();
+        }
+    }
+
+    public bool HasDynamicApplications => DynamicApplications.Count > 0;
+
+    [ObservableProperty]
     private bool _launchAtStartup;
 
     partial void OnLaunchAtStartupChanged(bool value)
@@ -126,7 +169,7 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
 
     public SettingsViewModel(AutoStart autoStart, ConfigurationManager configurationManager,
         IconExtractor iconExtractor, ISnackbarService snackbarService, IPackagedAppsService packagedAppsService,
-        ApplicationsValidator validator)
+        ApplicationsValidator validator, DynamicModeService dynamicModeService, IWindowEnumerator windowEnumerator)
     {
         _autoStart = autoStart;
         _configurationManager = configurationManager;
@@ -135,6 +178,8 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         _packagedAppsService = packagedAppsService;
         _launchAtStartup = autoStart.IsEnabled();
         _validator = validator;
+        _dynamicModeService = dynamicModeService;
+        _windowEnumerator = windowEnumerator;
         LoadConfiguration();
     }
 
@@ -182,12 +227,55 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
         _originalSnapshot = CreateCurrentSnapshot();
         _dirtyTracker = new SettingsViewModelDirtyTracker(this, OnSettingsChanged);
         RunValidation();
+
+        if (DynamicModeEnabled)
+        {
+            LoadDynamicApps();
+        }
     }
 
-    private void OnSettingsChanged()
+    private void LoadDynamicApps()
+    {
+        // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (_dynamicModeService is null || _windowEnumerator is null)
+        {
+            // it can be null in design-time
+            return;
+        }
+        // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+
+        var windows = _windowEnumerator.GetWindows();
+        var dynamicConfigs = _dynamicModeService.GetAllDynamicApps(
+            Applications.Select(a => new ApplicationConfiguration(a.Key, a.ProcessPath, a.CycleMode, a.StartIfNotRunning, a.Type, a.Aumid)).ToList(),
+            windows);
+
+        var defaultIcon = _iconExtractor.GetByProcessPath(
+            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
+
+        DynamicApplications = new ObservableCollection<DynamicApplicationViewModel>(
+            dynamicConfigs.Select(cfg =>
+            {
+                var icon = _iconExtractor.GetByProcessPath(cfg.ProcessPath);
+                return new DynamicApplicationViewModel
+                {
+                    Key = cfg.Key,
+                    ProcessName = cfg.ProcessName,
+                    ProcessPath = cfg.ProcessPath,
+                    Type = cfg.Type,
+                    ProcessIcon = icon ?? defaultIcon
+                };
+            }));
+    }
+
+    private void OnSettingsChanged(string propertyName)
     {
         OnPropertyChanged(nameof(IsDirty));
         RunValidation();
+
+        if (DynamicModeEnabled && propertyName == $"{nameof(Applications)}.{nameof(ApplicationShortcutViewModel.Key)}")
+        {
+            LoadDynamicApps();
+        }
     }
 
     private void RunValidation()
@@ -283,6 +371,33 @@ internal partial class SettingsViewModel : ObservableObject, IDisposable
     private void RemoveApplication(ApplicationShortcutViewModel application)
     {
         Applications.Remove(application);
+    }
+
+    [RelayCommand]
+    private void PinApplication(DynamicApplicationViewModel dynamic)
+    {
+        if (Applications.Any(a => a.ProcessName.Equals(dynamic.ProcessName, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        var icon = _iconExtractor.GetByProcessPath(dynamic.ProcessPath);
+        var defaultIcon = _iconExtractor.GetByProcessPath(
+            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll");
+
+        var viewModel = new ApplicationShortcutViewModel
+        {
+            Key = dynamic.Key,
+            ProcessPath = dynamic.ProcessPath,
+            ProcessName = dynamic.ProcessName,
+            Type = dynamic.Type,
+            ProcessIcon = icon ?? defaultIcon,
+            StartIfNotRunning = true
+        };
+
+        Applications.Add(viewModel);
+        DynamicApplications.Remove(dynamic);
+        ApplicationAdded?.Invoke(viewModel);
     }
 
     [RelayCommand]
@@ -384,14 +499,7 @@ internal partial class ApplicationShortcutViewModel : ObservableObject, IApplica
 
     public void AddError(string error)
     {
-        if (ValidationError is null)
-        {
-            ValidationError = error;
-        }
-        else
-        {
-            ValidationError = $"• {ValidationError}{Environment.NewLine}• {error}".Trim();
-        }
+        ValidationError = ValidationError is null ? error : $"• {ValidationError}{Environment.NewLine}• {error}".Trim();
 
         OnPropertyChanged(nameof(HasValidationError));
         OnPropertyChanged(nameof(ValidationError));
@@ -407,3 +515,13 @@ internal partial class ApplicationShortcutViewModel : ObservableObject, IApplica
 }
 
 internal record ThemeOption(AppThemeSetting Value, string DisplayName);
+
+internal class DynamicApplicationViewModel
+{
+    public Key Key { get; init; }
+    public string KeyLetter => Key.ToString();
+    public string ProcessName { get; init; } = null!;
+    public string ProcessPath { get; init; } = null!;
+    public ApplicationType Type { get; init; } = ApplicationType.Win32;
+    public ImageSource? ProcessIcon { get; init; }
+}

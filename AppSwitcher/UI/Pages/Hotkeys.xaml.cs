@@ -3,6 +3,7 @@ using AppSwitcher.UI.Controls;
 using AppSwitcher.UI.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Color = System.Windows.Media.Color;
@@ -39,6 +40,7 @@ internal partial class Hotkeys : Page
         FlyoutViewModel.ApplicationSelected += OnApplicationSelected;
         _viewModel.ApplicationAdded += OnApplicationAdded;
         AddApplicationFlyout.CloseRequested += () => AddFlyoutPopup.IsOpen = false;
+        ApplicationsList.RequestBringIntoView += (_, e) => e.Handled = true;
     }
 
     private DrawingBrush CreateValidationStripeBrush()
@@ -102,8 +104,13 @@ internal partial class Hotkeys : Page
         Dispatcher.InvokeAsync(() =>
         {
             ApplicationsList.UpdateLayout();
-            ApplicationsList.ScrollIntoView(addedVm);
-            ActivateKeyAssignmentFor(addedVm);
+            MainScrollViewer.ScrollToEnd();
+
+            // key is already assigned when pinning one of dynamic apps - skip key assignment activation in this case
+            if (addedVm.Key == (Key)(-1))
+            {
+                ActivateKeyAssignmentFor(addedVm);
+            }
         }, DispatcherPriority.Loaded);
     }
 
