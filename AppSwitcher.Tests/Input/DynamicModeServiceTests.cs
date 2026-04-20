@@ -1,3 +1,4 @@
+using System.IO;
 using AppSwitcher.Configuration;
 using AppSwitcher.Input;
 using AppSwitcher.WindowDiscovery;
@@ -13,19 +14,20 @@ namespace AppSwitcher.Tests.Input;
 public class DynamicModeServiceTests
 {
     // Process paths that don't exist on disk → CompanyName will be null → filename used as-is
-    private const string SpotifyPath = @"C:\fake\spotify.exe";
-    private const string PaintPath = @"C:\fake\paint.exe";
-    private const string PowerpointPath = @"C:\fake\powerpoint.exe";
-    private const string TerminalPath = @"C:\fake\terminal.exe";
-    private const string SlackPath = @"C:\fake\slack.exe";
+    private const string SpotifyPath = @"C:\fake1\spotify.exe";
+    private const string PaintPath = @"C:\fake2\paint.exe";
+    private const string PowerpointPath = @"C:\fake3\powerpoint.exe";
+    private const string TerminalPath = @"C:\fake4\terminal.exe";
+    private const string SlackPath = @"C:\fake5\slack.exe";
 
     private readonly AppNameResolver _appNameResolver = new();
     private readonly FakeWindowEnumerator _fakeEnumerator = new();
+    private readonly FakePackagedAppService _fakePackagedAppService = new();
     private readonly DynamicModeService _sut;
 
     public DynamicModeServiceTests()
     {
-        _sut = new DynamicModeService(_fakeEnumerator, _appNameResolver, NullLogger<DynamicModeService>.Instance);
+        _sut = new DynamicModeService(_fakeEnumerator, _appNameResolver, NullLogger<DynamicModeService>.Instance, _fakePackagedAppService);
     }
 
     [Fact]
@@ -181,6 +183,24 @@ public class DynamicModeServiceTests
     }
 
     [Fact]
+    public void GetAllDynamicApps_ReturnsProperTypeBasedOnAppType()
+    {
+        var windows = new List<ApplicationWindow>
+        {
+            MakeWindow(SpotifyPath),
+            MakeWindow(PaintPath),
+            MakeWindow(TerminalPath) // PackagedApp
+        };
+        _fakePackagedAppService.InstalledPaths = [Path.GetDirectoryName(TerminalPath)!];
+
+        var result = _sut.GetAllDynamicApps([], windows);
+
+        result.Select(c => c.Type).Should().BeEquivalentTo([
+            ApplicationType.Win32, ApplicationType.Win32, ApplicationType.Packaged
+        ]);
+    }
+
+    [Fact]
     public void GetAllDynamicApps_ReturnsEmpty_WhenNoWindowsProvided()
     {
         var result = _sut.GetAllDynamicApps([], []);
@@ -229,6 +249,16 @@ public class DynamicModeServiceTests
             GetWindowsCallCount++;
             return Windows;
         }
+    }
+
+    private sealed class FakePackagedAppService : IPackagedAppsService
+    {
+        public HashSet<string> InstalledPaths { get; set; } = [];
+
+        public IReadOnlySet<string> GetInstalledPaths() => InstalledPaths;
+
+        public PackagedAppInfo GetByInstalledPath(string path, uint? processId) => throw new NotImplementedException();
+        public PackagedAppInfo GetByAumid(string? aumid) => throw new NotImplementedException();
     }
 }
 
