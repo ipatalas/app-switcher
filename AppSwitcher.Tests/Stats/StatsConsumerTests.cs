@@ -20,7 +20,7 @@ public class StatsConsumerTests
             _channel.Reader,
             _sessionStats,
             cache,
-            () => { }, // only flushes on timer every 5 minutes so not testable here
+            _ => { }, // only flushes on timer every 5 minutes so not testable here
             NullLogger<StatsConsumer>.Instance);
     }
 

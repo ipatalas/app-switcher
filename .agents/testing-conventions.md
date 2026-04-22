@@ -46,7 +46,10 @@ Namespace follows the folder: `namespace AppSwitcher.Tests.Configuration;`, `nam
 
 ## Fakes & Dependencies
 
-- Prefer hand-written fakes over mocking libraries for simple interfaces (single fake class per test file, sealed, returns configurable fields)
+- Use **NSubstitute** (`Substitute.For<T>()`) for interface substitution; configure return values
+  with `.Returns(...)` and verify calls with `.Received(n)` / `.DidNotReceive()`
+- Prefer hand-written fakes only when the interface requires significant stateful behaviour that
+  NSubstitute cannot express cleanly (e.g. complex multi-step state machines)
 - Extract an interface (e.g. `IProcessPathExtractor`) when a concrete dependency contains P/Invoke or registry calls that must be seeded; register both the interface and the concrete type in `ServicesConfiguration`
 - LiteDB can be used in-memory (`new LiteDatabase(":memory:")`) — no interface needed for `ConfigurationService` tests
 - Avoid testing classes that depend solely on P/Invoke, live process state, or WPF UI components without introducing abstractions first

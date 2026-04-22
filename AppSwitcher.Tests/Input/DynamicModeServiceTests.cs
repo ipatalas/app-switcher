@@ -6,8 +6,8 @@ using AwesomeAssertions;
 using System.Windows.Input;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using Xunit;
 
 namespace AppSwitcher.Tests.Input;
@@ -22,19 +22,21 @@ public class DynamicModeServiceTests
     private const string SlackPath = @"C:\fake5\slack.exe";
 
     private readonly AppNameResolver _appNameResolver = new();
-    private readonly FakeWindowEnumerator _fakeEnumerator = new();
-    private readonly FakePackagedAppService _fakePackagedAppService = new();
+    private readonly IWindowEnumerator _windowEnumerator = Substitute.For<IWindowEnumerator>();
+    private readonly IPackagedAppsService _packagedAppsService = Substitute.For<IPackagedAppsService>();
     private readonly DynamicModeService _sut;
 
     public DynamicModeServiceTests()
     {
-        _sut = new DynamicModeService(_fakeEnumerator, _appNameResolver, NullLogger<DynamicModeService>.Instance, _fakePackagedAppService);
+        _windowEnumerator.GetCachedWindows().Returns([]);
+        _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        _sut = new DynamicModeService(_windowEnumerator, _appNameResolver, NullLogger<DynamicModeService>.Instance, _packagedAppsService);
     }
 
     [Fact]
     public void GetAppsForKey_ReturnsEmpty_WhenLetterIsStaticallyAssigned()
     {
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
         var staticApps = new[] { MakeStaticApp(Key.S, SlackPath) };
 
         var result = _sut.GetAppsForKey(Key.S, staticApps);
@@ -45,7 +47,7 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_ReturnsApps_WhenLetterIsNotStaticallyAssigned()
     {
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
 
         var result = _sut.GetAppsForKey(Key.S, []);
 
@@ -55,12 +57,12 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_ReturnsOnlyAppsMatchingLetter()
     {
-        _fakeEnumerator.Windows =
+        _windowEnumerator.GetCachedWindows().Returns(
         [
             MakeWindow(SpotifyPath),
             MakeWindow(TerminalPath),
             MakeWindow(PaintPath),
-        ];
+        ]);
 
         var result = _sut.GetAppsForKey(Key.S, []);
 
@@ -70,12 +72,12 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_ReturnsMultipleApps_WhenSeveralMatchSameLetter()
     {
-        _fakeEnumerator.Windows =
+        _windowEnumerator.GetCachedWindows().Returns(
         [
             MakeWindow(PaintPath),
             MakeWindow(PowerpointPath),
             MakeWindow(TerminalPath),
-        ];
+        ]);
 
         var result = _sut.GetAppsForKey(Key.P, []);
 
@@ -85,7 +87,7 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_ReturnsEmpty_WhenNoRunningAppMatchesLetter()
     {
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
 
         var result = _sut.GetAppsForKey(Key.Z, []);
 
@@ -95,11 +97,11 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_DeduplicatesByProcessPath()
     {
-        _fakeEnumerator.Windows =
+        _windowEnumerator.GetCachedWindows().Returns(
         [
             MakeWindow(SpotifyPath),
             MakeWindow(SpotifyPath), // second window of same process
-        ];
+        ]);
 
         var result = _sut.GetAppsForKey(Key.S, []);
 
@@ -109,7 +111,7 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_ReturnedConfig_HasExpectedProperties()
     {
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
 
         var result = _sut.GetAppsForKey(Key.S, []);
 
@@ -128,16 +130,14 @@ public class DynamicModeServiceTests
     [Fact]
     public void GetAppsForKey_UsesCache_OnSecondCall()
     {
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
         _sut.GetAppsForKey(Key.S, []);
-
-        // Change the windows list - should not affect result due to cache
-        _fakeEnumerator.Windows = [];
 
         var result = _sut.GetAppsForKey(Key.S, []);
 
         result.Should().HaveCount(1);
-        _fakeEnumerator.GetWindowsCallCount.Should().Be(1);
+        _windowEnumerator.Received(2).GetCachedWindows();
+        _windowEnumerator.DidNotReceive().GetWindows();
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class DynamicModeServiceTests
             MakeWindow(PaintPath),
             MakeWindow(TerminalPath) // PackagedApp
         };
-        _fakePackagedAppService.InstalledPaths = [Path.GetDirectoryName(TerminalPath)!];
+        _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>([Path.GetDirectoryName(TerminalPath)!]));
 
         var result = _sut.GetAllDynamicApps([], windows);
 
@@ -213,7 +213,7 @@ public class DynamicModeServiceTests
     public void GetAllDynamicApps_DoesNotUseInternalCache()
     {
         // Populate the internal cache via GetAppsForKey
-        _fakeEnumerator.Windows = [MakeWindow(SpotifyPath)];
+        _windowEnumerator.GetCachedWindows().Returns([MakeWindow(SpotifyPath)]);
         _sut.GetAppsForKey(Key.S, []);
 
         // GetAllDynamicApps uses the provided window list, not the cache
@@ -239,51 +239,6 @@ public class DynamicModeServiceTests
 
     private static ApplicationConfiguration MakeStaticApp(Key key, string processPath) =>
         new(key, processPath, CycleMode.NextApp, false);
-
-    // TODO: time for NSubstitute or sth :)
-    private sealed class FakeWindowEnumerator : IWindowEnumerator
-    {
-        private List<ApplicationWindow>? _cachedWindows;
-
-        public List<ApplicationWindow> Windows { get; set; } = [];
-        public int GetWindowsCallCount { get; private set; }
-
-        public List<ApplicationWindow> GetWindows()
-        {
-            GetWindowsCallCount++;
-            _cachedWindows = Windows;
-            return Windows;
-        }
-
-        public List<ApplicationWindow> GetCachedWindows()
-        {
-            if (_cachedWindows is null)
-                return GetWindows();
-
-            return _cachedWindows;
-        }
-
-        public ApplicationWindow? GetCurrentWindow() => throw new NotImplementedException();
-
-        public WindowEnumerator.FocusedAppWindows GetFocusedAppWindows(IReadOnlyList<ApplicationWindow> allWindows, IReadOnlyList<ApplicationConfiguration> applications) => throw new NotImplementedException();
-
-        public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result) => throw new NotImplementedException();
-
-        public List<ApplicationWindow> GetAllWindows() => throw new NotImplementedException();
-
-        public void LogAllWindows() => throw new NotImplementedException();
-        public int GetTotalChoicesCount() => throw new NotImplementedException();
-    }
-
-    private sealed class FakePackagedAppService : IPackagedAppsService
-    {
-        public HashSet<string> InstalledPaths { get; set; } = [];
-
-        public IReadOnlySet<string> GetInstalledPaths() => InstalledPaths;
-
-        public PackagedAppInfo GetByInstalledPath(string path, uint? processId) => throw new NotImplementedException();
-        public PackagedAppInfo GetByAumid(string? aumid) => throw new NotImplementedException();
-    }
 }
 
 file static class Extensions
