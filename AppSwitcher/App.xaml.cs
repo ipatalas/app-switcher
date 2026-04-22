@@ -2,6 +2,7 @@ using AppSwitcher.CLI;
 using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
 using AppSwitcher.Input;
+using AppSwitcher.Stats;
 using AppSwitcher.UI.Windows;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public partial class App
 {
     private readonly string _portableFilePath = Path.Combine(AppContext.BaseDirectory, ".portable");
     private Hook? _hook;
+    private StatsService? _statsService;
     private IServiceProvider? _serviceProvider;
 #if !DEBUG
     private Mutex? _mutex;
@@ -102,9 +104,13 @@ public partial class App
         _hook = _serviceProvider.GetRequiredService<Hook>();
         _hook.Start(config);
 
+        _statsService = _serviceProvider.GetRequiredService<StatsService>();
+        _statsService.Start(config.StatsEnabled);
+
         configManager.ConfigurationChanged += newConfig =>
         {
             _hook?.UpdateConfiguration(newConfig);
+            _statsService?.UpdateConfiguration(newConfig);
             ApplyTheme(newConfig.Theme);
         };
     }
@@ -137,6 +143,7 @@ public partial class App
         var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
         logger?.LogInformation("AppSwitcher shutting down");
 
+        _statsService?.Dispose();
         // This has to be disposed manually because service was created manually
         // https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection/guidelines#services-not-created-by-the-service-container
         _serviceProvider?.GetRequiredService<LiteDatabase>().Dispose();

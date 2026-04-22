@@ -19,7 +19,7 @@ internal partial class AboutViewModel : ObservableObject
 {
     private readonly ILogger<AboutViewModel> _logger = null!;
     private readonly ISnackbarService _snackbarService = null!;
-    private readonly WindowEnumerator _windowEnumerator = null!;
+    private readonly IWindowEnumerator _windowEnumerator = null!;
 
     public string AppName => "AppSwitcher";
 
@@ -38,7 +38,7 @@ internal partial class AboutViewModel : ObservableObject
         AppIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/default_app_icon.png"));
     }
 
-    public AboutViewModel(IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, WindowEnumerator windowEnumerator)
+    public AboutViewModel(IconExtractor iconExtractor, ILogger<AboutViewModel> logger, ISnackbarService snackbarService, IWindowEnumerator windowEnumerator)
     {
         _logger = logger;
         _snackbarService = snackbarService;

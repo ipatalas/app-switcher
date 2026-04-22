@@ -20,7 +20,8 @@ internal record Configuration(
     int OverlayShowDelayMs,
     bool OverlayKeepOpenWhileModifierHeld,
     bool PeekEnabled,
-    bool DynamicModeEnabled);
+    bool DynamicModeEnabled,
+    bool StatsEnabled);
 
 [DebuggerDisplay("{Key} -> {ProcessName} (Type: {Type}, CycleMode: {CycleMode}, StartProcess: {StartIfNotRunning})")]
 public record ApplicationConfiguration(

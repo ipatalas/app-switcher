@@ -28,6 +28,8 @@ internal class SettingsDocument
 
     public bool DynamicModeEnabled { get; init; } = false;
 
+    public bool StatsEnabled { get; init; } = true;
+
     public Configuration ToConfiguration() =>
         new(
             Modifier,
@@ -38,7 +40,8 @@ internal class SettingsDocument
             OverlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld,
             PeekEnabled,
-            DynamicModeEnabled);
+            DynamicModeEnabled,
+            StatsEnabled);
 
     public static SettingsDocument FromConfiguration(Configuration config, int id) =>
         new()
@@ -54,6 +57,7 @@ internal class SettingsDocument
             OverlayShowDelayMs = config.OverlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld = config.OverlayKeepOpenWhileModifierHeld,
             PeekEnabled = config.PeekEnabled,
-            DynamicModeEnabled = config.DynamicModeEnabled
+            DynamicModeEnabled = config.DynamicModeEnabled,
+            StatsEnabled = config.StatsEnabled
         };
 }

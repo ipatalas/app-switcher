@@ -1,4 +1,5 @@
 using AppSwitcher.Extensions;
+using AppSwitcher.Stats;
 using AppSwitcher.UI.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,6 +17,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly SettingsViewModel _settingsViewModel;
+    private readonly StatsService _statsService;
     private Settings? _settings;
 
     public string TrayTooltipText
@@ -26,15 +28,17 @@ internal partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider, SettingsViewModel settingsViewModel)
+    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider,
+        SettingsViewModel settingsViewModel, StatsService statsService)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
         _settingsViewModel = settingsViewModel;
+        _statsService = statsService;
         _logger.LogInformation("MainWindowViewModel initialized");
     }
 
-    public MainWindowViewModel() : this(NullLogger<MainWindowViewModel>.Instance, null!, null!)
+    public MainWindowViewModel() : this(NullLogger<MainWindowViewModel>.Instance, null!, null!, null!)
     {
     }
 
@@ -48,6 +52,8 @@ internal partial class MainWindowViewModel : ObservableObject
 #if DEBUG_ERROR_HANDLING
             throw new InvalidOperationException("Simulated failure in OpenSettings");
 #endif
+            _statsService.Flush("Settings opened");
+
             // refresh every time Settings window is open
             // this will also fetch fresh icon for packaged apps (in case they were updated in the meantime)
             _settingsViewModel.LoadConfiguration();

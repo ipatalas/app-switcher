@@ -11,6 +11,11 @@ namespace AppSwitcher.WindowDiscovery;
 
 internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, ProcessInspector processInspector) : IWindowEnumerator
 {
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(10);
+
+    private List<ApplicationWindow>? _windowsCache;
+    private DateTimeOffset _cacheExpiry;
+
     public List<ApplicationWindow> GetWindows()
     {
         var sw = Stopwatch.StartNew();
@@ -28,6 +33,28 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         return result;
     }
 
+    public List<ApplicationWindow> GetCachedWindows()
+    {
+        if (_windowsCache is not null && DateTimeOffset.UtcNow < _cacheExpiry)
+        {
+            return _windowsCache;
+        }
+
+        _windowsCache = GetWindows();
+        _cacheExpiry = DateTimeOffset.UtcNow + CacheDuration;
+        return _windowsCache;
+    }
+
+    /// <summary>
+    /// Returns the count of all unique app choices using the cached window list.
+    /// </summary>
+    public int GetTotalChoicesCount()
+    {
+        var count = GetCachedWindows()
+            .Count(x => !x.ProcessName.Equals("appswitcher.exe", StringComparison.InvariantCultureIgnoreCase));
+        return count;
+    }
+
     public ApplicationWindow? GetCurrentWindow()
     {
         var hwnd = PInvoke.GetForegroundWindow();
@@ -43,20 +70,6 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         return GetApplicationWindow(hwnd);
     }
 
-    public record FocusedAppWindows(ApplicationWindow? FocusedWindow, List<ApplicationWindow> AllWindows)
-    {
-        public static FocusedAppWindows Empty => new(null, []);
-
-        public int Count => AllWindows.Count;
-
-        public int FocusedWindowIndex =>
-            FocusedWindow is null ? -1 : AllWindows.FindIndex(w => w.Handle == FocusedWindow.Handle);
-
-        public ApplicationWindow this[int index]
-        {
-            get { return AllWindows[index]; }
-        }
-    }
     /// <summary>
     /// This is strictly for the Modifier + Digit functionality
     /// This will get all visible windows for currently focused app if it's configured as NextWindow cycle mode
@@ -215,5 +228,20 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
         }
 
         return title[..length].ToString();
+    }
+
+    public record FocusedAppWindows(ApplicationWindow? FocusedWindow, List<ApplicationWindow> AllWindows)
+    {
+        public static FocusedAppWindows Empty => new(null, []);
+
+        public int Count => AllWindows.Count;
+
+        public int FocusedWindowIndex =>
+            FocusedWindow is null ? -1 : AllWindows.FindIndex(w => w.Handle == FocusedWindow.Handle);
+
+        public ApplicationWindow this[int index]
+        {
+            get { return AllWindows[index]; }
+        }
     }
 }

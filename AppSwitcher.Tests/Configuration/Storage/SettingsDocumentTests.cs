@@ -51,7 +51,8 @@ public class SettingsDocumentTests
             OverlayShowDelayMs: 500,
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
-            DynamicModeEnabled: false));
+            DynamicModeEnabled: false,
+            StatsEnabled: true));
     }
 
     [Fact]
@@ -73,7 +74,8 @@ public class SettingsDocumentTests
             OverlayShowDelayMs: 500,
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
-            DynamicModeEnabled: true);
+            DynamicModeEnabled: true,
+            StatsEnabled: true);
 
         var result = SettingsDocument.FromConfiguration(config: config, id: 42);
 
@@ -116,7 +118,8 @@ public class SettingsDocumentTests
             OverlayShowDelayMs: 500,
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
-            DynamicModeEnabled: true);
+            DynamicModeEnabled: true,
+            StatsEnabled: true);
 
         var roundTripped = SettingsDocument.FromConfiguration(original, 1).ToConfiguration();
 

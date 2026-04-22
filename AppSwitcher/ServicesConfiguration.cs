@@ -5,6 +5,8 @@ using AppSwitcher.Extensions;
 using AppSwitcher.Input;
 using AppSwitcher.Overlay;
 using AppSwitcher.Startup;
+using AppSwitcher.Stats;
+using AppSwitcher.Stats.Storage;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.WindowDiscovery;
@@ -30,7 +32,7 @@ internal static class ServicesConfiguration
 
         services.AddLogging(logging => logging.AddNLog());
 
-        if (!services.SetupLiteDb(isPortableMode))
+        if (!services.SetupDatabases(isPortableMode))
         {
             return null;
         }
@@ -48,7 +50,6 @@ internal static class ServicesConfiguration
         services.AddSingleton<DynamicModeService>();
         services.AddSingleton<AppNameResolver>();
         services.AddSingleton<Peeker>();
-        services.AddTransient<WindowEnumerator>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
@@ -56,11 +57,15 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessPathExtractor, ProcessPathExtractor>();
         services.AddTransient<RunningApplicationsService>();
         services.AddTransient<IPackagedAppsService, PackagedAppsService>();
-        services.AddTransient<IWindowEnumerator, WindowEnumerator>();
+        services.AddSingleton<IWindowEnumerator, WindowEnumerator>();
         services.AddTransient<WindowTitleParser>();
         services.AddTransient<AppOverlayService>();
         services.AddSingleton<WarningOverlayService>();
         services.AddTransient<ProcessInspector>();
+
+        services.AddSingleton<SessionStats>();
+        services.AddSingleton<AppRegistryCache>();
+        services.AddSingleton<StatsService>();
 
         services.AddCliHandler();
 
@@ -83,19 +88,23 @@ internal static class ServicesConfiguration
         return services.BuildServiceProvider();
     }
 
-    private static bool SetupLiteDb(this ServiceCollection services, bool isPortableMode)
+    private static bool SetupDatabases(this ServiceCollection services, bool isPortableMode)
     {
         BsonMapper.Global.EnumAsInteger = true;
 
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var dbPath = isPortableMode
-            ? Path.Combine(AppContext.BaseDirectory, "settings.db")
-            : Path.Combine(appData, "AppSwitcher", "settings.db");
+        var mainDbPath = GetDbPath("settings.db");
+        var statsDbPath = GetDbPath("stats.db");
 
         try
         {
-            var db = new LiteDatabase(new ConnectionString(dbPath) { Connection = ConnectionType.Direct });
-            services.AddSingleton(db);
+            var mainDb = new LiteDatabase(new ConnectionString(mainDbPath) { Connection = ConnectionType.Direct });
+            services.AddSingleton(mainDb);
+
+            // stats db is lazy loaded so that when user has it disabled stats.db file will not appear until it's enabled again
+            services.AddSingleton(new StatsDbProvider(() =>
+                new LiteDatabase(new ConnectionString(statsDbPath) { Connection = ConnectionType.Direct })));
+
             return true;
         }
         catch (Exception)
@@ -103,12 +112,19 @@ internal static class ServicesConfiguration
             new MessageBox
             {
                 Title = "Database error",
-                Content = $"An error occurred while reading the settings.\nFile might be corrupted. Please remove it and start over.\n\nPath:\n{dbPath}",
+                Content = $"An error occurred while reading the settings.\nFile might be corrupted. Please remove it and start over.\n\nPath:\n{mainDbPath}",
                 CloseButtonIcon = new SymbolIcon(SymbolRegular.ErrorCircle24),
                 CloseButtonText = "Quit",
                 CloseButtonAppearance = ControlAppearance.Danger,
             }.ShowSync();
             return false;
+        }
+
+        string GetDbPath(string name)
+        {
+            return isPortableMode
+                ? Path.Combine(AppContext.BaseDirectory, name)
+                : Path.Combine(appData, "AppSwitcher", name);
         }
     }
 

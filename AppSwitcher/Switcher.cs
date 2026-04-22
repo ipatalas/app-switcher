@@ -29,7 +29,7 @@ internal sealed record AppSwitchResult(
         new(null, processPath, HWND.Null, SHOW_WINDOW_CMD.SW_SHOW, NeedsElevation: false, WasStarted: true);
 };
 
-internal class Switcher(ILogger<Switcher> logger, WindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
+internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
 {
     private readonly List<HWND> _nextWindows = [];
 

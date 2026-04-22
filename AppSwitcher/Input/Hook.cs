@@ -1,5 +1,6 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.Overlay;
+using AppSwitcher.Stats;
 using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
@@ -14,12 +15,13 @@ internal class Hook(
     ILogger<Hook> logger,
     Switcher switcher,
     Peeker peeker,
-    WindowEnumerator windowEnumerator,
+    IWindowEnumerator windowEnumerator,
     OverlayShowTimer overlayShowTimer,
     WarningOverlayService warningOverlayService,
     AppOverlayService overlayService,
     ProcessInspector processInspector,
-    DynamicModeService dynamicModeService) : IDisposable
+    DynamicModeService dynamicModeService,
+    StatsService statsService) : IDisposable
 {
     private const int SyntheticModifierTapMaxDurationMs = 200;
 
@@ -28,6 +30,7 @@ internal class Hook(
     private AppConfig? _config;
     private readonly HashSet<Key> _suppressedLetterKeys = [];
     private readonly HashSet<Key> _suppressedDigitKeys = [];
+    private long? _previousLetterUpTick;
 
     // there are apps which run un-elevated will still steal key events
     private readonly FrozenSet<string> _processesStealingKeyEvents = new[]
@@ -132,6 +135,7 @@ internal class Hook(
         {
             e.SuppressKeyPress = true;
             logger.LogDebug("Suppressing key up for previously suppressed {Key}", e.InputEvent.Key);
+            _previousLetterUpTick = Environment.TickCount64;
             FinishPeek();
             return;
         }
@@ -142,6 +146,7 @@ internal class Hook(
             case KeyTransition.ModifierReleasedClean t:
                 overlayShowTimer.Cancel();
                 overlayService.Hide();
+                _previousLetterUpTick = null;
                 if (t.HasSideEffect)
                 {
                     SuppressModifier(e);
@@ -169,6 +174,7 @@ internal class Hook(
             case KeyTransition.ModifierReleasedAfterAction t:
                 overlayShowTimer.Cancel();
                 overlayService.Hide();
+                _previousLetterUpTick = null;
                 if (t.HasSideEffect)
                 {
                     SuppressModifier(e);
@@ -189,10 +195,12 @@ internal class Hook(
         ArgumentNullException.ThrowIfNull(_config);
 
         var matchingApps = _config.Applications.Where(a => a.Key == letter).ToList();
+        var isDynamic = false;
 
         if (matchingApps.Count == 0 && _config.DynamicModeEnabled)
         {
             matchingApps = [.. dynamicModeService.GetAppsForKey(letter, _config.Applications)];
+            isDynamic = true;
         }
 
         if (matchingApps.Count > 0)
@@ -205,10 +213,23 @@ internal class Hook(
                 var result = switcher.Execute(matchingApps);
                 var isAppStealingKeyEvents = result != null && _processesStealingKeyEvents.Contains(result.ProcessName);
 
+                if (_config.StatsEnabled && result is { WasStarted: false })
+                {
+                    statsService.Enqueue(new SwitchEvent(
+                        ProcessName: result.ProcessName,
+                        ProcessId: result.ProcessId,
+                        ProcessPath: result.ProcessPath,
+                        TotalChoices: windowEnumerator.GetTotalChoicesCount(),
+                        ModifierDownTick: _stateMachine.ModifierPressedAtTick,
+                        LetterDownTick: Environment.TickCount64,
+                        PreviousLetterUpTick: _previousLetterUpTick,
+                        IsDynamic: isDynamic));
+                }
+
                 if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null &&
                     currentWindow.ProcessId != result.ProcessId && !isAppStealingKeyEvents)
                 {
-                    peeker.Arm(currentWindow, result);
+                    peeker.Arm(currentWindow, result, isDynamic);
                     if (!overlayService.IsVisible)
                     {
                         // do not show overlay if peek mode is arming
@@ -275,6 +296,14 @@ internal class Hook(
     {
         if (peeker.TryFinish(out var peekResult))
         {
+            if (_config?.StatsEnabled == true)
+            {
+                statsService.Enqueue(new PeekEvent(TargetProcessName: peekResult.TargetProcessName,
+                    ArmTick: peekResult.ArmedAtTick,
+                    FinishTick: Environment.TickCount64,
+                    IsDynamic: peekResult.IsDynamic));
+            }
+
             switcher.ActivateWindow(peekResult.PreviousWindow, pulseBorder: false);
             if (peekResult.TargetWasMinimized)
             {
@@ -305,6 +334,7 @@ internal class Hook(
         _stateMachine.Reset();
         _suppressedLetterKeys.Clear();
         _suppressedDigitKeys.Clear();
+        _previousLetterUpTick = null;
         peeker.Cancel();
         overlayShowTimer.Cancel();
         overlayService.Hide();

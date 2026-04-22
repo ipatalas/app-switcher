@@ -17,7 +17,8 @@ public class SettingsSnapshotTests
         OverlayShowDelayMs: 1000,
         OverlayKeepOpenWhileModifierHeld: false,
         PeekEnabled: false,
-        DynamicModeEnabled: false);
+        DynamicModeEnabled: false,
+        StatsEnabled: true);
 
     [Fact]
     public void Equals_ReturnsTrue_WhenAllFieldsAreEqual()

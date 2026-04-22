@@ -22,7 +22,8 @@ public class ConfigurationServiceTests : IDisposable
         int overlayShowDelayMs = 1000,
         bool overlayKeepOpenWhileModifierHeld = true,
         bool peekEnabled = false,
-        bool dynamicModeEnabled = false)
+        bool dynamicModeEnabled = false,
+        bool statsEnabled = true)
     {
         return new AppConfig(
             Modifier: modifier,
@@ -33,7 +34,8 @@ public class ConfigurationServiceTests : IDisposable
             OverlayShowDelayMs: overlayShowDelayMs,
             OverlayKeepOpenWhileModifierHeld: overlayKeepOpenWhileModifierHeld,
             PeekEnabled: peekEnabled,
-            DynamicModeEnabled: dynamicModeEnabled);
+            DynamicModeEnabled: dynamicModeEnabled,
+            StatsEnabled: statsEnabled);
     }
 
 
@@ -58,7 +60,8 @@ public class ConfigurationServiceTests : IDisposable
             OverlayShowDelayMs: 1000,
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
-            DynamicModeEnabled: true));
+            DynamicModeEnabled: true,
+            StatsEnabled: true));
     }
 
     [Fact]

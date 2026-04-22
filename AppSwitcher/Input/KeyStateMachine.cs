@@ -20,9 +20,10 @@ internal sealed class KeyStateMachine
 
     private State _state = State.Idle;
     private Key _configuredModifier;
-    private long _modifierPressedAtTick;
 
     public bool IsModifierHeld => _state != State.Idle;
+
+    public long ModifierPressedAtTick { get; private set; }
 
     public KeyTransition ProcessKeyDown(Key key)
     {
@@ -36,7 +37,7 @@ internal sealed class KeyStateMachine
             }
 
             _state = State.ModifierHeld;
-            _modifierPressedAtTick = Environment.TickCount64;
+            ModifierPressedAtTick = Environment.TickCount64;
             return new KeyTransition.ModifierPressed(IsFirstPress: true, HasSideEffect: hasSideEffect);
         }
 
@@ -76,7 +77,7 @@ internal sealed class KeyStateMachine
 
         return previousState switch
         {
-            State.ModifierHeld => new KeyTransition.ModifierReleasedClean(Environment.TickCount64 - _modifierPressedAtTick, hasSideEffect),
+            State.ModifierHeld => new KeyTransition.ModifierReleasedClean(Environment.TickCount64 - ModifierPressedAtTick, hasSideEffect),
             State.ModifierHeldWithActionKey => new KeyTransition.ModifierReleasedAfterAction(hasSideEffect),
             _ => new KeyTransition.NoOp()
         };

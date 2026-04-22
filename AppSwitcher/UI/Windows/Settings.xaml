@@ -40,11 +40,8 @@
             Grid.Row="0"
             x:Name="NavigationView"
             Padding="20"
-            EnableDebugMessages="True"
             FrameMargin="0"
             Margin="10,45,10,10"
-            BorderBrush="Red"
-            BorderThickness="2"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleVisible="False"
             OpenPaneLength="200"
@@ -66,6 +63,11 @@
                 <ui:NavigationViewItem Content="Overlay" TargetPageType="{x:Type pages:Overlay}">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="LayerDiagonal20" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Stats" TargetPageType="{x:Type pages:Stats}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="DataHistogram24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>

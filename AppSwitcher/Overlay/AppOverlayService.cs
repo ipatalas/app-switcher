@@ -15,7 +15,7 @@ namespace AppSwitcher.Overlay;
 internal class AppOverlayService(
     AppOverlayWindow window,
     AppOverlayViewModel viewModel,
-    WindowEnumerator windowEnumerator,
+    IWindowEnumerator windowEnumerator,
     IconExtractor iconExtractor,
     WindowTitleParser windowTitleParser,
     DynamicModeService dynamicModeService,

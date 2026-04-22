@@ -13,11 +13,6 @@ internal class DynamicModeService(
     ILogger<DynamicModeService> logger,
     IPackagedAppsService packagedAppsService)
 {
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(10);
-
-    private List<ApplicationWindow>? _windowsCache;
-    private DateTimeOffset _cacheExpiry;
-
     public IReadOnlyList<ApplicationConfiguration> GetAllDynamicApps(
         IReadOnlyList<ApplicationConfiguration> staticApps,
         IReadOnlyList<ApplicationWindow> windows)
@@ -50,7 +45,7 @@ internal class DynamicModeService(
             return [];
         }
 
-        var windows = GetCachedWindows();
+        var windows = windowEnumerator.GetCachedWindows();
         var excludedProcessNames = GetExcludedProcessNames(staticApps);
 
         return windows
@@ -71,17 +66,5 @@ internal class DynamicModeService(
             .Select(a => a.ProcessName)
             .Concat(["appswitcher.exe"])
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-    }
-
-    private List<ApplicationWindow> GetCachedWindows()
-    {
-        if (_windowsCache is not null && DateTimeOffset.UtcNow < _cacheExpiry)
-        {
-            return _windowsCache;
-        }
-
-        _windowsCache = windowEnumerator.GetWindows();
-        _cacheExpiry = DateTimeOffset.UtcNow + CacheDuration;
-        return _windowsCache;
     }
 }

@@ -6,6 +6,7 @@ using AwesomeAssertions;
 using System.Windows.Input;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -239,16 +240,39 @@ public class DynamicModeServiceTests
     private static ApplicationConfiguration MakeStaticApp(Key key, string processPath) =>
         new(key, processPath, CycleMode.NextApp, false);
 
+    // TODO: time for NSubstitute or sth :)
     private sealed class FakeWindowEnumerator : IWindowEnumerator
     {
+        private List<ApplicationWindow>? _cachedWindows;
+
         public List<ApplicationWindow> Windows { get; set; } = [];
         public int GetWindowsCallCount { get; private set; }
 
         public List<ApplicationWindow> GetWindows()
         {
             GetWindowsCallCount++;
+            _cachedWindows = Windows;
             return Windows;
         }
+
+        public List<ApplicationWindow> GetCachedWindows()
+        {
+            if (_cachedWindows is null)
+                return GetWindows();
+
+            return _cachedWindows;
+        }
+
+        public ApplicationWindow? GetCurrentWindow() => throw new NotImplementedException();
+
+        public WindowEnumerator.FocusedAppWindows GetFocusedAppWindows(IReadOnlyList<ApplicationWindow> allWindows, IReadOnlyList<ApplicationConfiguration> applications) => throw new NotImplementedException();
+
+        public void LogWindows(LogLevel level, IEnumerable<ApplicationWindow> result) => throw new NotImplementedException();
+
+        public List<ApplicationWindow> GetAllWindows() => throw new NotImplementedException();
+
+        public void LogAllWindows() => throw new NotImplementedException();
+        public int GetTotalChoicesCount() => throw new NotImplementedException();
     }
 
     private sealed class FakePackagedAppService : IPackagedAppsService
