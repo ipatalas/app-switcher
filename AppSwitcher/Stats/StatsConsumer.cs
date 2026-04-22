@@ -89,14 +89,11 @@ internal class StatsConsumer(
     {
         registryCache.GetOrAdd(e.ProcessName, e.ProcessPath);
 
-        var durationMs = e.PreviousLetterUpTick.HasValue // is subsequent switch while holding modifier
+        var rawDurationMs = e.PreviousLetterUpTick.HasValue // is subsequent switch while holding modifier
             ? (int)(e.LetterDownTick - e.PreviousLetterUpTick.Value)
             : (int)(e.LetterDownTick - e.ModifierDownTick);
 
-        if (durationMs > IdleThresholdMs)
-        {
-            durationMs = BaselineDurationMs;
-        }
+        var durationMs = rawDurationMs > IdleThresholdMs ? BaselineDurationMs : rawDurationMs;
 
         var savedMs = EfficiencyCalculator.SavedMs(e.TotalChoices);
 
@@ -104,7 +101,10 @@ internal class StatsConsumer(
             "Switch to {ProcessName}: duration={DurationMs}ms, saved={SavedMs}ms, choices={Choices}, dynamic={IsDynamic}",
             e.ProcessName, durationMs, savedMs, e.TotalChoices, e.IsDynamic);
 
-        sessionStats.RecordSwitch(e.ProcessName, _previousProcessName, savedMs, e.IsDynamic);
+        var fastestDurationMs = rawDurationMs <= IdleThresholdMs ? rawDurationMs : (int?)null;
+
+        sessionStats.RecordSwitch(e.ProcessName, _previousProcessName, savedMs, e.IsDynamic,
+            fastestDurationMs: fastestDurationMs, letter: e.Letter);
         _previousProcessName = e.ProcessName;
     }
 

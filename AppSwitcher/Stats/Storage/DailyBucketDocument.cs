@@ -2,6 +2,16 @@ using LiteDB;
 
 namespace AppSwitcher.Stats.Storage;
 
+internal class FastestSwitchRecord
+{
+    public int DurationMs { get; init; }
+    public string AppName { get; init; } = string.Empty;
+    public string Letter { get; init; } = string.Empty;
+
+    public FastestSwitchRecord Clone() =>
+        new() { DurationMs = DurationMs, AppName = AppName, Letter = Letter };
+}
+
 internal class AppUsageStats
 {
     public int Switches { get; set; }
@@ -32,4 +42,6 @@ internal class DailyBucketDocument
     public int AltTabSwitches { get; init; }
 
     public int AltTabKeystrokes { get; init; }
+
+    public FastestSwitchRecord? FastestSwitch { get; init; }
 }

@@ -11,6 +11,9 @@ internal class SessionStats
     private int _altTabSwitches;
     private int _altTabKeystrokes;
 
+    private FastestSwitchRecord? _fastestSwitch;
+    private readonly object _fastestSwitchLock = new();
+
     private readonly ConcurrentDictionary<string, AppUsageStats> _staticAppUsage =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -20,7 +23,8 @@ internal class SessionStats
     private readonly ConcurrentDictionary<string, int> _transitions =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public void RecordSwitch(string processName, string? previousProcessName, int savedMs, bool isDynamic)
+    public void RecordSwitch(string processName, string? previousProcessName, int savedMs, bool isDynamic,
+        int? fastestDurationMs = null, string letter = "A")
     {
         Interlocked.Increment(ref _totalSwitches);
         Interlocked.Add(ref _totalTimeSavedMs, savedMs);
@@ -39,6 +43,22 @@ internal class SessionStats
         {
             var key = $"{previousProcessName}|{processName}";
             _transitions.AddOrUpdate(key, 1, (_, count) => count + 1);
+        }
+
+        if (fastestDurationMs.HasValue)
+        {
+            lock (_fastestSwitchLock)
+            {
+                if (_fastestSwitch is null || fastestDurationMs.Value < _fastestSwitch.DurationMs)
+                {
+                    _fastestSwitch = new FastestSwitchRecord
+                    {
+                        DurationMs = fastestDurationMs.Value,
+                        AppName = processName,
+                        Letter = letter
+                    };
+                }
+            }
         }
     }
 
@@ -71,6 +91,11 @@ internal class SessionStats
         _altTabSwitches = doc.AltTabSwitches;
         _altTabKeystrokes = doc.AltTabKeystrokes;
 
+        lock (_fastestSwitchLock)
+        {
+            _fastestSwitch = doc.FastestSwitch?.Clone();
+        }
+
         _staticAppUsage.Clear();
         foreach (var (key, value) in doc.StaticAppUsage)
         {
@@ -92,6 +117,12 @@ internal class SessionStats
 
     public DailyBucketDocument Snapshot(DateTime date)
     {
+        FastestSwitchRecord? fastestSwitchSnapshot;
+        lock (_fastestSwitchLock)
+        {
+            fastestSwitchSnapshot = _fastestSwitch?.Clone();
+        }
+
         return new DailyBucketDocument
         {
             Date = date.Date,
@@ -100,6 +131,7 @@ internal class SessionStats
             TotalPeeks = _totalPeeks,
             AltTabSwitches = _altTabSwitches,
             AltTabKeystrokes = _altTabKeystrokes,
+            FastestSwitch = fastestSwitchSnapshot,
             StaticAppUsage = _staticAppUsage.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.Clone(),

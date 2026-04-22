@@ -232,7 +232,8 @@ internal class Hook(
                         ModifierDownTick: _stateMachine.ModifierPressedAtTick,
                         LetterDownTick: Environment.TickCount64,
                         PreviousLetterUpTick: _previousLetterUpTick,
-                        IsDynamic: isDynamic));
+                        IsDynamic: isDynamic,
+                        Letter: letter.ToString()));
                 }
 
                 if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null &&

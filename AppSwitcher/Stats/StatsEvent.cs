@@ -10,7 +10,8 @@ internal sealed record SwitchEvent(
     long ModifierDownTick,
     long LetterDownTick,
     long? PreviousLetterUpTick,
-    bool IsDynamic) : StatsEvent;
+    bool IsDynamic,
+    string Letter) : StatsEvent;
 
 internal sealed record PeekEvent(
     string TargetProcessName,

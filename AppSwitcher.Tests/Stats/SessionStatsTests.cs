@@ -244,4 +244,87 @@ public class SessionStatsTests
         result.AltTabSwitches.Should().Be(7);
         result.AltTabKeystrokes.Should().Be(19);
     }
+
+    // ── Fastest switch ───────────────────────────────────────────────────────
+
+    [Fact]
+    public void RecordSwitch_SetsFastestSwitch_OnFirstSwitch()
+    {
+        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: 200, letter: "S");
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.FastestSwitch.Should().NotBeNull();
+        result.FastestSwitch!.DurationMs.Should().Be(200);
+        result.FastestSwitch.AppName.Should().Be("spotify.exe");
+        result.FastestSwitch.Letter.Should().Be("S");
+    }
+
+    [Fact]
+    public void RecordSwitch_UpdatesFastestSwitch_WhenFasterSwitchRecorded()
+    {
+        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: 400, letter: "N");
+        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: 150, letter: "S");
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.FastestSwitch!.DurationMs.Should().Be(150);
+        result.FastestSwitch.AppName.Should().Be("spotify.exe");
+        result.FastestSwitch.Letter.Should().Be("S");
+    }
+
+    [Fact]
+    public void RecordSwitch_DoesNotUpdateFastestSwitch_WhenSlowerSwitchRecorded()
+    {
+        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: 150, letter: "S");
+        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: 400, letter: "N");
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.FastestSwitch!.DurationMs.Should().Be(150);
+        result.FastestSwitch.AppName.Should().Be("spotify.exe");
+        result.FastestSwitch.Letter.Should().Be("S");
+    }
+
+    [Fact]
+    public void RecordSwitch_DoesNotSetFastestSwitch_WhenDurationIsNull()
+    {
+        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+            fastestDurationMs: null, letter: "N");
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.FastestSwitch.Should().BeNull();
+    }
+
+    [Fact]
+    public void LoadFrom_RestoresFastestSwitch()
+    {
+        var doc = new DailyBucketDocument
+        {
+            Date = DateTime.Now.Date,
+            TotalSwitches = 1,
+            TotalTimeSavedMs = 100,
+            TotalPeeks = 0,
+            AltTabSwitches = 0,
+            AltTabKeystrokes = 0,
+            FastestSwitch = new FastestSwitchRecord { DurationMs = 85, AppName = "spotify.exe", Letter = "S" },
+            StaticAppUsage = [],
+            DynamicAppUsage = [],
+            Transitions = []
+        };
+
+        _sut.LoadFrom(doc);
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.FastestSwitch.Should().NotBeNull();
+        result.FastestSwitch!.DurationMs.Should().Be(85);
+        result.FastestSwitch.AppName.Should().Be("spotify.exe");
+        result.FastestSwitch.Letter.Should().Be("S");
+    }
 }

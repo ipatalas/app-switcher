@@ -36,7 +36,8 @@ public class StatsConsumerTests
         long modifierDownTick = 1000,
         long letterDownTick = 1200,
         long? previousLetterUpTick = null,
-        bool isDynamic = false)
+        bool isDynamic = false,
+        string letter = "N")
         => new(ProcessName: processName,
             ProcessId: null,
             ProcessPath: processName,
@@ -44,7 +45,8 @@ public class StatsConsumerTests
             ModifierDownTick: modifierDownTick,
             LetterDownTick: letterDownTick,
             PreviousLetterUpTick: previousLetterUpTick,
-            IsDynamic: isDynamic);
+            IsDynamic: isDynamic,
+            Letter: letter);
 
     private PeekEvent MakePeekEvent(
         string targetProcessName,
@@ -242,5 +244,36 @@ public class StatsConsumerTests
         var snapshot = _sessionStats.Snapshot(DateTime.Now);
         snapshot.AltTabSwitches.Should().Be(1);
         snapshot.AltTabKeystrokes.Should().Be(3);
+    }
+
+    // ── Fastest switch ───────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ProcessSwitch_SetsFastestSwitch_WhenDurationWithinIdleThreshold()
+    {
+        // duration = 1200 - 1000 = 200ms ≤ 1500ms idle threshold
+        var evt = MakeSwitchEvent("spotify.exe",
+            modifierDownTick: 1000, letterDownTick: 1200, letter: "S");
+
+        await WriteAndDrain(evt);
+
+        var snapshot = _sessionStats.Snapshot(DateTime.Now);
+        snapshot.FastestSwitch.Should().NotBeNull();
+        snapshot.FastestSwitch!.DurationMs.Should().Be(200);
+        snapshot.FastestSwitch.AppName.Should().Be("spotify.exe");
+        snapshot.FastestSwitch.Letter.Should().Be("S");
+    }
+
+    [Fact]
+    public async Task ProcessSwitch_DoesNotSetFastestSwitch_WhenDurationExceedsIdleThreshold()
+    {
+        // duration = 5000 - 1000 = 4000ms > 1500ms idle threshold
+        var evt = MakeSwitchEvent("notepad.exe",
+            modifierDownTick: 1000, letterDownTick: 5000, letter: "N");
+
+        await WriteAndDrain(evt);
+
+        var snapshot = _sessionStats.Snapshot(DateTime.Now);
+        snapshot.FastestSwitch.Should().BeNull();
     }
 }
