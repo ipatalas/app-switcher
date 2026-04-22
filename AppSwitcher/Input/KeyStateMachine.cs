@@ -21,12 +21,24 @@ internal sealed class KeyStateMachine
     private State _state = State.Idle;
     private Key _configuredModifier;
 
+    // Alt+Tab tracking (independent of the configured modifier)
+    private bool _altHeld;        // LeftAlt or RightAlt is currently down
+    private bool _altTabActive;   // Tab was pressed → switcher overlay is open
+    private bool _altTabIsSticky; // RightAlt mode: overlay persists after Alt-up, Enter confirms
+    private int _altNavCount;     // Tab + arrow keypresses during this session
+
     public bool IsModifierHeld => _state != State.Idle;
 
     public long ModifierPressedAtTick { get; private set; }
 
     public KeyTransition ProcessKeyDown(Key key)
     {
+        // Alt+Tab tracking — guard: only when the key is not the configured modifier
+        if (key != _configuredModifier && HandleAltTabTracking(out var transition))
+        {
+            return transition;
+        }
+
         if (key == _configuredModifier)
         {
             var hasSideEffect = ModifierKeysWithSideEffects.Contains(key);
@@ -61,12 +73,66 @@ internal sealed class KeyStateMachine
 
         _state = State.Idle;
         return new KeyTransition.UnrelatedKeyReset();
+
+        bool HandleAltTabTracking(out KeyTransition keyTransition)
+        {
+            if (key is Key.LeftAlt or Key.RightAlt)
+            {
+                _altHeld = true;
+                _altTabActive = false;
+                _altTabIsSticky = key is Key.RightAlt;
+                _altNavCount = 0;
+            }
+            else if (key == Key.Tab && _altHeld)
+            {
+                _altTabActive = true;
+                _altNavCount++;
+                keyTransition = new KeyTransition.NoOp();
+                return true;
+            }
+            else if (_altTabActive && IsNavKey(key))
+            {
+                _altNavCount++;
+                keyTransition = new KeyTransition.NoOp();
+                return true;
+            }
+            else if (key == Key.Return && _altTabActive && _altTabIsSticky)
+            {
+                var count = _altNavCount;
+                ResetAltTabState();
+                keyTransition = new KeyTransition.AltTabSwitched(count);
+                return true;
+            }
+            else if (key == Key.Escape && _altTabActive)
+            {
+                ResetAltTabState();
+            }
+
+            keyTransition = new KeyTransition.NoOp();
+            return false;
+        }
     }
 
     public KeyTransition ProcessKeyUp(Key key)
     {
+        // Alt+Tab tracking — guard: only when the key is not the configured modifier
         if (key != _configuredModifier)
         {
+            if (key == Key.LeftAlt && _altHeld)
+            {
+                var hadNav = _altTabActive && !_altTabIsSticky;
+                var count = _altNavCount;
+                ResetAltTabState();
+                return hadNav
+                    ? new KeyTransition.AltTabSwitched(count)
+                    : new KeyTransition.NoOp();
+            }
+
+            if (key == Key.RightAlt)
+            {
+                _altHeld = false; // overlay stays open; Enter will confirm
+            }
+
             return new KeyTransition.NoOp();
         }
 
@@ -93,7 +159,19 @@ internal sealed class KeyStateMachine
     public void Reset()
     {
         _state = State.Idle;
+        ResetAltTabState();
     }
+
+    private void ResetAltTabState()
+    {
+        _altHeld = false;
+        _altTabActive = false;
+        _altTabIsSticky = false;
+        _altNavCount = 0;
+    }
+
+    private static bool IsNavKey(Key key) =>
+        key is Key.Left or Key.Right or Key.Up or Key.Down;
 }
 
 internal abstract record KeyTransition
@@ -117,6 +195,9 @@ internal abstract record KeyTransition
 
     /// <summary>An unrelated key was pressed while the modifier was held; state has been reset to Idle.</summary>
     public sealed record UnrelatedKeyReset : KeyTransition;
+
+    /// <summary>Left/Right Alt released (or Enter in RightAlt sticky mode) after ≥1 Tab press. <see cref="NavCount"/> is total navigation keypresses (Tab + arrow keys).</summary>
+    public sealed record AltTabSwitched(int NavCount) : KeyTransition;
 
     /// <summary>Nothing notable: key-up/down for non-modifier key, or modifier not held.</summary>
     public sealed record NoOp : KeyTransition;

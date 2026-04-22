@@ -359,4 +359,218 @@ public class KeyStateMachineTests
         result.Should().BeOfType<ModifierPressed>()
             .Which.IsFirstPress.Should().BeTrue();
     }
+
+    // ── Alt+Tab tracking ────────────────────────────────────────────────────
+
+    [Fact]
+    public void AltTab_ReturnsNoOp_ForTabDown_WhenAltHeld()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+
+        var result = _sut.ProcessKeyDown(Key.Tab);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void AltTab_FiresAltTabSwitched_OnLeftAltUp_AfterOneTab()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyUp(Key.Tab);
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(1));
+    }
+
+    [Fact]
+    public void AltTab_FiresAltTabSwitched_WithCorrectNavCount_AfterMultipleTabs()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+
+        for (var i = 0; i < 3; i++)
+        {
+            _sut.ProcessKeyDown(Key.Tab);
+            _sut.ProcessKeyUp(Key.Tab);
+        }
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(3));
+    }
+
+    [Fact]
+    public void AltTab_CountsArrowKeysAsNavigation()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);   // opens switcher (1)
+        _sut.ProcessKeyDown(Key.Right); // (2)
+        _sut.ProcessKeyDown(Key.Right); // (3)
+        _sut.ProcessKeyDown(Key.Left);  // (4)
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(4));
+    }
+
+    [Fact]
+    public void AltTab_ArrowKeysReturnNoOp_WhenCountingNavigation()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+
+        _sut.ProcessKeyDown(Key.Left).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyDown(Key.Right).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyDown(Key.Up).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyDown(Key.Down).Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void AltTab_ArrowKeysDoNotCount_WhenNoTabPressedYet()
+    {
+        // Arrow key before Tab was pressed → _altTabActive is false → not counted
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Right);
+        _sut.ProcessKeyDown(Key.Tab); // this opens switcher (1)
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(1));
+    }
+
+    [Fact]
+    public void AltTab_ReturnsNoOp_OnLeftAltUp_WhenNoTabsPressed()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void AltTab_ResetsNavCount_OnNewAltPress()
+    {
+        // First session: 3 tabs
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyUp(Key.LeftAlt);
+
+        // Second session: 1 tab
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(1));
+    }
+
+    // ── RightAlt sticky mode ─────────────────────────────────────────────────
+
+    [Fact]
+    public void RightAltTab_ReturnsNoOp_OnRightAltUp_WhenTabWasPressed()
+    {
+        _sut.ProcessKeyDown(Key.RightAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+
+        // RightAlt up does NOT fire the switch — overlay persists
+        var result = _sut.ProcessKeyUp(Key.RightAlt);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void RightAltTab_FiresAltTabSwitched_OnEnter()
+    {
+        _sut.ProcessKeyDown(Key.RightAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyUp(Key.RightAlt); // overlay stays
+
+        var result = _sut.ProcessKeyDown(Key.Return);
+
+        result.Should().Be(new AltTabSwitched(1));
+    }
+
+    [Fact]
+    public void RightAltTab_FiresAltTabSwitched_WithCorrectNavCount()
+    {
+        _sut.ProcessKeyDown(Key.RightAlt);
+        _sut.ProcessKeyDown(Key.Tab);   // (1)
+        _sut.ProcessKeyDown(Key.Tab);   // (2)
+        _sut.ProcessKeyDown(Key.Right); // (3)
+        _sut.ProcessKeyDown(Key.Right); // (4)
+        _sut.ProcessKeyDown(Key.Left);  // (5)
+        _sut.ProcessKeyUp(Key.RightAlt);
+
+        var result = _sut.ProcessKeyDown(Key.Return);
+
+        result.Should().Be(new AltTabSwitched(5));
+    }
+
+    [Fact]
+    public void RightAltTab_EnterDoesNotFire_WhenNoTabPressedYet()
+    {
+        _sut.ProcessKeyDown(Key.RightAlt);
+        _sut.ProcessKeyUp(Key.RightAlt);
+
+        var result = _sut.ProcessKeyDown(Key.Return);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void RightAltTab_EscapeCancel_EnterDoesNotFireAfterwards()
+    {
+        _sut.ProcessKeyDown(Key.RightAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+        _sut.ProcessKeyDown(Key.Escape); // cancel
+
+        var result = _sut.ProcessKeyDown(Key.Return);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void AltTab_ReturnsNoOp_WhenLeftAltIsConfiguredModifier()
+    {
+        _sut.Configure(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab); // unrelated key → UnrelatedKeyReset, state back to Idle
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        // Configured modifier path fires (state was Idle after Tab reset), not Alt+Tab path
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void Reset_ClearsAltTabState()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyDown(Key.Tab);
+
+        _sut.Reset();
+
+        // After reset, LeftAlt up should return NoOp (no pending alt-tab session)
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void FullSequence_AltTabTab_MatchesRealWorldEvents()
+    {
+        // Replay: ↓LeftAlt  ↓Tab ↑Tab  ↓Tab ↑Tab  ↑LeftAlt
+        _sut.ProcessKeyDown(Key.LeftAlt).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyDown(Key.Tab).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyUp(Key.Tab).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyDown(Key.Tab).Should().BeOfType<NoOp>();
+        _sut.ProcessKeyUp(Key.Tab).Should().BeOfType<NoOp>();
+
+        var result = _sut.ProcessKeyUp(Key.LeftAlt);
+
+        result.Should().Be(new AltTabSwitched(2));
+    }
 }

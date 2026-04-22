@@ -79,6 +79,9 @@ internal class StatsConsumer(
             case PeekEvent e:
                 ProcessPeek(e);
                 break;
+            case AltTabEvent e:
+                ProcessAltTab(e);
+                break;
         }
     }
 
@@ -114,5 +117,11 @@ internal class StatsConsumer(
             e.TargetProcessName, durationMs, e.IsDynamic);
 
         sessionStats.RecordPeek(e.TargetProcessName, durationMs, e.IsDynamic);
+    }
+
+    private void ProcessAltTab(AltTabEvent e)
+    {
+        logger.LogDebug("AltTab: navCount={NavCount}", e.NavCount);
+        sessionStats.RecordAltTab(e.NavCount);
     }
 }

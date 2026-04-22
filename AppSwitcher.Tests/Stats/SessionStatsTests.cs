@@ -207,4 +207,41 @@ public class SessionStatsTests
 
         result.Date.Should().Be(new DateTime(2026, 4, 21, 0, 0, 0, DateTimeKind.Utc));
     }
+
+    // ── Alt+Tab ─────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void RecordAltTab_IncrementsTotalAltTabSwitchesAndAccumulatesKeyStrokes()
+    {
+        _sut.RecordAltTab(1);
+        _sut.RecordAltTab(3);
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.AltTabSwitches.Should().Be(2);
+        result.AltTabKeystrokes.Should().Be(4);
+    }
+
+    [Fact]
+    public void LoadFrom_RestoresAltTabCounters()
+    {
+        var doc = new DailyBucketDocument
+        {
+            Date = DateTime.Now.Date,
+            TotalSwitches = 0,
+            TotalTimeSavedMs = 0,
+            TotalPeeks = 0,
+            AltTabSwitches = 7,
+            AltTabKeystrokes = 19,
+            StaticAppUsage = [],
+            DynamicAppUsage = [],
+            Transitions = []
+        };
+
+        _sut.LoadFrom(doc);
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.AltTabSwitches.Should().Be(7);
+        result.AltTabKeystrokes.Should().Be(19);
+    }
 }

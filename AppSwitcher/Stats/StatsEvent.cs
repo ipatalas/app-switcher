@@ -17,3 +17,5 @@ internal sealed record PeekEvent(
     long ArmTick,
     long FinishTick,
     bool IsDynamic) : StatsEvent;
+
+internal sealed record AltTabEvent(int NavCount) : StatsEvent;

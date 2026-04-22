@@ -231,4 +231,16 @@ public class StatsConsumerTests
             // expected — cancellation propagated from Task.Run
         }
     }
+
+    [Fact]
+    public async Task ProcessAltTab_RecordsAltTabSwitchAndKeystrokes()
+    {
+        var evt = new AltTabEvent(NavCount: 3);
+
+        await WriteAndDrain(evt);
+
+        var snapshot = _sessionStats.Snapshot(DateTime.Now);
+        snapshot.AltTabSwitches.Should().Be(1);
+        snapshot.AltTabKeystrokes.Should().Be(3);
+    }
 }

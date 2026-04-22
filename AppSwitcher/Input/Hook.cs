@@ -119,6 +119,10 @@ internal class Hook(
             case KeyTransition.DigitKeyPressed { Key: var digit }:
                 HandleDigitPressed(e, digit);
                 break;
+            case KeyTransition.AltTabSwitched altTab:
+                // this handles Right Alt when switch is triggered by Enter
+                statsService.Enqueue(new AltTabEvent(altTab.NavCount));
+                break;
             case KeyTransition.UnrelatedKeyReset:
                 logger.LogDebug("Unrelated key {Key} pressed while modifier down - resetting state", e.InputEvent.Key);
                 ResetModifierState();
@@ -180,6 +184,11 @@ internal class Hook(
                     SuppressModifier(e);
                 }
                 FinishPeek();
+                break;
+
+            case KeyTransition.AltTabSwitched altTab:
+                // this handles Left Alt when switch is triggered by releasing Alt
+                statsService.Enqueue(new AltTabEvent(altTab.NavCount));
                 break;
         }
     }

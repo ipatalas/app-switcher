@@ -8,6 +8,8 @@ internal class SessionStats
     private int _totalSwitches;
     private int _totalTimeSavedMs;
     private int _totalPeeks;
+    private int _altTabSwitches;
+    private int _altTabKeystrokes;
 
     private readonly ConcurrentDictionary<string, AppUsageStats> _staticAppUsage =
         new(StringComparer.OrdinalIgnoreCase);
@@ -40,8 +42,7 @@ internal class SessionStats
         }
     }
 
-    public void RecordPeek(string processName, int durationMs, bool isDynamic)
-    {
+    public void RecordPeek(string processName, int durationMs, bool isDynamic)    {
         Interlocked.Increment(ref _totalPeeks);
 
         var bucket = isDynamic ? _dynamicAppUsage : _staticAppUsage;
@@ -56,11 +57,19 @@ internal class SessionStats
             });
     }
 
+    public void RecordAltTab(int tabCount)
+    {
+        Interlocked.Increment(ref _altTabSwitches);
+        Interlocked.Add(ref _altTabKeystrokes, tabCount);
+    }
+
     public void LoadFrom(DailyBucketDocument doc)
     {
         _totalSwitches = doc.TotalSwitches;
         _totalTimeSavedMs = doc.TotalTimeSavedMs;
         _totalPeeks = doc.TotalPeeks;
+        _altTabSwitches = doc.AltTabSwitches;
+        _altTabKeystrokes = doc.AltTabKeystrokes;
 
         _staticAppUsage.Clear();
         foreach (var (key, value) in doc.StaticAppUsage)
@@ -89,6 +98,8 @@ internal class SessionStats
             TotalSwitches = _totalSwitches,
             TotalTimeSavedMs = _totalTimeSavedMs,
             TotalPeeks = _totalPeeks,
+            AltTabSwitches = _altTabSwitches,
+            AltTabKeystrokes = _altTabKeystrokes,
             StaticAppUsage = _staticAppUsage.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.Clone(),
