@@ -8,6 +8,7 @@
         xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
         mc:Ignorable="d"
         WindowStartupLocation="Manual"
+        WindowStyle="ToolWindow"
         ShowInTaskbar="False"
         Title="AppSwitcher"
         Height="100"
