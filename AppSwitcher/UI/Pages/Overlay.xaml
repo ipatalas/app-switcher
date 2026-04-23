@@ -8,7 +8,7 @@
       mc:Ignorable="d"
       Title="Overlay"
       ScrollViewer.CanContentScroll="False"
-      d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance designTime:SettingsStateDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"

@@ -1,6 +1,7 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.UI.Controls;
 using AppSwitcher.UI.ViewModels;
+using AppSwitcher.UI.ViewModels.Common;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,7 +14,7 @@ namespace AppSwitcher.UI.Pages;
 
 internal partial class Hotkeys : Page
 {
-    private readonly SettingsViewModel _viewModel;
+    private readonly HotkeysViewModel _viewModel;
 
     public static readonly DependencyProperty FlyoutViewModelProperty =
         DependencyProperty.Register(
@@ -28,7 +29,7 @@ internal partial class Hotkeys : Page
         private init => SetValue(FlyoutViewModelProperty, value);
     }
 
-    public Hotkeys(SettingsViewModel viewModel, AddApplicationFlyoutViewModel flyoutViewModel)
+    public Hotkeys(HotkeysViewModel viewModel, AddApplicationFlyoutViewModel flyoutViewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
@@ -84,7 +85,8 @@ internal partial class Hotkeys : Page
 
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {
-        FlyoutViewModel.Refresh(_viewModel.BoundProcessNames);
+        var staticAppsProcessNames = _viewModel.State.Applications.Select(a => a.ProcessName);
+        FlyoutViewModel.Refresh(staticAppsProcessNames);
         AddFlyoutPopup.IsOpen = true;
     }
 

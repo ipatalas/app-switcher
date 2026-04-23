@@ -1,6 +1,6 @@
 using AppSwitcher.Configuration;
-using AppSwitcher.UI.ViewModels;
 using System.Windows.Input;
+using AppSwitcher.UI.ViewModels.Common;
 using Xunit;
 using AwesomeAssertions;
 

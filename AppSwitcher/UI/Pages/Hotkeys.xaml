@@ -4,13 +4,13 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:viewModels="clr-namespace:AppSwitcher.UI.ViewModels"
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
       xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
+      xmlns:common="clr-namespace:AppSwitcher.UI.ViewModels.Common"
       mc:Ignorable="d"
       Title="Hotkeys"
       ScrollViewer.CanContentScroll="False"
-      d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance designTime:HotkeysViewModelDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
@@ -64,8 +64,8 @@
                     <Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding HasNoApplications}" Value="True" />
-                                <Condition Binding="{Binding HasDynamicApplications}" Value="False" />
+                                <Condition Binding="{Binding State.HasNoApplications}" Value="True" />
+                                <Condition Binding="{Binding State.HasDynamicApplications}" Value="False" />
                             </MultiDataTrigger.Conditions>
                             <Setter Property="Visibility" Value="Collapsed" />
                         </MultiDataTrigger>
@@ -75,7 +75,7 @@
             <StackPanel>
                 <ui:ListView
                     x:Name="ApplicationsList"
-                             ItemsSource="{Binding Applications, Mode=OneWay}"
+                             ItemsSource="{Binding State.Applications, Mode=OneWay}"
                              UseLayoutRounding="True"
                              ScrollViewer.CanContentScroll="False"
                              Grid.IsSharedSizeScope="True">
@@ -89,7 +89,7 @@
                         </Style>
                     </ui:ListView.ItemContainerStyle>
                     <ui:ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:ApplicationShortcutViewModel}">
+                        <DataTemplate DataType="{x:Type common:ApplicationShortcutViewModel}">
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -215,7 +215,7 @@
 
                 <!-- Dynamic apps section -->
                 <StackPanel Margin="0,16,0,0"
-                            Visibility="{Binding HasDynamicApplications, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding State.HasDynamicApplications, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                     <ui:TextBlock Text="Dynamic bindings"
                                   FontTypography="Caption"
@@ -223,7 +223,7 @@
                                   Margin="2,0,0,6" />
 
                     <ItemsControl
-                        ItemsSource="{Binding DynamicApplications, Mode=OneWay}">
+                        ItemsSource="{Binding State.DynamicApplications, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
@@ -299,8 +299,8 @@
                     <Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding HasNoApplications}" Value="True" />
-                                <Condition Binding="{Binding HasDynamicApplications}" Value="False" />
+                                <Condition Binding="{Binding State.HasNoApplications}" Value="True" />
+                                <Condition Binding="{Binding State.HasDynamicApplications}" Value="False" />
                             </MultiDataTrigger.Conditions>
                             <Setter Property="Visibility" Value="Visible" />
                         </MultiDataTrigger>

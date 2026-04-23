@@ -1,6 +1,6 @@
 using AppSwitcher.Configuration;
 
-namespace AppSwitcher.UI.ViewModels;
+namespace AppSwitcher.UI.ViewModels.Common;
 
 internal sealed record ApplicationSelectionArgs(
     string ProcessName,

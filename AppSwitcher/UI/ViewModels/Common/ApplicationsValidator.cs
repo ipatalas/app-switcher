@@ -1,7 +1,7 @@
 using AppSwitcher.Configuration;
 using System.Windows.Input;
 
-namespace AppSwitcher.UI.ViewModels;
+namespace AppSwitcher.UI.ViewModels.Common;
 
 internal record ApplicationValidationError(
     IReadOnlyList<ApplicationShortcutViewModel> AffectedApps,

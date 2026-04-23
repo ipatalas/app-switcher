@@ -26,7 +26,7 @@ internal partial class Settings
     {
         if (NavigationView.SelectedItem is null)
         {
-            NavigationView.Navigate(typeof(Hotkeys), _viewModel);
+            NavigationView.Navigate(typeof(Hotkeys));
         }
     }
 
@@ -34,7 +34,7 @@ internal partial class Settings
     {
         base.OnClosing(e);
 
-        if (_viewModel.IsDirty)
+        if (_viewModel.State.IsDirty)
         {
             var result = new MessageBox
             {

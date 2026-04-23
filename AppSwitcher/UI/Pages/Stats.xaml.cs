@@ -5,7 +5,7 @@ namespace AppSwitcher.UI.Pages;
 
 internal partial class Stats : Page
 {
-    public Stats(SettingsViewModel viewModel)
+    public Stats(StatsSettingsViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;

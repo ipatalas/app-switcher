@@ -1,5 +1,6 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.Stats;
+using AppSwitcher.UI.ViewModels.Common;
 using AppSwitcher.UI.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,7 +17,7 @@ internal partial class MainWindowViewModel : ObservableObject
 {
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly SettingsViewModel _settingsViewModel;
+    private readonly ISettingsState _settingsState;
     private readonly StatsService _statsService;
     private Settings? _settings;
 
@@ -29,11 +30,11 @@ internal partial class MainWindowViewModel : ObservableObject
     }
 
     public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IServiceProvider serviceProvider,
-        SettingsViewModel settingsViewModel, StatsService statsService)
+        ISettingsState settingsState, StatsService statsService)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        _settingsViewModel = settingsViewModel;
+        _settingsState = settingsState;
         _statsService = statsService;
         _logger.LogInformation("MainWindowViewModel initialized");
     }
@@ -56,7 +57,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
             // refresh every time Settings window is open
             // this will also fetch fresh icon for packaged apps (in case they were updated in the meantime)
-            _settingsViewModel.LoadConfiguration();
+            _settingsState.LoadConfiguration();
 
             if (_settings is not { IsLoaded: true })
             {

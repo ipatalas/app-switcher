@@ -1,7 +1,7 @@
 using AppSwitcher.Configuration;
 using System.Windows.Input;
 
-namespace AppSwitcher.UI.ViewModels;
+namespace AppSwitcher.UI.ViewModels.Common;
 
 internal sealed record SettingsSnapshot(
     Key ModifierKey,

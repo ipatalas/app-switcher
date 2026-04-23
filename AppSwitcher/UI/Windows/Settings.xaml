@@ -88,7 +88,7 @@
 
             <Grid Grid.Column="0"
                   VerticalAlignment="Center"
-                  Visibility="{Binding HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                   Visibility="{Binding State.HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -99,7 +99,7 @@
                                Foreground="{DynamicResource SystemFillColorCautionBrush}" />
                 <ui:TextBlock Grid.Column="1"
                               Margin="0, 0,10,0"
-                              Text="{Binding ValidationSummary}"
+                              Text="{Binding State.ValidationSummary}"
                               Foreground="{DynamicResource SystemFillColorCautionBrush}"
                               VerticalAlignment="Center"
                               TextTrimming="CharacterEllipsis" />
@@ -111,11 +111,11 @@
 
                 <ui:Button Content="Reset changes"
                            Margin="0,0,10,0"
-                           IsEnabled="{Binding IsDirty}"
+                           IsEnabled="{Binding State.IsDirty}"
                            Command="{Binding ResetCommand}" />
                 <ui:Button Content="Save &amp; Apply"
                            Appearance="Primary"
-                           IsEnabled="{Binding CanSave}"
+                           IsEnabled="{Binding State.CanSave}"
                            Command="{Binding SaveAndCloseCommand}" />
             </StackPanel>
         </Grid>

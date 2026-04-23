@@ -8,7 +8,7 @@
       mc:Ignorable="d"
       Title="Stats"
       ScrollViewer.CanContentScroll="False"
-      d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance designTime:StatsSettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
@@ -38,7 +38,7 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
-                    <ui:ToggleSwitch IsChecked="{Binding StatsEnabled, Mode=TwoWay}"
+                    <ui:ToggleSwitch IsChecked="{Binding State.StatsEnabled, Mode=TwoWay}"
                                      HorizontalContentAlignment="Left"
                                      OffContent="Off"
                                      OnContent="On" />

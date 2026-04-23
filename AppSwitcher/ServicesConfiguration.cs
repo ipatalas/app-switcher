@@ -9,6 +9,7 @@ using AppSwitcher.Stats;
 using AppSwitcher.Stats.Storage;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
+using AppSwitcher.UI.ViewModels.Common;
 using AppSwitcher.WindowDiscovery;
 using AppSwitcher.UI.Windows;
 using LiteDB;
@@ -80,7 +81,12 @@ internal static class ServicesConfiguration
 
         // view models
         services.AddTransient<MainWindowViewModel>();
-        services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<ISettingsState, SettingsState>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<HotkeysViewModel>();
+        services.AddTransient<GeneralSettingsViewModel>();
+        services.AddTransient<OverlaySettingsViewModel>();
+        services.AddTransient<StatsSettingsViewModel>();
         services.AddTransient<AddApplicationFlyoutViewModel>();
         services.AddTransient<AboutViewModel>();
         services.AddSingleton<AppOverlayViewModel>();
@@ -128,7 +134,8 @@ internal static class ServicesConfiguration
         }
     }
 
-    private static IServiceCollection AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime, bool registerAsConcreteType = false)
+    private static void AddImplementationsOf<TInterface>(this IServiceCollection services, ServiceLifetime lifetime,
+        bool registerAsConcreteType = false)
     {
         var interfaceType = typeof(TInterface);
         var implementations = Assembly.GetExecutingAssembly().GetTypes()
@@ -149,7 +156,5 @@ internal static class ServicesConfiguration
                 services.Add(serviceDescriptor);
             }
         }
-
-        return services;
     }
 }

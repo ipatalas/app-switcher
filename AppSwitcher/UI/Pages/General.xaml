@@ -9,7 +9,7 @@
       mc:Ignorable="d"
       Title="General"
       ScrollViewer.CanContentScroll="False"
-      d:DataContext="{d:DesignInstance designTime:SettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance designTime:GeneralSettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
       d:DesignWidth="700"
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
@@ -41,7 +41,7 @@
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
                     <ComboBox ItemsSource="{Binding AvailableThemes, Mode=OneTime}"
-                              SelectedValue="{Binding Theme, Mode=TwoWay}"
+                              SelectedValue="{Binding State.Theme, Mode=TwoWay}"
                               SelectedValuePath="Value"
                               DisplayMemberPath="DisplayName"
                               MinWidth="180" />
@@ -63,7 +63,7 @@
             </DockPanel>
 
             <ui:Card Margin="0,0,0,10" Padding="12,12,12,12">
-                <controls:ModifierKeySelector SelectedModifier="{Binding ModifierKey, Mode=TwoWay}" />
+                <controls:ModifierKeySelector SelectedModifier="{Binding State.ModifierKey, Mode=TwoWay}" />
             </ui:Card>
 
             <!-- Behavior -->
@@ -88,7 +88,7 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
-                    <ui:ToggleSwitch IsChecked="{Binding LaunchAtStartup, Mode=TwoWay}"
+                    <ui:ToggleSwitch IsChecked="{Binding State.LaunchAtStartup, Mode=TwoWay}"
                                      HorizontalContentAlignment="Left"
                                      OffContent="Off"
                                      OnContent="On" />
@@ -111,7 +111,7 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
-                    <ui:ToggleSwitch IsChecked="{Binding DynamicModeEnabled, Mode=TwoWay}"
+                    <ui:ToggleSwitch IsChecked="{Binding State.DynamicModeEnabled, Mode=TwoWay}"
                                      HorizontalContentAlignment="Left"
                                      OffContent="Off"
                                      OnContent="On" />
@@ -133,7 +133,7 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
-                    <ui:ToggleSwitch IsChecked="{Binding PulseBorderEnabled, Mode=TwoWay}"
+                    <ui:ToggleSwitch IsChecked="{Binding State.PulseBorderEnabled, Mode=TwoWay}"
                                      IsEnabled="{Binding IsPulseBorderSupported}"
                                      HorizontalContentAlignment="Left"
                                      OffContent="Off"
@@ -157,7 +157,7 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:CardControl.Content>
-                    <ui:ToggleSwitch IsChecked="{Binding PeekEnabled, Mode=TwoWay}"
+                    <ui:ToggleSwitch IsChecked="{Binding State.PeekEnabled, Mode=TwoWay}"
                                      HorizontalContentAlignment="Left"
                                      OffContent="Off"
                                      OnContent="On" />

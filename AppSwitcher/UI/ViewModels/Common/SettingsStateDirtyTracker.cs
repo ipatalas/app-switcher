@@ -2,14 +2,14 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace AppSwitcher.UI.ViewModels;
+namespace AppSwitcher.UI.ViewModels.Common;
 
-internal class SettingsViewModelDirtyTracker : IDisposable
+internal class SettingsStateDirtyTracker : IDisposable
 {
-    private readonly SettingsViewModel _model;
+    private readonly SettingsState _model;
     private readonly Action<string> _onChange;
 
-    public SettingsViewModelDirtyTracker(SettingsViewModel model, Action<string> onChange)
+    public SettingsStateDirtyTracker(SettingsState model, Action<string> onChange)
     {
         _model = model ?? throw new ArgumentNullException(nameof(model));
         _onChange = onChange ?? throw new ArgumentNullException(nameof(onChange));
@@ -30,6 +30,7 @@ internal class SettingsViewModelDirtyTracker : IDisposable
             case nameof(_model.OverlayKeepOpenWhileModifierHeld):
             case nameof(_model.PeekEnabled):
             case nameof(_model.DynamicModeEnabled):
+            case nameof(_model.StatsEnabled):
                 _onChange(e.PropertyName);
                 break;
             case nameof(_model.Applications):

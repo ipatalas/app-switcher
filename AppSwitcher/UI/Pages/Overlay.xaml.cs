@@ -1,4 +1,5 @@
 using AppSwitcher.UI.ViewModels;
+using AppSwitcher.UI.ViewModels.Common;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Wpf.Ui.Controls;
@@ -7,10 +8,10 @@ namespace AppSwitcher.UI.Pages;
 
 internal partial class Overlay : Page
 {
-    public Overlay(SettingsViewModel viewModel)
+    public Overlay(OverlaySettingsViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = viewModel;
+        DataContext = viewModel.State;
     }
 
     private void OverlayShowDelay_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -19,7 +20,7 @@ internal partial class Overlay : Page
         {
             if (int.TryParse(numberBox.Text, out var number))
             {
-                ((SettingsViewModel)DataContext).OverlayShowDelayMs = number;
+                ((ISettingsState)DataContext).OverlayShowDelayMs = number;
             }
             e.Handled = true;
         }

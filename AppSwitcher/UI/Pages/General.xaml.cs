@@ -5,7 +5,7 @@ namespace AppSwitcher.UI.Pages;
 
 internal partial class General : Page
 {
-    public General(SettingsViewModel viewModel)
+    public General(GeneralSettingsViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;

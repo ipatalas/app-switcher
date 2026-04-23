@@ -1,5 +1,6 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
+using AppSwitcher.UI.ViewModels.Common;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
