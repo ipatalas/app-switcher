@@ -221,6 +221,9 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             Applications.Select(a => new ApplicationConfiguration(a.Key, a.ProcessPath, a.CycleMode, a.StartIfNotRunning, a.Type, a.Aumid)).ToList(),
             windows);
 
+        var imagePathToProcessId = windows.DistinctBy(w => w.ProcessImagePath)
+            .ToDictionary(w => w.ProcessImagePath, w => w.ProcessId);
+
         DynamicApplications = new ObservableCollection<DynamicApplicationViewModel>(
             dynamicConfigs.Select(cfg =>
             {
@@ -230,6 +233,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
                     Key = cfg.Key,
                     ProcessName = cfg.ProcessName,
                     ProcessPath = cfg.ProcessPath,
+                    ProcessId = imagePathToProcessId.TryGetValue(cfg.ProcessPath, out var pid) ? pid : null,
                     Type = cfg.Type,
                     ProcessIcon = icon
                 };
@@ -334,7 +338,13 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             return null;
         }
 
-        var icon = _iconExtractor.GetByProcessPath(dynamic.ProcessPath);
+        var packagedApp = dynamic.Type == ApplicationType.Packaged
+            ? _packagedAppsService.GetByInstalledPath(dynamic.ProcessPath, dynamic.ProcessId)
+            : null;
+
+        var processIcon = dynamic.Type == ApplicationType.Packaged
+            ? _iconExtractor.GetByIconPath(packagedApp!.IconPath)
+            : _iconExtractor.GetByProcessPath(dynamic.ProcessPath);
 
         var viewModel = new ApplicationShortcutViewModel
         {
@@ -342,7 +352,8 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             ProcessPath = dynamic.ProcessPath,
             ProcessName = dynamic.ProcessName,
             Type = dynamic.Type,
-            ProcessIcon = icon ?? _iconExtractor.GetDefaultIcon(),
+            Aumid = packagedApp?.Aumid,
+            ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),
             StartIfNotRunning = true
         };
 
