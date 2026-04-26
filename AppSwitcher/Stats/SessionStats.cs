@@ -23,7 +23,8 @@ internal class SessionStats
     private readonly ConcurrentDictionary<string, int> _transitions =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public void RecordSwitch(string processName, string? previousProcessName, int savedMs, bool isDynamic,
+    public void RecordSwitch(string processName, string? previousProcessName, int durationMs, int savedMs,
+        bool isDynamic,
         int? fastestDurationMs = null, string letter = "A")
     {
         Interlocked.Increment(ref _totalSwitches);
@@ -32,10 +33,11 @@ internal class SessionStats
         var bucket = isDynamic ? _dynamicAppUsage : _staticAppUsage;
         bucket.AddOrUpdate(
             processName,
-            _ => new AppUsageStats { Switches = 1 },
+            _ => new AppUsageStats { Switches = 1, TotalSwitchTimeMs = durationMs },
             (_, existing) =>
             {
                 existing.Switches++;
+                existing.TotalSwitchTimeMs += durationMs;
                 return existing;
             });
 
@@ -55,7 +57,8 @@ internal class SessionStats
                     {
                         DurationMs = fastestDurationMs.Value,
                         AppName = processName,
-                        Letter = letter
+                        Letter = letter,
+                        Date = DateTime.Today,
                     };
                 }
             }

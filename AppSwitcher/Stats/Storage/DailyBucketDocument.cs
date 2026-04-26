@@ -7,9 +7,10 @@ internal class FastestSwitchRecord
     public int DurationMs { get; init; }
     public string AppName { get; init; } = string.Empty;
     public string Letter { get; init; } = string.Empty;
+    public DateTime Date { get; init; }
 
     public FastestSwitchRecord Clone() =>
-        new() { DurationMs = DurationMs, AppName = AppName, Letter = Letter };
+        new() { DurationMs = DurationMs, AppName = AppName, Letter = Letter, Date = Date };
 }
 
 internal class AppUsageStats
@@ -17,13 +18,22 @@ internal class AppUsageStats
     public int Switches { get; set; }
     public int Peeks { get; set; }
     public int TotalPeekTimeMs { get; set; }
+    public int TotalSwitchTimeMs { get; set; }
 
     public AppUsageStats Clone() =>
-        new() { Switches = Switches, Peeks = Peeks, TotalPeekTimeMs = TotalPeekTimeMs };
+        new()
+        {
+            Switches = Switches,
+            Peeks = Peeks,
+            TotalPeekTimeMs = TotalPeekTimeMs,
+            TotalSwitchTimeMs = TotalSwitchTimeMs,
+        };
 }
 
 internal class DailyBucketDocument
 {
+    public const string CollectionName = "daily_buckets";
+
     [BsonId]
     public DateTime Date { get; init; }
 

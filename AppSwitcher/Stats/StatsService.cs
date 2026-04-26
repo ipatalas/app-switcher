@@ -11,8 +11,6 @@ internal class StatsService(
     StatsDbProvider dbProvider,
     ILoggerFactory loggerFactory) : IDisposable
 {
-    private const string BucketsCollection = "daily_buckets";
-
     private readonly Channel<StatsEvent> _channel = Channel.CreateBounded<StatsEvent>(
         new BoundedChannelOptions(1000)
         {
@@ -116,7 +114,7 @@ internal class StatsService(
         {
             using var database = dbProvider.Get();
             var snapshot = sessionStats.Snapshot(DateTime.Now);
-            var col = database.GetCollection<DailyBucketDocument>(BucketsCollection);
+            var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);
             col.Upsert(snapshot);
             _logger.LogDebug("Stats flushed for {Date} (reason={Reason})", snapshot.Date.ToString("yyyy-MM-dd"), reason);
         }
@@ -136,7 +134,7 @@ internal class StatsService(
         {
             using var database = dbProvider.Get();
             var today = DateTime.Now.Date;
-            var col = database.GetCollection<DailyBucketDocument>(BucketsCollection);
+            var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);
             var existing = col.FindById(today);
             if (existing is not null)
             {

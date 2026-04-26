@@ -67,6 +67,8 @@ internal static class ServicesConfiguration
         services.AddSingleton<SessionStats>();
         services.AddSingleton<AppRegistryCache>();
         services.AddSingleton<StatsService>();
+        services.AddTransient<StatsRepository>();
+        services.AddTransient<StatsCalculator>();
 
         services.AddCliHandler();
 

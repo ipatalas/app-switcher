@@ -25,8 +25,8 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_IncrementsTotalSwitches()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 200, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 200, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -36,8 +36,8 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_AccumulatesTotalTimeSavedMs()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 300, isDynamic: false);
-        _sut.RecordSwitch("code.exe", null, savedMs: 500, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 300, isDynamic: false);
+        _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 500, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -45,11 +45,22 @@ public class SessionStatsTests
     }
 
     [Fact]
+    public void RecordSwitch_AccumulatesTotalSwitchTimeMs()
+    {
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 200, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 300, savedMs: 100, isDynamic: false);
+
+        var result = _sut.Snapshot(DateTime.Now);
+
+        result.StaticAppUsage["notepad.exe"].TotalSwitchTimeMs.Should().Be(500);
+    }
+
+    [Fact]
     public void RecordSwitch_TracksStaticAppSwitchCount()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("code.exe", null, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -61,8 +72,8 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_TracksDynamicAppSwitchCount()
     {
-        _sut.RecordSwitch("explorer.exe", null, savedMs: 100, isDynamic: true);
-        _sut.RecordSwitch("explorer.exe", null, savedMs: 100, isDynamic: true);
+        _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
+        _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -73,8 +84,8 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_KeepsStaticAndDynamicBucketsSeparate()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("explorer.exe", null, savedMs: 100, isDynamic: true);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -87,8 +98,8 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_TracksTransitions_WhenPreviousProcessNameProvided()
     {
-        _sut.RecordSwitch("code.exe", "notepad.exe", savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("code.exe", "notepad.exe", savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -98,7 +109,7 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_DoesNotAddTransition_WhenNoPreviousProcess()
     {
-        _sut.RecordSwitch("code.exe", null, savedMs: 100, isDynamic: false);
+        _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -190,7 +201,7 @@ public class SessionStatsTests
         };
 
         _sut.LoadFrom(doc);
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 500, isDynamic: false);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 500, isDynamic: false);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -250,7 +261,7 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_SetsFastestSwitch_OnFirstSwitch()
     {
-        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 200, letter: "S");
 
         var result = _sut.Snapshot(DateTime.Now);
@@ -264,9 +275,9 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_UpdatesFastestSwitch_WhenFasterSwitchRecorded()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 400, letter: "N");
-        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 150, letter: "S");
 
         var result = _sut.Snapshot(DateTime.Now);
@@ -279,9 +290,9 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_DoesNotUpdateFastestSwitch_WhenSlowerSwitchRecorded()
     {
-        _sut.RecordSwitch("spotify.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 150, letter: "S");
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 400, letter: "N");
 
         var result = _sut.Snapshot(DateTime.Now);
@@ -294,7 +305,7 @@ public class SessionStatsTests
     [Fact]
     public void RecordSwitch_DoesNotSetFastestSwitch_WhenDurationIsNull()
     {
-        _sut.RecordSwitch("notepad.exe", null, savedMs: 100, isDynamic: false,
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: null, letter: "N");
 
         var result = _sut.Snapshot(DateTime.Now);
