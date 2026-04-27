@@ -17,8 +17,9 @@
     WindowCornerPreference="Default"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="AppSwitcher Settings"
-    Height="680"
-    MinWidth="750"
+    MinHeight="600"
+    Height="800"
+    MinWidth="900"
     MaxWidth="1200"
     Width="900" x:ClassModifier="internal">
     <ui:FluentWindow.Resources>

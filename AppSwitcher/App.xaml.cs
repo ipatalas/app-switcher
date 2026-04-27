@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 using MessageBox = Wpf.Ui.Controls.MessageBox;
@@ -95,6 +96,8 @@ public partial class App
 
         ApplyTheme(config.Theme);
 
+        ApplicationThemeManager.Changed += (theme, _) => UpdateThemeAwareBrushes(theme);
+
         Current.MainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         Current.MainWindow.Show();
 
@@ -167,6 +170,54 @@ public partial class App
                 : ApplicationTheme.Light;
             ApplicationThemeManager.Apply(applicationTheme);
         }
+
+        UpdateThemeAwareBrushes(ApplicationThemeManager.GetAppTheme());
+    }
+
+    private static void UpdateThemeAwareBrushes(ApplicationTheme theme)
+    {
+        bool isDark = theme == ApplicationTheme.Dark;
+        var r = Current.Resources;
+
+        r["CardHoverBackgroundBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x3D, 0x3D, 0x3D)
+            : System.Windows.Media.Color.FromRgb(0xF5, 0xF5, 0xF5));
+
+        r["CardHealthyBackgroundBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x16, 0x20, 0x16)
+            : System.Windows.Media.Color.FromRgb(0xF0, 0xFF, 0xF4));
+
+        r["CardHealthyBorderBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x2A, 0x4A, 0x2A)
+            : System.Windows.Media.Color.FromRgb(0xC6, 0xF6, 0xD5));
+
+        r["CardWarningBackgroundBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x20, 0x14, 0x08)
+            : System.Windows.Media.Color.FromRgb(0xFF, 0xF9, 0xF0));
+
+        r["CardWarningBorderBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x4A, 0x30, 0x10)
+            : System.Windows.Media.Color.FromRgb(0xFF, 0xE4, 0xCC));
+
+        r["SuccessGreenBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x52, 0xC0, 0x60)
+            : System.Windows.Media.Color.FromRgb(0x22, 0x8B, 0x22));
+
+        r["ProgressBackgroundBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0x44, 0x44, 0x44)
+            : System.Windows.Media.Color.FromRgb(0xEA, 0xEA, 0xEA));
+
+        r["SubtleGrayBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0xAA, 0xAA, 0xAA)
+            : System.Windows.Media.Color.FromRgb(0x66, 0x66, 0x66));
+
+        r["MutedGrayBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0xBB, 0xBB, 0xBB)
+            : System.Windows.Media.Color.FromRgb(0x99, 0x99, 0x99));
+
+        r["WarningAmberBrush"] = new SolidColorBrush(isDark
+            ? System.Windows.Media.Color.FromRgb(0xFF, 0xB3, 0x47)
+            : System.Windows.Media.Color.FromRgb(0xD4, 0x75, 0x00));
     }
 
     private static void SetupLogging(CliOptions cliOptions, ILogger<App> logger)

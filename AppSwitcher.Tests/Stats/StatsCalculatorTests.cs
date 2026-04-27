@@ -32,9 +32,13 @@ public class StatsCalculatorTests
     }
 
     [Theory]
-    [InlineData(1_800_000, "30m")]
-    [InlineData(5_400_000, "1h 30m")]
-    public void ComputeLifeGained_ReturnsMinutes_WhenUnderOneHour(int timeSavedMs, string expectedResult)
+    [InlineData(30_000,     "30s")]       // 30 seconds
+    [InlineData(59_000,     "59s")]       // 59 seconds
+    [InlineData(90_000,     "1m 30s")]    // 1 minute 30 seconds
+    [InlineData(1_800_000,  "30m")]       // 30 minutes exactly (no trailing 0s)
+    [InlineData(3_599_000,  "59m 59s")]   // just under 1 hour
+    [InlineData(5_400_000,  "1h 30m")]    // 1 hour 30 minutes
+    public void ComputeLifeGained_FormatsCorrectly(int timeSavedMs, string expectedResult)
     {
         var today = new DailyBucketDocument { Date = DateTime.Today, TotalTimeSavedMs = timeSavedMs };
 
@@ -65,17 +69,17 @@ public class StatsCalculatorTests
     {
         var result = StatsCalculator.ComputeMuscleMemoGrade([], EmptyToday());
 
-        result.Should().Be(new MuscleMemoResult(Grade: "—", Persona: "No data yet"));
+        result.Should().BeNull();
     }
 
     [Theory]
     // index = (1.0*static + 0.7*dynamic) / (static + dynamic + relapses) * 100
-    [InlineData(96, 0, 4,  "S", "Shadow Walker")]  // 96/100 * 100 = 96
-    [InlineData(85, 0, 15, "A", "Teleporter")]      // 85/100 * 100 = 85
-    [InlineData(70, 0, 30, "B", "Apprentice")]      // 70/100 * 100 = 70
-    [InlineData(50, 0, 50, "C", "Learner")]         // 50/100 * 100 = 50
-    [InlineData(30, 0, 70, "D", "Novice")]          // 30/100 * 100 = 30
-    [InlineData(0,  0, 100, "F", "Alt-Tabber")]     // 0/100 * 100 = 0
+    [InlineData(96, 0, 4,  "S", "Shadow Walker")] // 96/100 * 100 = 96
+    [InlineData(85, 0, 15, "A", "Teleporter")]    // 85/100 * 100 = 85
+    [InlineData(70, 0, 30, "B", "The Navigator")] // 70/100 * 100 = 70
+    [InlineData(50, 0, 50, "C", "Learner")]       // 50/100 * 100 = 50
+    [InlineData(30, 0, 70, "D", "Novice")]        // 30/100 * 100 = 30
+    [InlineData(0,  0, 100, "F", "Alt-Tabber")]   // 0/100 * 100 = 0
     public void ComputeMuscleMemoGrade_ReturnsCorrectGrade(
         int staticSwitches, int dynamicSwitches, int relapses,
         string expectedGrade, string expectedPersona)
@@ -349,7 +353,7 @@ public class StatsCalculatorTests
     [Fact]
     public void ComputeAvgLatency_ReturnsDash_WhenNoData()
     {
-        var result = StatsCalculator.ComputeAvgLatency([]);
+        var result = StatsCalculator.ComputeAvgLatency(new Dictionary<string, AppAggregateStats>());
 
         result.Should().Be("—");
     }
@@ -438,7 +442,7 @@ public class StatsCalculatorTests
     [Fact]
     public void ComputeAvgGlance_ReturnsDash_WhenNoPeeks()
     {
-        var result = StatsCalculator.ComputeAvgGlance([]);
+        var result = StatsCalculator.ComputeAvgGlance(new Dictionary<string, AppAggregateStats>());
 
         result.Should().Be("—");
     }
@@ -475,7 +479,8 @@ public class StatsCalculatorTests
     [Fact]
     public void FindMostPeeked_ReturnsNull_WhenCombinedIsEmpty()
     {
-        var result = StatsCalculator.FindMostPeeked([], new Dictionary<string, string>());
+        var result = StatsCalculator.FindMostPeeked(new Dictionary<string, AppAggregateStats>(),
+            new Dictionary<string, string>());
 
         result.Should().BeNull();
     }

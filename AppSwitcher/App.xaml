@@ -6,9 +6,21 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- ── Theme-aware brushes (updated programmatically on theme change) ── -->
+            <SolidColorBrush x:Key="CardHoverBackgroundBrush"      Color="#F5F5F5" />
+            <SolidColorBrush x:Key="CardHealthyBackgroundBrush"    Color="#F0FFF4" />
+            <SolidColorBrush x:Key="CardHealthyBorderBrush"        Color="#C6F6D5" />
+            <SolidColorBrush x:Key="CardWarningBackgroundBrush"    Color="#FFF9F0" />
+            <SolidColorBrush x:Key="CardWarningBorderBrush"        Color="#FFE4CC" />
+            <SolidColorBrush x:Key="SuccessGreenBrush"             Color="#228B22" />
+            <SolidColorBrush x:Key="ProgressBackgroundBrush"       Color="#EAEAEA" />
+            <SolidColorBrush x:Key="SubtleGrayBrush"               Color="#666666" />
+            <SolidColorBrush x:Key="MutedGrayBrush"                Color="#999999" />
+            <SolidColorBrush x:Key="WarningAmberBrush"             Color="#D47500" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

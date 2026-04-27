@@ -14,6 +14,8 @@ internal class SessionStats
     private FastestSwitchRecord? _fastestSwitch;
     private readonly object _fastestSwitchLock = new();
 
+    public event Action? DataChanged;
+
     private readonly ConcurrentDictionary<string, AppUsageStats> _staticAppUsage =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -63,6 +65,8 @@ internal class SessionStats
                 }
             }
         }
+
+        DataChanged?.Invoke();
     }
 
     public void RecordPeek(string processName, int durationMs, bool isDynamic)    {
@@ -78,12 +82,15 @@ internal class SessionStats
                 existing.TotalPeekTimeMs += durationMs;
                 return existing;
             });
+
+        DataChanged?.Invoke();
     }
 
     public void RecordAltTab(int tabCount)
     {
         Interlocked.Increment(ref _altTabSwitches);
         Interlocked.Add(ref _altTabKeystrokes, tabCount);
+        DataChanged?.Invoke();
     }
 
     public void LoadFrom(DailyBucketDocument doc)

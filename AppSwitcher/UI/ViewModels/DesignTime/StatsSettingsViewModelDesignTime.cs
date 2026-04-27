@@ -1,7 +1,5 @@
 using AppSwitcher.Stats;
 using AppSwitcher.Stats.Storage;
-using AppSwitcher.WindowDiscovery;
-using LiteDB;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Windows.Media.Imaging;
 
@@ -27,7 +25,7 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
         LifeGained = "1h 42m";
         TeleportStreak = 12;
         MuscleMemoGrade = "B";
-        MuscleMemoPersona = "Apprentice";
+        MuscleMemoPersona = "The Navigator";
         TotalSwitchCount = 2510;
         AvgLatency = "38ms";
         PersonalBestDisplay = "45ms";
@@ -48,6 +46,9 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
             new AppStatEntry("Chrome.exe", "Chrome", chromeIcon, 850, 12, 6000),
             new AppStatEntry("notepad.exe", "Notepad", notepadIcon, 420, 3, 2400),
         ];
+
+        // IsSessionWarmup = true;
+        // Podium = [];
 
         FirstStaleShortcut = new StaleShortcutEntry("E", "explorer.exe", "Explorer", explorerIcon);
 

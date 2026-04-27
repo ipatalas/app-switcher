@@ -1,4 +1,5 @@
 using AppSwitcher.Stats.Storage;
+using System.Collections.Immutable;
 using System.IO;
 using System.Windows.Input;
 
@@ -12,6 +13,8 @@ internal record StatsMetrics(
     IReadOnlyList<AppUsageSummary> Podium,
     AppUsageSummary? MostPeekedApp,
     StaleShortcutInfo? FirstStaleShortcut,
+    bool IsMaintenanceWarmup,
+    bool IsSessionWarmup,
     int AltTabRelapsePct,
     int AltTabSoberStreak,
     int WastedKeystrokes,
@@ -53,8 +56,13 @@ internal class StatsCalculator
 
         var combined = BuildCombinedAppStats(recentBuckets, today);
         var displayNames = BuildDisplayNames(allBuckets, today, combined);
+        bool isMaintenanceWarmup = allBuckets.Count < 14;
 
-        var muscleMemo = ComputeMuscleMemoGrade(recentBuckets, today);
+        var totalSwitchCount = recentBuckets.Sum(b => b.TotalSwitches) + today.TotalSwitches;
+        bool isSessionWarmup = totalSwitchCount < 10;
+
+        var muscleMemo = (isSessionWarmup ? null : ComputeMuscleMemoGrade(recentBuckets, today)) ??
+                         new MuscleMemoResult("—", "Measuring...");
 
         return new StatsMetrics(
             LifeGained: ComputeLifeGained(allBuckets, today),
@@ -63,15 +71,17 @@ internal class StatsCalculator
             MuscleMemoPersona: muscleMemo.Persona,
             Podium: BuildPodium(combined, displayNames),
             MostPeekedApp: FindMostPeeked(combined, displayNames),
-            FirstStaleShortcut: FindFirstStaleShortcut(recentBuckets, today, configuredStaticApps),
+            FirstStaleShortcut: isMaintenanceWarmup ? null : FindFirstStaleShortcut(recentBuckets, today, configuredStaticApps),
+            IsMaintenanceWarmup: isMaintenanceWarmup,
+            IsSessionWarmup: isSessionWarmup,
             AltTabRelapsePct: ComputeRelapsePct(recentBuckets, today),
             AltTabSoberStreak: ComputeStreak(allBuckets, today.Date, IsSoberDay),
             WastedKeystrokes: ComputeWastedKeystrokes(recentBuckets, today),
-            TotalSwitchCount: recentBuckets.Sum(b => b.TotalSwitches) + today.TotalSwitches,
-            PersonalBestRecord: FindPersonalBest(allBuckets, today),
+            TotalSwitchCount: totalSwitchCount,
+            PersonalBestRecord: isSessionWarmup ? null : FindPersonalBest(allBuckets, today),
             TotalPeekCount: recentBuckets.Sum(b => b.TotalPeeks) + today.TotalPeeks,
             AvgGlanceSec: ComputeAvgGlance(combined),
-            AvgLatency: ComputeAvgLatency(combined),
+            AvgLatency: ComputeAvgLatency(isSessionWarmup ? ImmutableDictionary<string, AppAggregateStats>.Empty : combined),
             StaticPct: ComputeStaticPct(recentBuckets, today),
             DisplayNames: displayNames);
     }
@@ -83,25 +93,27 @@ internal class StatsCalculator
         DailyBucketDocument today)
     {
         var totalMs = allBuckets.Sum(b => (long)b.TotalTimeSavedMs) + today.TotalTimeSavedMs;
-
         if (totalMs <= 0)
         {
             return "—";
         }
 
-        var totalMinutes = totalMs / 60_000.0;
+        var t = TimeSpan.FromMilliseconds(totalMs);
 
-        if (totalMinutes < 60)
+        if (t.TotalSeconds < 60)
         {
-            return $"{(int)totalMinutes}m";
+            return $"{(int)t.TotalSeconds}s";
         }
 
-        var hours = (int)(totalMinutes / 60);
-        var minutes = (int)(totalMinutes % 60);
-        return $"{hours}h {minutes}m";
+        if (t.TotalMinutes < 60)
+        {
+            return t.Seconds > 0 ? $"{(int)t.TotalMinutes}m {t.Seconds}s" : $"{(int)t.TotalMinutes}m";
+        }
+
+        return $"{(int)t.TotalHours}h {t.Minutes}m";
     }
 
-    internal static MuscleMemoResult ComputeMuscleMemoGrade(
+    internal static MuscleMemoResult? ComputeMuscleMemoGrade(
         IReadOnlyList<DailyBucketDocument> recent,
         DailyBucketDocument today)
     {
@@ -114,7 +126,7 @@ internal class StatsCalculator
 
         if (total == 0)
         {
-            return new MuscleMemoResult("—", "No data yet");
+            return null;
         }
 
         var index = (1.0 * staticSwitches + 0.7 * dynamicSwitches) / total * 100;
@@ -123,7 +135,7 @@ internal class StatsCalculator
         {
             >= 96 => new MuscleMemoResult("S", "Shadow Walker"),
             >= 85 => new MuscleMemoResult("A", "Teleporter"),
-            >= 70 => new MuscleMemoResult("B", "Apprentice"),
+            >= 70 => new MuscleMemoResult("B", "The Navigator"),
             >= 50 => new MuscleMemoResult("C", "Learner"),
             >= 30 => new MuscleMemoResult("D", "Novice"),
             _ => new MuscleMemoResult("F", "Alt-Tabber"),
@@ -206,7 +218,7 @@ internal class StatsCalculator
         return candidates.MinBy(f => f.DurationMs);
     }
 
-    internal static string ComputeAvgGlance(Dictionary<string, AppAggregateStats> combined)
+    internal static string ComputeAvgGlance(IReadOnlyDictionary<string, AppAggregateStats> combined)
     {
         var totalPeekMs = combined.Values.Sum(v => (long)v.TotalPeekTimeMs);
         var totalPeeks = combined.Values.Sum(v => v.Peeks);
@@ -219,7 +231,7 @@ internal class StatsCalculator
         return $"{totalPeekMs / (totalPeeks * 1000.0):F1}s";
     }
 
-    internal static string ComputeAvgLatency(Dictionary<string, AppAggregateStats> combined)
+    internal static string ComputeAvgLatency(IReadOnlyDictionary<string, AppAggregateStats> combined)
     {
         var totalSwitchTimeMs = combined.Values.Sum(v => (long)v.TotalSwitchTimeMs);
         var totalSwitches = combined.Values.Sum(v => v.Switches);
@@ -233,7 +245,7 @@ internal class StatsCalculator
     }
 
     internal static IReadOnlyList<AppUsageSummary> BuildPodium(
-        Dictionary<string, AppAggregateStats> combined,
+        IReadOnlyDictionary<string, AppAggregateStats> combined,
         IReadOnlyDictionary<string, string> displayNames)
     {
         return combined
@@ -249,7 +261,7 @@ internal class StatsCalculator
     }
 
     internal static AppUsageSummary? FindMostPeeked(
-        Dictionary<string, AppAggregateStats> combined,
+        IReadOnlyDictionary<string, AppAggregateStats> combined,
         IReadOnlyDictionary<string, string> displayNames)
     {
         var top = combined
@@ -312,7 +324,7 @@ internal class StatsCalculator
 
     private static void Accumulate(
         Dictionary<string, AppAggregateStats> combined,
-        Dictionary<string, AppUsageStats> usage)
+        IReadOnlyDictionary<string, AppUsageStats> usage)
     {
         foreach (var (key, stats) in usage)
         {
@@ -338,7 +350,7 @@ internal class StatsCalculator
     private static IReadOnlyDictionary<string, string> BuildDisplayNames(
         IReadOnlyList<DailyBucketDocument> allBuckets,
         DailyBucketDocument today,
-        Dictionary<string, AppAggregateStats> combined)
+        IReadOnlyDictionary<string, AppAggregateStats> combined)
     {
         var allProcessNames = combined.Keys
             .Concat(allBuckets

@@ -1,12 +1,17 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.Stats;
+using AppSwitcher.Stats.Storage;
 using AppSwitcher.UI.ViewModels.Common;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
 
 namespace AppSwitcher.UI.ViewModels;
 
@@ -25,8 +30,24 @@ internal partial class StatsSettingsViewModel(
 
     [ObservableProperty] private string _lifeGained = "—";
     [ObservableProperty] private int _teleportStreak;
-    [ObservableProperty] private string _muscleMemoGrade = "—";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MuscleMemoIconBrush))]
+    private string _muscleMemoGrade = "—";
+
     [ObservableProperty] private string _muscleMemoPersona = "No data yet";
+
+    public Brush MuscleMemoIconBrush => GradeToIconBrush(MuscleMemoGrade);
+
+    private static Brush GradeToIconBrush(string grade) => grade switch
+    {
+        "S" => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)), // Electric purple — Ascended
+        "A" => (Brush)Application.Current.FindResource("SystemAccentColorBrush")!,
+        "B" => new SolidColorBrush(Color.FromRgb(0x16, 0xA3, 0x4A)), // Green — solid
+        "C" or "D" => new SolidColorBrush(Color.FromRgb(0xF5, 0x9E, 0x0B)), // Amber — room for improvement
+        "F" => new SolidColorBrush(Color.FromRgb(0xDC, 0x26, 0x26)), // Red — habit alert
+        _ => Brushes.Gold,   // Gold — no data
+    };
 
     // ── Most Used Apps ────────────────────────────────────────────────────────
 
@@ -34,15 +55,22 @@ internal partial class StatsSettingsViewModel(
     [NotifyPropertyChangedFor(nameof(HasPodiumData))]
     private IReadOnlyList<AppStatEntry> _podium = [];
 
-    public bool HasPodiumData => Podium.Count > 0;
+    public bool HasPodiumData => Podium.Count > 0 && !IsSessionWarmup;
 
     // ── Maintenance ───────────────────────────────────────────────────────────
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsMaintenanceWarning))]
+    [NotifyPropertyChangedFor(nameof(IsMaintenanceActuallyHealthy))]
     private bool _isMaintenanceHealthy;
 
     public bool IsMaintenanceWarning => !IsMaintenanceHealthy;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMaintenanceActuallyHealthy))]
+    private bool _isMaintenanceWarmup;
+
+    public bool IsMaintenanceActuallyHealthy => IsMaintenanceHealthy && !IsMaintenanceWarmup;
 
     [ObservableProperty] private StaleShortcutEntry? _firstStaleShortcut;
 
@@ -84,6 +112,33 @@ internal partial class StatsSettingsViewModel(
 
     [ObservableProperty] private bool _isLoading;
 
+    // ── Warmup state ──────────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDataReady))]
+    [NotifyPropertyChangedFor(nameof(HasPodiumData))]
+    private bool _isSessionWarmup;
+
+    public bool IsDataReady => !IsSessionWarmup;
+
+    // ── Historic buckets cache (window lifetime) ──────────────────────────────
+
+    private readonly object _historicBucketsCacheLock = new();
+    private IReadOnlyList<DailyBucketDocument>? _historicBucketsCache;
+
+    private IReadOnlyList<DailyBucketDocument> GetHistoricBuckets()
+    {
+        if (_historicBucketsCache is not null)
+        {
+            return _historicBucketsCache;
+        }
+
+        lock (_historicBucketsCacheLock)
+        {
+            _historicBucketsCache ??= statsRepository.GetAllHistoricBuckets();
+            return _historicBucketsCache;
+        }
+    }
     // ── Commands ──────────────────────────────────────────────────────────────
 
     [RelayCommand]
@@ -123,10 +178,10 @@ internal partial class StatsSettingsViewModel(
 
     private StatsMetrics ComputeMetrics()
     {
-        using var _ = logger.MeasureTime("ComputeStatsMetrics");
+        using var _ = logger.MeasureTime($"ComputeStatsMetrics(IsCached = {_historicBucketsCache is not null})");
 
         var today = sessionStats.Snapshot(DateTime.Today);
-        var allBuckets = statsRepository.GetAllHistoricBuckets();
+        var allBuckets = GetHistoricBuckets();
 
         var configuredApps = State.Applications
             .Select(a => (a.ProcessName, a.Key))
@@ -185,6 +240,9 @@ internal partial class StatsSettingsViewModel(
             FirstStaleShortcut = null;
             IsMaintenanceHealthy = true;
         }
+
+        IsMaintenanceWarmup = d.IsMaintenanceWarmup;
+        IsSessionWarmup = d.IsSessionWarmup;
 
         if (d.PersonalBestRecord is { } best)
         {
