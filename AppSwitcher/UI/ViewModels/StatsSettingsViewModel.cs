@@ -6,7 +6,6 @@ using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
@@ -187,24 +186,9 @@ internal partial class StatsSettingsViewModel(
             .Select(a => (a.ProcessName, a.Key))
             .ToList();
 
-        var displayNames = allBuckets
-            .SelectMany(b => b.StaticAppUsage.Keys.Concat(b.DynamicAppUsage.Keys))
-            .Concat(today.StaticAppUsage.Keys)
-            .Concat(today.DynamicAppUsage.Keys)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(p => p, p => appRegistryCache.GetOrAdd(p, null), StringComparer.OrdinalIgnoreCase);
-
         var metrics = statsCalculator.Compute(allBuckets, today, configuredApps);
 
-        // Merge registry display names over the file-name fallbacks in StatsMetrics
-        return metrics with
-        {
-            DisplayNames = metrics.DisplayNames
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => displayNames.TryGetValue(kvp.Key, out var name) ? name : kvp.Value,
-                    StringComparer.OrdinalIgnoreCase),
-        };
+        return metrics;
     }
 
     private void ApplyMetrics(StatsMetrics d)
@@ -247,7 +231,7 @@ internal partial class StatsSettingsViewModel(
         if (d.PersonalBestRecord is { } best)
         {
             PersonalBestDisplay = $"{best.DurationMs}ms";
-            var name = d.DisplayNames.GetValueOrDefault(best.AppName, Path.GetFileNameWithoutExtension(best.AppName));
+            var name = appRegistryCache.GetDisplayName(best.AppName);
             PersonalBestLabel = $"Modifier+{best.Letter} → {name}";
             PersonalBestIcon = ResolveIcon(best.AppName);
             PersonalBestTooltip = best.Date != default

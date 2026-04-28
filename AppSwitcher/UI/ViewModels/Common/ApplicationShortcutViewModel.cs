@@ -11,6 +11,7 @@ internal partial class ApplicationShortcutViewModel : ObservableObject, IApplica
 
     [ObservableProperty] private string _processName = null!;
     [ObservableProperty] private string _processPath = null!;
+    [ObservableProperty] private string _displayName = null!;
     [ObservableProperty] private bool _startIfNotRunning;
     [ObservableProperty] private CycleMode _cycleMode = CycleMode.NextWindow;
     [ObservableProperty] private ApplicationType _type = ApplicationType.Win32;

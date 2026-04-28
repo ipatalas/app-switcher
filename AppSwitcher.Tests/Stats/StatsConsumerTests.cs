@@ -1,6 +1,9 @@
 using AppSwitcher.Stats;
+using AppSwitcher.WindowDiscovery;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
+using System.IO;
 using System.Threading.Channels;
 using Xunit;
 
@@ -27,7 +30,18 @@ public class StatsConsumerTests
     private static AppRegistryCache FakeRegistryCache()
     {
         var db = new LiteDB.LiteDatabase("Filename=:memory:");
-        return new AppRegistryCache(db, NullLogger<AppRegistryCache>.Instance);
+        var windowEnumerator = Substitute.For<IWindowEnumerator>();
+        windowEnumerator.GetWindows().Returns([]);
+        var packagedAppsService = Substitute.For<IPackagedAppsService>();
+        packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        var processInspector = Substitute.For<IProcessInspector>();
+        processInspector.GetProcessDisplayName(Arg.Any<string>()).Returns(x => Path.GetFileNameWithoutExtension((string)x[0]));
+        return new AppRegistryCache(
+            db,
+            windowEnumerator,
+            packagedAppsService,
+            processInspector,
+            NullLogger<AppRegistryCache>.Instance);
     }
 
     private SwitchEvent MakeSwitchEvent(
@@ -50,10 +64,12 @@ public class StatsConsumerTests
 
     private PeekEvent MakePeekEvent(
         string targetProcessName,
+        string targetProcessPath = "",
         long armTick = 1000,
         long finishTick = 1800,
         bool isDynamic = false)
         => new(TargetProcessName: targetProcessName,
+            TargetProcessPath: targetProcessPath,
             ArmTick: armTick,
             FinishTick: finishTick,
             IsDynamic: isDynamic);

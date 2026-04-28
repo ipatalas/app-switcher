@@ -1,14 +1,59 @@
 using System.Windows.Input;
+using AppSwitcher.Configuration;
 using AppSwitcher.Stats;
 using AppSwitcher.Stats.Storage;
+using AppSwitcher.WindowDiscovery;
 using AwesomeAssertions;
+using LiteDB;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using Xunit;
+using AppConfig = AppSwitcher.Configuration.Configuration;
 
 namespace AppSwitcher.Tests.Stats;
 
 public class StatsCalculatorTests
 {
-    private readonly StatsCalculator _sut = new();
+    private readonly StatsCalculator _sut = new(FakeRegistryCache());
+
+    private static AppConfig EmptyConfig() =>
+        new(Modifier: Key.RightCtrl,
+            Applications: [],
+            PulseBorderEnabled: false,
+            Theme: AppThemeSetting.System,
+            OverlayEnabled: false,
+            OverlayShowDelayMs: 0,
+            OverlayKeepOpenWhileModifierHeld: false,
+            PeekEnabled: false,
+            DynamicModeEnabled: false,
+            StatsEnabled: false);
+
+    private static AppRegistryCache FakeRegistryCache(Dictionary<string, string>? displayNames = null)
+    {
+        var db = new LiteDatabase(":memory:");
+        if (displayNames is not null)
+        {
+            var col = db.GetCollection<AppRegistryDocument>(AppRegistryDocument.CollectionName);
+            foreach (var (processName, displayName) in displayNames)
+            {
+                col.Insert(new AppRegistryDocument { ProcessName = processName, DisplayName = displayName });
+            }
+        }
+
+        var windowEnumerator = Substitute.For<IWindowEnumerator>();
+        windowEnumerator.GetWindows().Returns([]);
+        var packagedAppsService = Substitute.For<IPackagedAppsService>();
+        packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        var processInspector = Substitute.For<IProcessInspector>();
+        var cache = new AppRegistryCache(
+            db,
+            windowEnumerator,
+            packagedAppsService,
+            processInspector,
+            NullLogger<AppRegistryCache>.Instance);
+        cache.Prepopulate(EmptyConfig());
+        return cache;
+    }
 
     private static DailyBucketDocument EmptyToday() =>
         new() { Date = DateTime.Today };
@@ -388,7 +433,7 @@ public class StatsCalculatorTests
             ["a.exe"] = "App A", ["b.exe"] = "App B", ["c.exe"] = "App C", ["d.exe"] = "App D",
         };
 
-        var result = StatsCalculator.BuildPodium(combined, displayNames);
+        var result = StatsCalculator.BuildPodium(combined, FakeRegistryCache(displayNames));
 
         result.Select(r => r.ProcessName)
             .Should().BeEquivalentTo("a.exe", "b.exe", "c.exe");
@@ -409,7 +454,7 @@ public class StatsCalculatorTests
         };
         List<(string, Key C)> configuredApps = [("code.exe", Key.C)];
 
-        var result = StatsCalculator.FindFirstStaleShortcut([], today, configuredApps);
+        var result = StatsCalculator.FindFirstStaleShortcut([], today, configuredApps, FakeRegistryCache());
 
         result.Should().BeNull();
     }
@@ -431,10 +476,15 @@ public class StatsCalculatorTests
             },
         };
 
-        var result = StatsCalculator.FindFirstStaleShortcut([], today, configuredApps);
+        var displayNames = new Dictionary<string, string>
+        {
+            ["stale.exe"] = "Stale App",
+        };
 
-        result!.ProcessName.Should().Be("stale.exe");
-        result.Letter.Should().Be("S");
+        var result = StatsCalculator.FindFirstStaleShortcut([], today, configuredApps, FakeRegistryCache(displayNames));
+
+        result.Should().NotBeNull()
+            .And.BeEquivalentTo(new StaleShortcutInfo("S", "stale.exe", "Stale App"));
     }
 
     // ── ComputeAvgGlance ──────────────────────────────────────────────────────
@@ -480,7 +530,7 @@ public class StatsCalculatorTests
     public void FindMostPeeked_ReturnsNull_WhenCombinedIsEmpty()
     {
         var result = StatsCalculator.FindMostPeeked(new Dictionary<string, AppAggregateStats>(),
-            new Dictionary<string, string>());
+            FakeRegistryCache());
 
         result.Should().BeNull();
     }
@@ -493,7 +543,7 @@ public class StatsCalculatorTests
             ["a.exe"] = new(Switches: 5, Peeks: 0, TotalPeekTimeMs: 0, TotalSwitchTimeMs: 0),
         };
 
-        var result = StatsCalculator.FindMostPeeked(combined, new Dictionary<string, string>());
+        var result = StatsCalculator.FindMostPeeked(combined, FakeRegistryCache());
 
         result.Should().BeNull();
     }
@@ -507,7 +557,7 @@ public class StatsCalculatorTests
             ["b.exe"] = new(Switches: 3, Peeks: 2, TotalPeekTimeMs: 800, TotalSwitchTimeMs: 0),
         };
 
-        var result = StatsCalculator.FindMostPeeked(combined, new Dictionary<string, string>());
+        var result = StatsCalculator.FindMostPeeked(combined, FakeRegistryCache());
 
         result!.ProcessName.Should().Be("a.exe");
         result.Peeks.Should().Be(5);
@@ -525,7 +575,7 @@ public class StatsCalculatorTests
             ["a.exe"] = "My App",
         };
 
-        var result = StatsCalculator.FindMostPeeked(combined, displayNames);
+        var result = StatsCalculator.FindMostPeeked(combined, FakeRegistryCache(displayNames));
 
         result!.DisplayName.Should().Be("My App");
     }
@@ -538,7 +588,7 @@ public class StatsCalculatorTests
             ["a.exe"] = new(Switches: 1, Peeks: 3, TotalPeekTimeMs: 0, TotalSwitchTimeMs: 0),
         };
 
-        var result = StatsCalculator.FindMostPeeked(combined, new Dictionary<string, string>());
+        var result = StatsCalculator.FindMostPeeked(combined, FakeRegistryCache());
 
         result!.DisplayName.Should().Be("a");
     }

@@ -4,10 +4,11 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.System.Threading;
+using Windows.Win32.UI.Shell;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class ProcessInspector(ILogger<ProcessInspector> logger)
+internal class ProcessInspector(ILogger<ProcessInspector> logger) : IProcessInspector
 {
     private const int ERROR_ACCESS_DENIED = 5;
     private const int SCS_32BIT_BINARY = 0;
@@ -60,5 +61,32 @@ internal class ProcessInspector(ILogger<ProcessInspector> logger)
         }
 
         return false;
+    }
+
+    public unsafe string GetProcessDisplayName(string path)
+    {
+        uint length = 260;
+        Span<char> buffer = stackalloc char[(int)length];
+        var result = PInvoke.AssocQueryString(ASSOCF.ASSOCF_OPEN_BYEXENAME, ASSOCSTR.ASSOCSTR_FRIENDLYAPPNAME, path, null, buffer, ref length);
+
+        var displayName = result.Succeeded
+            ? buffer[..(int)(length - 1)].ToString()
+            : Path.GetFileNameWithoutExtension(path);
+
+        if (!result.Succeeded)
+        {
+            logger.LogWarning("Failed to get display name for process {ProcessPath} - error code: {ErrorCode}", path, result);
+        }
+
+        if (File.Exists(path))
+        {
+            var fileDescription = FileVersionInfo.GetVersionInfo(path).FileDescription;
+            if (!string.IsNullOrEmpty(fileDescription) && fileDescription.Length < displayName.Length)
+            {
+                displayName = fileDescription;
+            }
+        }
+
+        return displayName;
     }
 }

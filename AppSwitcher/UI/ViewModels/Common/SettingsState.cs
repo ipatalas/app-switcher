@@ -1,6 +1,7 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Input;
 using AppSwitcher.Startup;
+using AppSwitcher.Stats;
 using AppSwitcher.WindowDiscovery;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
     private readonly ApplicationsValidator _validator;
     private readonly DynamicModeService _dynamicModeService;
     private readonly IWindowEnumerator _windowEnumerator;
+    private readonly AppRegistryCache _appRegistryCache;
 
     private SettingsStateDirtyTracker? _dirtyTracker;
     private SettingsSnapshot _originalSnapshot = null!;
@@ -151,7 +153,8 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
 
     public SettingsState(AutoStart autoStart, ConfigurationManager configurationManager,
         IconExtractor iconExtractor, IPackagedAppsService packagedAppsService, ILogger<SettingsState> logger,
-        ApplicationsValidator validator, DynamicModeService dynamicModeService, IWindowEnumerator windowEnumerator)
+        ApplicationsValidator validator, DynamicModeService dynamicModeService, IWindowEnumerator windowEnumerator,
+        AppRegistryCache appRegistryCache)
     {
         _autoStart = autoStart;
         _configurationManager = configurationManager;
@@ -162,6 +165,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
         _validator = validator;
         _dynamicModeService = dynamicModeService;
         _windowEnumerator = windowEnumerator;
+        _appRegistryCache = appRegistryCache;
         LoadConfiguration();
     }
 
@@ -196,6 +200,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
                 Key = app.Key,
                 ProcessName = app.ProcessName,
                 ProcessPath = app.ProcessPath,
+                DisplayName = _appRegistryCache.GetDisplayName(app.ProcessName),
                 StartIfNotRunning = app.StartIfNotRunning,
                 CycleMode = app.CycleMode,
                 Type = app.Type,
@@ -233,6 +238,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
                     Key = cfg.Key,
                     ProcessName = cfg.ProcessName,
                     ProcessPath = cfg.ProcessPath,
+                    DisplayName = _appRegistryCache.GetDisplayName(cfg.ProcessName, cfg.ProcessPath),
                     ProcessId = imagePathToProcessId.TryGetValue(cfg.ProcessPath, out var pid) ? pid : null,
                     Type = cfg.Type,
                     ProcessIcon = icon
@@ -316,6 +322,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             Key = (Key)(-1),
             ProcessPath = args.ProcessPath,
             ProcessName = args.ProcessName,
+            DisplayName = _appRegistryCache.GetDisplayName(args.ProcessName),
             Type = args.Type,
             Aumid = packagedApp?.Aumid,
             ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),
@@ -351,6 +358,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             Key = dynamic.Key,
             ProcessPath = dynamic.ProcessPath,
             ProcessName = dynamic.ProcessName,
+            DisplayName = _appRegistryCache.GetDisplayName(dynamic.ProcessName),
             Type = dynamic.Type,
             Aumid = packagedApp?.Aumid,
             ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),

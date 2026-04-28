@@ -182,6 +182,8 @@ public class FixPackagedAppsMigrationTests : IDisposable
 
         public PackagedAppInfo? GetByAumid(string? aumid) =>
             _packages.Values.FirstOrDefault(p => p.Aumid.Equals(aumid, StringComparison.OrdinalIgnoreCase));
+
+        public string? GetDisplayName(string installPath) => throw new NotImplementedException();
     }
 
     class SettingsDocument

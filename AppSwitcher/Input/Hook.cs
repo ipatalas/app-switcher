@@ -19,7 +19,7 @@ internal class Hook(
     OverlayShowTimer overlayShowTimer,
     WarningOverlayService warningOverlayService,
     AppOverlayService overlayService,
-    ProcessInspector processInspector,
+    IProcessInspector processInspector,
     DynamicModeService dynamicModeService,
     StatsService statsService) : IDisposable
 {
@@ -73,6 +73,7 @@ internal class Hook(
         try
         {
             ArgumentNullException.ThrowIfNull(_config);
+            using var _ = logger.MeasureTime($"Handling key event {e.ToFriendlyString()}");
 
             if (e.IsInjected())
             {
@@ -308,7 +309,9 @@ internal class Hook(
         {
             if (_config?.StatsEnabled == true)
             {
-                statsService.Enqueue(new PeekEvent(TargetProcessName: peekResult.TargetProcessName,
+                statsService.Enqueue(new PeekEvent(
+                    TargetProcessName: peekResult.TargetProcessName,
+                    TargetProcessPath: peekResult.TargetProcessPath,
                     ArmTick: peekResult.ArmedAtTick,
                     FinishTick: Environment.TickCount64,
                     IsDynamic: peekResult.IsDynamic));

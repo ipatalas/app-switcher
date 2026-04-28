@@ -1,6 +1,7 @@
 using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
 using AppSwitcher.Input;
+using AppSwitcher.Stats;
 using AppSwitcher.UI.ViewModels;
 using AppSwitcher.UI.Windows;
 using AppSwitcher.WindowDiscovery;
@@ -15,6 +16,7 @@ namespace AppSwitcher.Overlay;
 internal class AppOverlayService(
     AppOverlayWindow window,
     AppOverlayViewModel viewModel,
+    AppRegistryCache appRegistryCache,
     IWindowEnumerator windowEnumerator,
     IconExtractor iconExtractor,
     WindowTitleParser windowTitleParser,
@@ -48,7 +50,7 @@ internal class AppOverlayService(
         var appSnapshots = applications
             .Select(app => new AppSnapshot(
                 app.Key,
-                Path.GetFileNameWithoutExtension(app.ProcessName),
+                appRegistryCache.GetDisplayName(app.ProcessName),
                 app.ProcessPath,
                 GetIconPath(app),
                 runningProcesses.ContainsKey(app.ProcessName),
@@ -59,7 +61,7 @@ internal class AppOverlayService(
             ? dynamicModeService.GetAllDynamicApps(applications, allWindows)
                 .Select(app => new AppSnapshot(
                     app.Key,
-                    Path.GetFileNameWithoutExtension(app.ProcessName),
+                    appRegistryCache.GetDisplayName(app.ProcessName, app.ProcessPath),
                     app.ProcessPath,
                     GetIconPath(app),
                     IsRunning: true,
@@ -82,8 +84,15 @@ internal class AppOverlayService(
 
             try
             {
-                var processId = runningProcesses.GetValueOrDefault(app.ProcessName)?.ProcessId;
-                return packagedAppsService.GetByInstalledPath(app.ProcessPath, processId)?.IconPath;
+                if (app.Aumid != null)
+                {
+                    return packagedAppsService.GetByAumid(app.Aumid)?.IconPath;
+                }
+
+                var runningProcess = runningProcesses.GetValueOrDefault(app.ProcessName);
+                var processId = runningProcess?.ProcessId;
+                return packagedAppsService
+                    .GetByInstalledPath(runningProcess?.ProcessImagePath ?? app.ProcessPath, processId)?.IconPath;
             }
             catch (Exception e)
             {

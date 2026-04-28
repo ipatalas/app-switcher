@@ -10,6 +10,7 @@ internal class DynamicApplicationViewModel
     public string KeyLetter => Key.ToString();
     public string ProcessName { get; init; } = null!;
     public string ProcessPath { get; init; } = null!;
+    public string DisplayName { get; init; } = null!;
     public uint? ProcessId { get; init; }
     public ApplicationType Type { get; init; } = ApplicationType.Win32;
     public ImageSource? ProcessIcon { get; init; }

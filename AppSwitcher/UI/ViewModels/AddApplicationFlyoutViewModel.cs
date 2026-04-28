@@ -23,7 +23,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     private string _searchText = string.Empty;
 
     private readonly RunningApplicationsService _runningApplicationsService = null!;
-    private readonly ProcessInspector _processInspector = null!;
+    private readonly IProcessInspector _processInspector = null!;
 
     public event Action<ApplicationSelectionArgs>? ApplicationSelected;
 
@@ -35,13 +35,13 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
         var explorerIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/explorer.png"));
 
         _filteredApplications = new ObservableCollection<RunningApplicationInfo>([
-            new(0, "chrome.exe", "chrome.exe", chromeIcon, false),
-            new(0, "notepad.exe", "notepad.exe", notepadIcon, false),
-            new(0, "explorer.exe", "explorer.exe", explorerIcon, false)
+            new(0, "chrome.exe", "chrome.exe", "Chrome", chromeIcon, false),
+            new(0, "notepad.exe", "notepad.exe", "Notepad", notepadIcon, false),
+            new(0, "explorer.exe", "explorer.exe", "Explorer", explorerIcon, false)
         ]);
     }
 
-    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService, ProcessInspector processInspector)
+    public AddApplicationFlyoutViewModel(RunningApplicationsService runningApplicationsService, IProcessInspector processInspector)
     {
         _runningApplicationsService = runningApplicationsService;
         _processInspector = processInspector;
@@ -59,7 +59,7 @@ internal partial class AddApplicationFlyoutViewModel : ObservableObject
     {
         var filtered = string.IsNullOrWhiteSpace(value)
             ? _allApplications
-            : _allApplications.Where(a => a.ProcessName.Contains(value, StringComparison.OrdinalIgnoreCase));
+            : _allApplications.Where(a => a.DisplayName.Contains(value, StringComparison.OrdinalIgnoreCase));
 
         FilteredApplications = new ObservableCollection<RunningApplicationInfo>(filtered);
     }

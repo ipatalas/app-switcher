@@ -110,6 +110,8 @@ public partial class App
         _statsService = _serviceProvider.GetRequiredService<StatsService>();
         _statsService.Start(config.StatsEnabled);
 
+        _serviceProvider.GetRequiredService<AppRegistryCache>().Prepopulate(config);
+
         configManager.ConfigurationChanged += newConfig =>
         {
             _hook?.UpdateConfiguration(newConfig);

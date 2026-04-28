@@ -24,17 +24,25 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
         return result;
     }
 
+    public string? GetDisplayName(string installPath)
+    {
+        var packages = new PackageManager()
+            .FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main);
+
+        // reading DisplayName for all apps is heavy (~500ms) so better to find relevant package first
+        var package = packages.FirstOrDefault(p =>
+            installPath.StartsWith(p.InstalledPath, StringComparison.OrdinalIgnoreCase));
+
+        return package == null ? null : package.DisplayName;
+    }
+
     public PackagedAppInfo? GetByInstalledPath(string path, uint? processId)
     {
         var package =
             new PackageManager().FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main)
                 .FirstOrDefault(p => path.StartsWith(p.InstalledPath, StringComparison.OrdinalIgnoreCase));
-        if (package == null)
-        {
-            return null;
-        }
 
-        return GetPackagedAppInfo(package, processId);
+        return package == null ? null : GetPackagedAppInfo(package, processId);
     }
 
     public PackagedAppInfo? GetByAumid(string? aumid)
@@ -48,12 +56,8 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
         var packageFamilyName = aumid.Split('!')[0];
 
         var package = packageManager.FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
-        if (package == null)
-        {
-            return null;
-        }
 
-        return GetPackagedAppInfo(package);
+        return package == null ? null : GetPackagedAppInfo(package);
     }
 
     private PackagedAppInfo? GetPackagedAppInfo(Package package, uint? processId = null)
@@ -75,7 +79,7 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
 
         var result = new PackagedAppInfo(Aumid: aumid!,
             IconPath: package.Logo.IsFile ? package.Logo.LocalPath : string.Empty);
-        
+
         _packageCache[package.InstalledPath] = result;
         return result;
     }

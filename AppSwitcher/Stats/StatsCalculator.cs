@@ -23,8 +23,7 @@ internal record StatsMetrics(
     int TotalPeekCount,
     string AvgGlanceSec,
     string AvgLatency,
-    int StaticPct,
-    IReadOnlyDictionary<string, string> DisplayNames);
+    int StaticPct);
 
 /// <summary>Pure app usage data without any WPF/UI types — safe to use in tests.</summary>
 internal record AppUsageSummary(
@@ -44,10 +43,9 @@ internal record AppAggregateStats(int Switches, int Peeks, int TotalPeekTimeMs, 
 
 internal record MuscleMemoResult(string Grade, string Persona);
 
-internal class StatsCalculator
+internal class StatsCalculator(AppRegistryCache appRegistryCache)
 {
-    public StatsMetrics Compute(
-        IReadOnlyList<DailyBucketDocument> allBuckets,
+    public StatsMetrics Compute(IReadOnlyList<DailyBucketDocument> allBuckets,
         DailyBucketDocument today,
         List<(string ProcessName, Key Key)> configuredStaticApps)
     {
@@ -55,7 +53,6 @@ internal class StatsCalculator
         var recentBuckets = allBuckets.Where(b => b.Date >= cutoff).ToList();
 
         var combined = BuildCombinedAppStats(recentBuckets, today);
-        var displayNames = BuildDisplayNames(allBuckets, today, combined);
         bool isMaintenanceWarmup = allBuckets.Count < 14;
 
         var totalSwitchCount = recentBuckets.Sum(b => b.TotalSwitches) + today.TotalSwitches;
@@ -69,9 +66,9 @@ internal class StatsCalculator
             TeleportStreak: ComputeStreak(allBuckets, today.Date, b => b.TotalSwitches >= 20),
             MuscleMemoGrade: muscleMemo.Grade,
             MuscleMemoPersona: muscleMemo.Persona,
-            Podium: BuildPodium(combined, displayNames),
-            MostPeekedApp: FindMostPeeked(combined, displayNames),
-            FirstStaleShortcut: isMaintenanceWarmup ? null : FindFirstStaleShortcut(recentBuckets, today, configuredStaticApps),
+            Podium: BuildPodium(combined, appRegistryCache),
+            MostPeekedApp: FindMostPeeked(combined, appRegistryCache),
+            FirstStaleShortcut: isMaintenanceWarmup ? null : FindFirstStaleShortcut(recentBuckets, today, configuredStaticApps, appRegistryCache),
             IsMaintenanceWarmup: isMaintenanceWarmup,
             IsSessionWarmup: isSessionWarmup,
             AltTabRelapsePct: ComputeRelapsePct(recentBuckets, today),
@@ -82,8 +79,7 @@ internal class StatsCalculator
             TotalPeekCount: recentBuckets.Sum(b => b.TotalPeeks) + today.TotalPeeks,
             AvgGlanceSec: ComputeAvgGlance(combined),
             AvgLatency: ComputeAvgLatency(isSessionWarmup ? ImmutableDictionary<string, AppAggregateStats>.Empty : combined),
-            StaticPct: ComputeStaticPct(recentBuckets, today),
-            DisplayNames: displayNames);
+            StaticPct: ComputeStaticPct(recentBuckets, today));
     }
 
     // ── Computation helpers (internal for unit testing) ───────────────────────
@@ -244,16 +240,15 @@ internal class StatsCalculator
         return $"{totalSwitchTimeMs / totalSwitches}ms";
     }
 
-    internal static IReadOnlyList<AppUsageSummary> BuildPodium(
-        IReadOnlyDictionary<string, AppAggregateStats> combined,
-        IReadOnlyDictionary<string, string> displayNames)
+    internal static IReadOnlyList<AppUsageSummary> BuildPodium(IReadOnlyDictionary<string, AppAggregateStats> combined,
+        AppRegistryCache appRegistryCache)
     {
         return combined
             .OrderByDescending(kvp => kvp.Value.Switches)
             .Take(3)
             .Select(kvp => new AppUsageSummary(
                 kvp.Key,
-                displayNames.GetValueOrDefault(kvp.Key, Path.GetFileNameWithoutExtension(kvp.Key)),
+                appRegistryCache.GetDisplayName(kvp.Key),
                 kvp.Value.Switches,
                 kvp.Value.Peeks,
                 kvp.Value.TotalPeekTimeMs))
@@ -262,7 +257,7 @@ internal class StatsCalculator
 
     internal static AppUsageSummary? FindMostPeeked(
         IReadOnlyDictionary<string, AppAggregateStats> combined,
-        IReadOnlyDictionary<string, string> displayNames)
+        AppRegistryCache appRegistryCache)
     {
         var top = combined
             .Where(kvp => kvp.Value.Peeks > 0)
@@ -276,16 +271,16 @@ internal class StatsCalculator
 
         return new AppUsageSummary(
             top.Key,
-            displayNames.GetValueOrDefault(top.Key, Path.GetFileNameWithoutExtension(top.Key)),
+            appRegistryCache.GetDisplayName(top.Key),
             top.Value.Switches,
             top.Value.Peeks,
             top.Value.TotalPeekTimeMs);
     }
 
-    internal static StaleShortcutInfo? FindFirstStaleShortcut(
-        IReadOnlyList<DailyBucketDocument> recent,
+    internal static StaleShortcutInfo? FindFirstStaleShortcut(IReadOnlyList<DailyBucketDocument> recent,
         DailyBucketDocument today,
-        List<(string ProcessName, Key Key)> configuredStaticApps)
+        List<(string ProcessName, Key Key)> configuredStaticApps,
+        AppRegistryCache appRegistryCache)
     {
         foreach (var (processName, letter) in configuredStaticApps)
         {
@@ -298,7 +293,7 @@ internal class StatsCalculator
                 return new StaleShortcutInfo(
                     letter.ToString(),
                     processName,
-                    Path.GetFileNameWithoutExtension(processName));
+                    appRegistryCache.GetDisplayName(processName));
             }
         }
 
@@ -345,23 +340,5 @@ internal class StatsCalculator
                     stats.TotalSwitchTimeMs);
             }
         }
-    }
-
-    private static IReadOnlyDictionary<string, string> BuildDisplayNames(
-        IReadOnlyList<DailyBucketDocument> allBuckets,
-        DailyBucketDocument today,
-        IReadOnlyDictionary<string, AppAggregateStats> combined)
-    {
-        var allProcessNames = combined.Keys
-            .Concat(allBuckets
-                .Where(b => b.FastestSwitch is not null)
-                .Select(b => b.FastestSwitch!.AppName))
-            .Concat(today.FastestSwitch is not null ? [today.FastestSwitch.AppName] : [])
-            .Distinct(StringComparer.OrdinalIgnoreCase);
-
-        return allProcessNames.ToDictionary(
-            p => p,
-            p => Path.GetFileNameWithoutExtension(p),
-            StringComparer.OrdinalIgnoreCase);
     }
 }

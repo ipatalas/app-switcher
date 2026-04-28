@@ -11,6 +11,7 @@ internal sealed record PeekResult(
     HWND TargetHandle,
     bool TargetWasMinimized,
     string TargetProcessName,
+    string TargetProcessPath,
     long ArmedAtTick,
     bool IsDynamic);
 
@@ -23,6 +24,7 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
     private HWND _targetHandle;
     private bool _targetWasMinimized;
     private string _targetProcessName = "";
+    private string _targetProcessPath = "";
     private long _armedAtTick;
     private bool _isDynamic;
     private volatile bool _active; // written from ThreadPool timer callback, read from hook thread
@@ -34,6 +36,7 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
         _targetHandle = result.Handle;
         _targetWasMinimized = result.State == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED;
         _targetProcessName = result.ProcessName;
+        _targetProcessPath = result.ProcessPath;
         _armedAtTick = Environment.TickCount64;
         _isDynamic = isDynamic;
         _timer = new Timer(_ => Activate(), null, PeekThresholdMs, Timeout.Infinite);
@@ -51,7 +54,7 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
     public bool TryFinish([NotNullWhen(true)] out PeekResult? result)
     {
         result = _active
-            ? new PeekResult(_previousWindow!, _targetHandle, _targetWasMinimized, _targetProcessName, _armedAtTick, _isDynamic)
+            ? new PeekResult(_previousWindow!, _targetHandle, _targetWasMinimized, _targetProcessName, _targetProcessPath, _armedAtTick, _isDynamic)
             : null;
 
         var wasActive = _active;

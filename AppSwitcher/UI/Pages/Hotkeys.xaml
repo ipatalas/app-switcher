@@ -118,7 +118,7 @@
 
                                         <ui:TextBlock
                                             Grid.Column="2"
-                                            Text="{Binding ProcessName}"
+                                            Text="{Binding DisplayName}"
                                             Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                             VerticalAlignment="Center"
                                             TextTrimming="CharacterEllipsis" />
@@ -265,7 +265,7 @@
 
                                         <ui:TextBlock
                                             Grid.Column="2"
-                                            Text="{Binding ProcessName}"
+                                            Text="{Binding DisplayName}"
                                             FontSize="13"
                                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                             VerticalAlignment="Center"

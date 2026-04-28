@@ -26,5 +26,6 @@ VerQueryValue
 DwmGetWindowAttribute
 DwmSetWindowAttribute
 SwitchToThisWindow
+AssocQueryString
 WINDOW_STYLE
 MAX_PATH

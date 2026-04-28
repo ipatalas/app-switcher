@@ -15,6 +15,7 @@ internal sealed record SwitchEvent(
 
 internal sealed record PeekEvent(
     string TargetProcessName,
+    string TargetProcessPath,
     long ArmTick,
     long FinishTick,
     bool IsDynamic) : StatsEvent;

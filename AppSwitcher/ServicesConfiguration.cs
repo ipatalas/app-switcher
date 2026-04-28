@@ -62,7 +62,7 @@ internal static class ServicesConfiguration
         services.AddTransient<WindowTitleParser>();
         services.AddTransient<AppOverlayService>();
         services.AddSingleton<WarningOverlayService>();
-        services.AddTransient<ProcessInspector>();
+        services.AddTransient<IProcessInspector, ProcessInspector>();
 
         services.AddSingleton<SessionStats>();
         services.AddSingleton<AppRegistryCache>();

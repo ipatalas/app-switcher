@@ -1,11 +1,16 @@
+using AppSwitcher.Stats;
 using System.IO;
 using System.Windows.Media;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal record RunningApplicationInfo(uint ProcessId, string ProcessName, string ProcessImagePath, ImageSource? Icon, bool IsPackagedApp);
+internal record RunningApplicationInfo(uint ProcessId, string ProcessName, string ProcessImagePath, string DisplayName, ImageSource? Icon, bool IsPackagedApp);
 
-internal class RunningApplicationsService(IWindowEnumerator windowEnumerator, IconExtractor iconExtractor, IPackagedAppsService packagedAppsService)
+internal class RunningApplicationsService(
+    IWindowEnumerator windowEnumerator,
+    IconExtractor iconExtractor,
+    IPackagedAppsService packagedAppsService,
+    AppRegistryCache appRegistryCache)
 {
     public IReadOnlyList<RunningApplicationInfo> GetRunningApplications(IEnumerable<string> excludedProcessNames)
     {
@@ -17,7 +22,8 @@ internal class RunningApplicationsService(IWindowEnumerator windowEnumerator, Ic
         var packagedApps = packagedAppsService.GetInstalledPaths();
 
         return windowEnumerator.GetWindows()
-            .Select(w => (Name: Path.GetFileName(w.ProcessImagePath), Path: w.ProcessImagePath, Id: w.ProcessId, Directory: Path.GetDirectoryName(w.ProcessImagePath)!))
+            .Select(w => (Name: Path.GetFileName(w.ProcessImagePath), Path: w.ProcessImagePath, Id: w.ProcessId,
+                Directory: Path.GetDirectoryName(w.ProcessImagePath)!))
             .DistinctBy(item => item.Name.ToLowerInvariant())
             .Where(item => !excluded.Contains(item.Name.ToLowerInvariant()))
             .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase)
@@ -32,6 +38,7 @@ internal class RunningApplicationsService(IWindowEnumerator windowEnumerator, Ic
                     ProcessId: item.Id,
                     ProcessName: item.Name,
                     ProcessImagePath: item.Path,
+                    DisplayName: appRegistryCache.GetDisplayName(item.Name),
                     Icon: icon,
                     IsPackagedApp: isPackagedApp);
             })

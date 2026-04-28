@@ -9,7 +9,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, ProcessInspector processInspector) : IWindowEnumerator
+internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathExtractor processPathExtractor, IProcessInspector processInspector) : IWindowEnumerator
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(10);
 

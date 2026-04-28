@@ -87,7 +87,7 @@ internal class StatsConsumer(
 
     private void ProcessSwitch(SwitchEvent e)
     {
-        registryCache.GetOrAdd(e.ProcessName, e.ProcessPath);
+        registryCache.TryAdd(e.ProcessName, e.ProcessPath);
 
         var rawDurationMs = e.PreviousLetterUpTick.HasValue // is subsequent switch while holding modifier
             ? (int)(e.LetterDownTick - e.PreviousLetterUpTick.Value)
@@ -110,6 +110,8 @@ internal class StatsConsumer(
 
     private void ProcessPeek(PeekEvent e)
     {
+        registryCache.TryAdd(e.TargetProcessName, e.TargetProcessPath);
+
         var durationMs = (int)(e.FinishTick - e.ArmTick);
 
         logger.LogDebug(

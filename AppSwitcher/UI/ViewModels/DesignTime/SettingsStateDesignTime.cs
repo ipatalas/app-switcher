@@ -29,6 +29,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.C,
                 ProcessName = "Code.exe",
+                DisplayName = "Visual Studio Code",
                 StartIfNotRunning = true,
                 CycleMode = CycleMode.NextWindow,
                 ProcessIcon = defaultIcon,
@@ -37,6 +38,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.Q,
                 ProcessName = "qw.exe",
+                DisplayName = "Quicken Windows",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.NextApp,
                 ProcessIcon = defaultIcon,
@@ -45,6 +47,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.T,
                 ProcessName = "WindowsTerminal.exe",
+                DisplayName = "Windows Terminal",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
                 ProcessIcon = defaultIcon,
@@ -53,6 +56,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.D,
                 ProcessName = "DevToys.exe",
+                DisplayName = "DevToys",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
                 ProcessIcon = defaultIcon,
@@ -61,6 +65,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.E,
                 ProcessName = "brave.exe",
+                DisplayName = "Brave",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.NextApp,
                 ProcessIcon = defaultIcon,
@@ -69,6 +74,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
             {
                 Key = Key.O,
                 ProcessName = "obsidian.exe",
+                DisplayName = "Obsidian",
                 StartIfNotRunning = false,
                 CycleMode = CycleMode.Hide,
                 ProcessIcon = defaultIcon
@@ -83,6 +89,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
                 ProcessName = "Slack.exe",
                 ProcessPath = "C:\\Program Files\\Slack\\Slack.exe",
                 ProcessIcon = defaultIcon,
+                DisplayName = "Slack"
             },
             new()
             {
@@ -90,6 +97,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
                 ProcessName = "notepad.exe",
                 ProcessPath = "C:\\Windows\\System32\\notepad.exe",
                 ProcessIcon = defaultIcon,
+                DisplayName = "Notepad"
             },
             new()
             {
@@ -97,6 +105,7 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
                 ProcessName = "firefox.exe",
                 ProcessPath = "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
                 ProcessIcon = defaultIcon,
+                DisplayName = "Firefox"
             }
         ];
     }
