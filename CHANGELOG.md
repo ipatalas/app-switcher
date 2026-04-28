@@ -1,5 +1,16 @@
 # Change Log
 
+## [1.10.0] - 2026-04-28
+- Add Dynamic Mode - automatically assign letters to running apps
+- Add statistics tracking and dashboard to show most frequently used apps and other insights
+- Add auto-dismissal indicator in elevated warning overlay
+- Add special handling for Windows Sandbox which steals keyboard events when active
+- Change app display to use Display Name instead of process name
+- Fix bug when starting a process that ends up elevated; modifier state got stuck and warning overlay was not shown
+- Fix bug when overlay window wasn't always highlighting current app
+- Fix AppSwitcher main window showing up in the Alt+Tab list
+- Other minor fixes and improvements
+
 ## [1.9.0] - 2026-04-11
 - Add Peek Mode - hold the modifier key to peek at the target window, release to switch back
 - Add new modifier: Caps Lock
