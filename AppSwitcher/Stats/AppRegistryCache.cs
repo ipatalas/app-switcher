@@ -13,7 +13,7 @@ internal class AppRegistryCache(
     IWindowEnumerator windowEnumerator,
     IPackagedAppsService packagedAppsService,
     IProcessInspector processInspector,
-    ILogger<AppRegistryCache> logger)
+    ILogger<AppRegistryCache> logger) : IAppRegistryCache
 {
     private readonly ConcurrentDictionary<string, string> _cache =
         new(StringComparer.OrdinalIgnoreCase);

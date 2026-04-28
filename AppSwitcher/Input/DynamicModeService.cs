@@ -9,7 +9,7 @@ namespace AppSwitcher.Input;
 
 internal class DynamicModeService(
     IWindowEnumerator windowEnumerator,
-    AppNameResolver appNameResolver,
+    IAppNameResolver appNameResolver,
     ILogger<DynamicModeService> logger,
     IPackagedAppsService packagedAppsService)
 {
@@ -25,7 +25,7 @@ internal class DynamicModeService(
         return windows
             .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
             .Where(x => !excludedProcessNames.Contains(x.ProcessName))
-            .Select(w => (Window: w, Key: appNameResolver.GetDynamicKey(w.ProcessImagePath)))
+            .Select(w => (Window: w, Key: appNameResolver.GetDynamicKey(w.ProcessName, w.ProcessImagePath)))
             .Where(x => x.Key.HasValue && !staticKeys.Contains(x.Key.Value))
             .Select(x => new ApplicationConfiguration(
                 Key: x.Key!.Value,
@@ -50,7 +50,7 @@ internal class DynamicModeService(
 
         return windows
             .Where(w => !excludedProcessNames.Contains(w.ProcessName))
-            .Where(w => appNameResolver.GetDynamicKey(w.ProcessImagePath) == letter)
+            .Where(w => appNameResolver.GetDynamicKey(w.ProcessName, w.ProcessImagePath) == letter)
             .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
             .Select(w => new ApplicationConfiguration(
                 Key: letter,

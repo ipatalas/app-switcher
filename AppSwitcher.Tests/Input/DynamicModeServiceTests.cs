@@ -14,14 +14,14 @@ namespace AppSwitcher.Tests.Input;
 
 public class DynamicModeServiceTests
 {
-    // Process paths that don't exist on disk → CompanyName will be null → filename used as-is
+    // Fake process paths — key assignment is configured explicitly on the mock
     private const string SpotifyPath = @"C:\fake1\spotify.exe";
     private const string PaintPath = @"C:\fake2\paint.exe";
     private const string PowerpointPath = @"C:\fake3\powerpoint.exe";
     private const string TerminalPath = @"C:\fake4\terminal.exe";
     private const string SlackPath = @"C:\fake5\slack.exe";
 
-    private readonly AppNameResolver _appNameResolver = new();
+    private readonly IAppNameResolver _appNameResolver = Substitute.For<IAppNameResolver>();
     private readonly IWindowEnumerator _windowEnumerator = Substitute.For<IWindowEnumerator>();
     private readonly IPackagedAppsService _packagedAppsService = Substitute.For<IPackagedAppsService>();
     private readonly DynamicModeService _sut;
@@ -30,6 +30,11 @@ public class DynamicModeServiceTests
     {
         _windowEnumerator.GetCachedWindows().Returns([]);
         _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        _appNameResolver.GetDynamicKey(Path.GetFileName(SpotifyPath), SpotifyPath).Returns(Key.S);
+        _appNameResolver.GetDynamicKey(Path.GetFileName(PaintPath), PaintPath).Returns(Key.P);
+        _appNameResolver.GetDynamicKey(Path.GetFileName(PowerpointPath), PowerpointPath).Returns(Key.P);
+        _appNameResolver.GetDynamicKey(Path.GetFileName(TerminalPath), TerminalPath).Returns(Key.T);
+        _appNameResolver.GetDynamicKey(Path.GetFileName(SlackPath), SlackPath).Returns(Key.S);
         _sut = new DynamicModeService(_windowEnumerator, _appNameResolver, NullLogger<DynamicModeService>.Instance, _packagedAppsService);
     }
 

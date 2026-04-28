@@ -50,7 +50,7 @@ internal static class ServicesConfiguration
         services.AddSingleton<ConfigurationManager>();
         services.AddSingleton<Hook>();
         services.AddSingleton<DynamicModeService>();
-        services.AddSingleton<AppNameResolver>();
+        services.AddSingleton<IAppNameResolver, AppNameResolver>();
         services.AddSingleton<Peeker>();
         services.AddTransient<Switcher>();
         services.AddTransient<AutoStart>();
@@ -67,6 +67,7 @@ internal static class ServicesConfiguration
 
         services.AddSingleton<SessionStats>();
         services.AddSingleton<AppRegistryCache>();
+        services.AddSingleton<IAppRegistryCache>(sp => sp.GetRequiredService<AppRegistryCache>());
         services.AddSingleton<StatsService>();
         services.AddTransient<StatsRepository>();
         services.AddTransient<StatsCalculator>();

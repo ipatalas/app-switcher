@@ -1,20 +1,17 @@
-using System.Diagnostics;
-using System.IO;
+using AppSwitcher.Stats;
 using System.Windows.Input;
 
 namespace AppSwitcher.WindowDiscovery;
 
-internal class AppNameResolver
+internal class AppNameResolver(IAppRegistryCache appRegistryCache) : IAppNameResolver
 {
     /// <summary>
-    /// Resolves the display name for a process and returns the corresponding letter key,
-    /// or null if the resolved name does not start with a letter.
+    /// Resolves the display name for a process via <see cref="IAppRegistryCache"/> and returns
+    /// the corresponding letter key, or null if the resolved name does not start with a letter.
     /// </summary>
-    public Key? GetDynamicKey(string processPath)
+    public Key? GetDynamicKey(string processName, string processPath)
     {
-        var companyName = GetCompanyName(processPath);
-        var processFilename = Path.GetFileNameWithoutExtension(processPath);
-        var displayName = ResolveDisplayName(companyName, processFilename);
+        var displayName = appRegistryCache.GetDisplayName(processName, processPath);
 
         if (string.IsNullOrEmpty(displayName))
         {
@@ -29,41 +26,4 @@ internal class AppNameResolver
 
         return Key.A + (firstChar - 'A');
     }
-
-    private static string? GetCompanyName(string processPath)
-    {
-        if (!File.Exists(processPath))
-        {
-            return null;
-        }
-
-        var fileVersionInfo = FileVersionInfo.GetVersionInfo(processPath);
-        var companyName = fileVersionInfo.CompanyName;
-        return companyName;
-    }
-
-    /// <summary>
-    /// Pure resolution logic: derives a display name from version info and process filename.
-    /// If CompanyName contains "Microsoft" and the filename starts with "ms", the "ms" prefix is stripped.
-    /// </summary>
-    internal static string ResolveDisplayName(string? companyName, string? processFilename)
-    {
-        if (string.IsNullOrEmpty(processFilename))
-        {
-            return string.Empty;
-        }
-
-        var name = processFilename;
-
-        var isMicrosoftApp = companyName is not null &&
-                             companyName.Contains("Microsoft", StringComparison.OrdinalIgnoreCase);
-
-        if (isMicrosoftApp && name.StartsWith("ms", StringComparison.OrdinalIgnoreCase))
-        {
-            name = name[2..];
-        }
-
-        return name;
-    }
-
 }
