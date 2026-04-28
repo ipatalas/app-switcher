@@ -22,7 +22,8 @@ internal class StatsService(
     private readonly SemaphoreSlim _flushLock = new(1, 1);
     private readonly ILogger<StatsService> _logger = loggerFactory.CreateLogger<StatsService>();
     private StatsConsumer? _consumer;
-    private CancellationTokenSource? _cts;
+    private Task? _consumerTask;
+    private volatile CancellationTokenSource? _cts;
 
     private bool IsRunning => _cts is not null;
 
@@ -87,17 +88,23 @@ internal class StatsService(
             Flush,
             loggerFactory.CreateLogger<StatsConsumer>());
 
-        _ = _consumer.StartAsync(_cts.Token);
+        _consumerTask = _consumer.StartAsync(_cts.Token);
         _logger.LogInformation("Stats collection started");
     }
 
     private void StopConsumer(string reason)
     {
         Flush(reason);
-        _cts!.Cancel();
-        _cts.Dispose();
+
+        var cts = _cts!;
+        var task = _consumerTask;
+
         _cts = null;
         _consumer = null;
+        _consumerTask = null;
+
+        cts.Cancel();
+        task?.ContinueWith(_ => cts.Dispose(), TaskScheduler.Default);
         _logger.LogInformation("Stats collection stopped");
     }
 

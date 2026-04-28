@@ -66,6 +66,7 @@ internal static class ServicesConfiguration
         services.AddTransient<IProcessInspector, ProcessInspector>();
 
         services.AddSingleton<SessionStats>();
+        services.AddSingleton<ISessionStats>(sp => sp.GetRequiredService<SessionStats>());
         services.AddSingleton<AppRegistryCache>();
         services.AddSingleton<IAppRegistryCache>(sp => sp.GetRequiredService<AppRegistryCache>());
         services.AddSingleton<StatsService>();

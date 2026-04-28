@@ -5,10 +5,11 @@ namespace AppSwitcher.Stats;
 
 internal class StatsConsumer(
     ChannelReader<StatsEvent> reader,
-    SessionStats sessionStats,
+    ISessionStats sessionStats,
     AppRegistryCache registryCache,
     Action<string> flush,
-    ILogger<StatsConsumer> logger)
+    ILogger<StatsConsumer> logger,
+    Func<CancellationToken, Task>? flushSignal = null)
 {
     private const int IdleThresholdMs = 1500;
     private const int BaselineDurationMs = 350;
@@ -21,40 +22,50 @@ internal class StatsConsumer(
 
     private async Task RunAsync(CancellationToken ct)
     {
-        using var flushTimer = new PeriodicTimer(TimeSpan.FromMinutes(FlushIntervalMinutes));
-        var flushTask = WaitForFlushTimer(flushTimer, ct);
+        PeriodicTimer? timer = null;
+        var nextFlush = flushSignal;
 
-        try
+        if (nextFlush is null)
         {
-            while (!ct.IsCancellationRequested)
+            timer = new PeriodicTimer(TimeSpan.FromMinutes(FlushIntervalMinutes));
+            nextFlush = ct2 => timer.WaitForNextTickAsync(ct2).AsTask();
+        }
+
+        using (timer)
+        {
+            try
             {
-                var readTask = reader.ReadAsync(ct).AsTask();
-                var completed = await Task.WhenAny(readTask, flushTask);
+                var ingestionTask = ProcessEventsAsync();
+                var flushingTask = PeriodicFlushAsync();
 
-                if (completed == flushTask) // timer ticked
-                {
-                    TryFlush();
-                    flushTask = WaitForFlushTimer(flushTimer, ct);
-                    continue;
-                }
+                await Task.WhenAll(ingestionTask, flushingTask);
+            }
+            catch (OperationCanceledException)
+            {
+                // normal shutdown
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error in stats consumer loop");
+            }
+        }
 
-                var statsEvent = await readTask;
+        async Task ProcessEventsAsync()
+        {
+            await foreach (var statsEvent in reader.ReadAllAsync(ct))
+            {
                 ProcessEvent(statsEvent);
             }
         }
-        catch (OperationCanceledException)
-        {
-            // normal shutdown
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Unexpected error in stats consumer loop");
-        }
-    }
 
-    private static async Task WaitForFlushTimer(PeriodicTimer timer, CancellationToken ct)
-    {
-        await timer.WaitForNextTickAsync(ct);
+        async Task PeriodicFlushAsync()
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                await nextFlush(ct);
+                TryFlush();
+            }
+        }
     }
 
     private void TryFlush()

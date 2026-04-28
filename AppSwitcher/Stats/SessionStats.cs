@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace AppSwitcher.Stats;
 
-internal class SessionStats
+internal class SessionStats : ISessionStats
 {
     private int _totalSwitches;
     private int _totalTimeSavedMs;
