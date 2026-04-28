@@ -26,9 +26,9 @@ internal class SettingsDocument
 
     public bool PeekEnabled { get; init; }
 
-    public bool DynamicModeEnabled { get; init; } = false;
+    public bool DynamicModeEnabled { get; init; } = true;
 
-    public bool StatsEnabled { get; init; } = true;
+    public bool StatsEnabled { get; init; } = false;
 
     public Configuration ToConfiguration() =>
         new(
