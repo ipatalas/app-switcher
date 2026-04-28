@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using AppSwitcher.Stats;
 using AppSwitcher.Stats.Storage;
 using AwesomeAssertions;
@@ -262,7 +263,7 @@ public class SessionStatsTests
     public void RecordSwitch_SetsFastestSwitch_OnFirstSwitch()
     {
         _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: 200, letter: "S");
+            fastestDurationMs: 200, triggerKey: Key.S);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -276,9 +277,9 @@ public class SessionStatsTests
     public void RecordSwitch_UpdatesFastestSwitch_WhenFasterSwitchRecorded()
     {
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: 400, letter: "N");
+            fastestDurationMs: 400, triggerKey: Key.N);
         _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: 150, letter: "S");
+            fastestDurationMs: 150, triggerKey: Key.S);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -291,9 +292,9 @@ public class SessionStatsTests
     public void RecordSwitch_DoesNotUpdateFastestSwitch_WhenSlowerSwitchRecorded()
     {
         _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: 150, letter: "S");
+            fastestDurationMs: 150, triggerKey: Key.S);
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: 400, letter: "N");
+            fastestDurationMs: 400, triggerKey: Key.N);
 
         var result = _sut.Snapshot(DateTime.Now);
 
@@ -306,7 +307,7 @@ public class SessionStatsTests
     public void RecordSwitch_DoesNotSetFastestSwitch_WhenDurationIsNull()
     {
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
-            fastestDurationMs: null, letter: "N");
+            fastestDurationMs: null, triggerKey: Key.N);
 
         var result = _sut.Snapshot(DateTime.Now);
 

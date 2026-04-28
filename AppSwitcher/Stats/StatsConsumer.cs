@@ -104,7 +104,7 @@ internal class StatsConsumer(
         var fastestDurationMs = rawDurationMs <= IdleThresholdMs ? rawDurationMs : (int?)null;
 
         sessionStats.RecordSwitch(e.ProcessName, _previousProcessName, durationMs, savedMs, e.IsDynamic,
-            fastestDurationMs: fastestDurationMs, letter: e.Letter);
+            fastestDurationMs: fastestDurationMs, triggerKey: e.TriggerKey);
         _previousProcessName = e.ProcessName;
     }
 

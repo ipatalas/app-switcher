@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using System.IO;
 using System.Threading.Channels;
+using System.Windows.Input;
 using Xunit;
 
 namespace AppSwitcher.Tests.Stats;
@@ -51,7 +52,7 @@ public class StatsConsumerTests
         long letterDownTick = 1200,
         long? previousLetterUpTick = null,
         bool isDynamic = false,
-        string letter = "N")
+        Key triggerKey = Key.N)
         => new(ProcessName: processName,
             ProcessId: null,
             ProcessPath: processName,
@@ -60,7 +61,7 @@ public class StatsConsumerTests
             LetterDownTick: letterDownTick,
             PreviousLetterUpTick: previousLetterUpTick,
             IsDynamic: isDynamic,
-            Letter: letter);
+            TriggerKey: triggerKey);
 
     private PeekEvent MakePeekEvent(
         string targetProcessName,
@@ -269,7 +270,7 @@ public class StatsConsumerTests
     {
         // duration = 1200 - 1000 = 200ms ≤ 1500ms idle threshold
         var evt = MakeSwitchEvent("spotify.exe",
-            modifierDownTick: 1000, letterDownTick: 1200, letter: "S");
+            modifierDownTick: 1000, letterDownTick: 1200, triggerKey: Key.S);
 
         await WriteAndDrain(evt);
 
@@ -285,7 +286,7 @@ public class StatsConsumerTests
     {
         // duration = 5000 - 1000 = 4000ms > 1500ms idle threshold
         var evt = MakeSwitchEvent("notepad.exe",
-            modifierDownTick: 1000, letterDownTick: 5000, letter: "N");
+            modifierDownTick: 1000, letterDownTick: 5000, triggerKey: Key.N);
 
         await WriteAndDrain(evt);
 

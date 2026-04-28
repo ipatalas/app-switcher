@@ -1,3 +1,5 @@
+using System.Windows.Input;
+
 namespace AppSwitcher.Stats;
 
 internal abstract record StatsEvent;
@@ -11,7 +13,7 @@ internal sealed record SwitchEvent(
     long LetterDownTick,
     long? PreviousLetterUpTick,
     bool IsDynamic,
-    string Letter) : StatsEvent;
+    Key TriggerKey) : StatsEvent;
 
 internal sealed record PeekEvent(
     string TargetProcessName,

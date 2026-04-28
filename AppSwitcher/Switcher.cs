@@ -51,8 +51,12 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         return Execute(nextApp);
     }
 
-    public bool SwitchToWindowByIndex(IReadOnlyList<ApplicationConfiguration> applications, int index)
+    public bool SwitchToWindowByIndex(
+        IReadOnlyList<ApplicationConfiguration> applications,
+        int index,
+        out ApplicationWindow? focusedWindow)
     {
+        focusedWindow = null;
         var allWindows = windowEnumerator.GetWindows();
         var focusedAppWindows = windowEnumerator.GetFocusedAppWindows(allWindows, applications);
         var focusedAppWindow = focusedAppWindows.FocusedWindow!;
@@ -71,6 +75,7 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
 
         logger.LogDebug("Switching to window #{Number} of {AppName}", index + 1, appName);
         ActivateWindow(focusedAppWindows[index]);
+        focusedWindow = focusedAppWindows[index];
         return true;
     }
 

@@ -234,7 +234,7 @@ internal class Hook(
                         LetterDownTick: Environment.TickCount64,
                         PreviousLetterUpTick: _previousLetterUpTick,
                         IsDynamic: isDynamic,
-                        Letter: letter.ToString()));
+                        TriggerKey: letter));
                 }
 
                 if (_config.PeekEnabled && result?.WasStarted == false && currentWindow is not null &&
@@ -293,10 +293,24 @@ internal class Hook(
         ArgumentNullException.ThrowIfNull(_config);
 
         var index = DigitKeyToIndex(digit);
-        if (switcher.SwitchToWindowByIndex(_config.Applications, index))
+        if (switcher.SwitchToWindowByIndex(_config.Applications, index, out var window))
         {
             e.SuppressKeyPress = true;
             _suppressedDigitKeys.Add(digit);
+
+            if (_config.StatsEnabled && window is not null)
+            {
+                statsService.Enqueue(new SwitchEvent(
+                    ProcessName: window.ProcessName,
+                    ProcessId: window.ProcessId,
+                    ProcessPath: window.ProcessImagePath,
+                    TotalChoices: windowEnumerator.GetTotalChoicesCount(),
+                    ModifierDownTick: _stateMachine.ModifierPressedAtTick,
+                    LetterDownTick: Environment.TickCount64,
+                    PreviousLetterUpTick: _previousLetterUpTick,
+                    IsDynamic: false,
+                    TriggerKey: digit));
+            }
 
             logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
             RefreshOrHideOverlay();

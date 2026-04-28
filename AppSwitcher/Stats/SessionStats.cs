@@ -1,5 +1,7 @@
+using AppSwitcher.Extensions;
 using AppSwitcher.Stats.Storage;
 using System.Collections.Concurrent;
+using System.Windows.Input;
 
 namespace AppSwitcher.Stats;
 
@@ -27,7 +29,7 @@ internal class SessionStats
 
     public void RecordSwitch(string processName, string? previousProcessName, int durationMs, int savedMs,
         bool isDynamic,
-        int? fastestDurationMs = null, string letter = "A")
+        int? fastestDurationMs = null, Key triggerKey = Key.A)
     {
         Interlocked.Increment(ref _totalSwitches);
         Interlocked.Add(ref _totalTimeSavedMs, savedMs);
@@ -59,7 +61,7 @@ internal class SessionStats
                     {
                         DurationMs = fastestDurationMs.Value,
                         AppName = processName,
-                        Letter = letter,
+                        Letter = triggerKey.ToFriendlyString(),
                         Date = DateTime.Today,
                     };
                 }
