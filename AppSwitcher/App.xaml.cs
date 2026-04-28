@@ -94,6 +94,9 @@ public partial class App
             return;
         }
 
+        // needs to be called before any window is instantiated
+        _serviceProvider.GetRequiredService<AppRegistryCache>().Prepopulate(config);
+
         ApplyTheme(config.Theme);
 
         ApplicationThemeManager.Changed += (theme, _) => UpdateThemeAwareBrushes(theme);
@@ -109,8 +112,6 @@ public partial class App
 
         _statsService = _serviceProvider.GetRequiredService<StatsService>();
         _statsService.Start(config.StatsEnabled);
-
-        _serviceProvider.GetRequiredService<AppRegistryCache>().Prepopulate(config);
 
         configManager.ConfigurationChanged += newConfig =>
         {

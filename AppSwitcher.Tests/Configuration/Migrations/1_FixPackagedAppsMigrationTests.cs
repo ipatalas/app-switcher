@@ -5,13 +5,15 @@ using LiteDB;
 using System.Windows.Input;
 using Xunit;
 using AwesomeAssertions;
+using NSubstitute;
+using NSubstitute.Core;
 
 namespace AppSwitcher.Tests.Configuration.Migrations;
 
 public class FixPackagedAppsMigrationTests : IDisposable
 {
     private readonly LiteDatabase _db;
-    private readonly FakePackagedAppsService _packagedAppsService = new();
+    private readonly IPackagedAppsService _packagedAppsService = Substitute.For<IPackagedAppsService>();
     private readonly FixPackagedAppsMigration _sut;
     private int _keyOffset = 0;
 
@@ -35,6 +37,14 @@ public class FixPackagedAppsMigrationTests : IDisposable
             Theme = AppThemeSetting.Dark,
             Applications = [.. apps]
         });
+    }
+
+    private void SeedService(string packageDir, PackagedAppInfo? packageInfo)
+    {
+        _packagedAppsService
+            .GetByInstalledPath(Arg.Is<string>(s => s.StartsWith(packageDir, StringComparison.OrdinalIgnoreCase)),
+                Arg.Any<uint?>())
+            .Returns(packageInfo);
     }
 
     private List<ApplicationConfigurationDocument> GetApps() => GetSettings().Applications;
@@ -69,7 +79,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
     {
         const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";
         const string exePath = packageDir + @"\WindowsTerminal.exe";
-        _packagedAppsService.Register(packageDir, new PackagedAppInfo("Microsoft.WindowsTerminal_8wekyb3d8bbwe!App", null));
+        SeedService(packageDir, new PackagedAppInfo("Microsoft.WindowsTerminal_8wekyb3d8bbwe!App", null));
         SeedSettings(MakeApp(exePath, ApplicationType.Win32));
 
         _sut.Up(_db);
@@ -88,7 +98,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
         const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";
         const string exePath = packageDir + @"\WindowsTerminal.exe";
         const string aumid = "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App";
-        _packagedAppsService.Register(packageDir, new PackagedAppInfo(aumid, null));
+        SeedService(packageDir, new PackagedAppInfo(aumid, null));
         SeedSettings(MakeApp(exePath, ApplicationType.Win32));
 
         _sut.Up(_db);
@@ -103,7 +113,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
     {
         const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";
         const string exePath = packageDir + @"\WindowsTerminal.exe";
-        _packagedAppsService.Register(packageDir, new PackagedAppInfo("Microsoft.WindowsTerminal_8wekyb3d8bbwe!App", null));
+        SeedService(packageDir, new PackagedAppInfo("Microsoft.WindowsTerminal_8wekyb3d8bbwe!App", null));
         SeedSettings(MakeApp(exePath, ApplicationType.Win32));
 
         _sut.Up(_db);
@@ -130,7 +140,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
         const string packageDir = @"C:\Program Files\WindowsApps\SomeApp_1.0_x64__xyz";
         const string exePath = packageDir + @"\SomeApp.exe";
         const string aumid = "SomePublisher.SomeApp!App";
-        _packagedAppsService.Register(packageDir, new PackagedAppInfo(aumid, null));
+        SeedService(packageDir, new PackagedAppInfo(aumid, null));
         SeedSettings(MakeApp(exePath, ApplicationType.Packaged, aumid));
 
         _sut.Up(_db);
@@ -147,7 +157,7 @@ public class FixPackagedAppsMigrationTests : IDisposable
         const string packageDir = @"C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.0_x64__8wekyb3d8bbwe";
         const string terminalPath = packageDir + @"\WindowsTerminal.exe";
         const string aumid = "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App";
-        _packagedAppsService.Register(packageDir, new PackagedAppInfo(aumid, null));
+        SeedService(packageDir, new PackagedAppInfo(aumid, null));
 
         SeedSettings(apps:
         [
@@ -164,26 +174,6 @@ public class FixPackagedAppsMigrationTests : IDisposable
                 first.Aumid.Should().Be(aumid);
             },
             second => second.Type.Should().Be(ApplicationType.Win32));
-    }
-
-    private sealed class FakePackagedAppsService : IPackagedAppsService
-    {
-        private readonly Dictionary<string, PackagedAppInfo> _packages = new(StringComparer.OrdinalIgnoreCase);
-
-        public void Register(string installedPath, PackagedAppInfo info) => _packages[installedPath] = info;
-
-        public IReadOnlySet<string> GetInstalledPaths() =>
-            _packages.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        public PackagedAppInfo? GetByInstalledPath(string path, uint? _) =>
-            _packages
-                .FirstOrDefault(kv => path.StartsWith(kv.Key, StringComparison.OrdinalIgnoreCase))
-                .Value;
-
-        public PackagedAppInfo? GetByAumid(string? aumid) =>
-            _packages.Values.FirstOrDefault(p => p.Aumid.Equals(aumid, StringComparison.OrdinalIgnoreCase));
-
-        public string? GetDisplayName(string installPath) => throw new NotImplementedException();
     }
 
     class SettingsDocument

@@ -24,7 +24,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
     private readonly AppRegistryCache _appRegistryCache;
 
     private SettingsStateDirtyTracker? _dirtyTracker;
-    private SettingsSnapshot _originalSnapshot = null!;
+    private SettingsSnapshot? _originalSnapshot;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDirty), nameof(CanSave))]
@@ -114,6 +114,12 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
 
     partial void OnDynamicModeEnabledChanged(bool value)
     {
+        if (_originalSnapshot is null)
+        {
+            // suppress this when application starts to avoid duplicated LoadDynamicApps call
+            return;
+        }
+
         if (value)
         {
             LoadDynamicApps();
@@ -141,7 +147,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
         }
     }
 
-    public bool IsDirty => !_originalSnapshot.Equals(CreateCurrentSnapshot());
+    public bool IsDirty => _originalSnapshot != null && !_originalSnapshot.Equals(CreateCurrentSnapshot());
 
     public bool HasNoApplications => Applications.Count == 0;
 

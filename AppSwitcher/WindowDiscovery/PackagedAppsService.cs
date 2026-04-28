@@ -45,7 +45,19 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
         return package == null ? null : GetPackagedAppInfo(package, processId);
     }
 
+    public string? GetInstalledPathByAumid(string? aumid)
+    {
+        var package = GetByAumidInternal(aumid);
+        return package?.InstalledPath;
+    }
+
     public PackagedAppInfo? GetByAumid(string? aumid)
+    {
+        var package = GetByAumidInternal(aumid);
+        return package == null ? null : GetPackagedAppInfo(package);
+    }
+
+    private Package? GetByAumidInternal(string? aumid)
     {
         if (string.IsNullOrEmpty(aumid))
         {
@@ -55,9 +67,7 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
         var packageManager = new PackageManager();
         var packageFamilyName = aumid.Split('!')[0];
 
-        var package = packageManager.FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
-
-        return package == null ? null : GetPackagedAppInfo(package);
+        return packageManager.FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
     }
 
     private PackagedAppInfo? GetPackagedAppInfo(Package package, uint? processId = null)

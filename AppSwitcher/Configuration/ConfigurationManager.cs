@@ -7,6 +7,7 @@ internal class ConfigurationManager(
     ConfigurationService configService,
     ConfigurationValidator configValidator,
     MigrationRunner migrationRunner,
+    PackagedAppPathSanitizer pathSanitizer,
     ILogger<ConfigurationManager> logger)
 {
     private Configuration? _currentConfiguration;
@@ -55,6 +56,14 @@ internal class ConfigurationManager(
         try
         {
             var config = configService.ReadConfiguration();
+
+            var sanitized = pathSanitizer.Sanitize(config);
+            if (sanitized is not null)
+            {
+                configService.WriteConfiguration(sanitized);
+                config = sanitized;
+            }
+
             configValidator.ValidateAndLog(config);
 
             _currentConfiguration = config;
