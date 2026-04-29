@@ -5,6 +5,7 @@ using AppSwitcher.WindowDiscovery;
 using KeyboardHookLite;
 using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using AppConfig = AppSwitcher.Configuration.Configuration;
@@ -140,7 +141,10 @@ internal class Hook(
         {
             e.SuppressKeyPress = true;
             logger.LogDebug("Suppressing key up for previously suppressed {Key}", e.InputEvent.Key);
-            _previousLetterUpTick = Environment.TickCount64;
+            if (_stateMachine.IsModifierHeld)
+            {
+                _previousLetterUpTick = Stopwatch.GetTimestamp();
+            }
             FinishPeek();
             return;
         }
@@ -219,6 +223,7 @@ internal class Hook(
             if (_suppressedLetterKeys.Add(letter))
             {
                 logger.LogDebug("{Modifier} + {Letter} detected", _config.Modifier, letter);
+                var letterDownTick = Stopwatch.GetTimestamp();
                 var currentWindow = windowEnumerator.GetCurrentWindow();
                 var result = switcher.Execute(matchingApps);
                 var isAppStealingKeyEvents = result != null && _processesStealingKeyEvents.Contains(result.ProcessName);
@@ -231,7 +236,7 @@ internal class Hook(
                         ProcessPath: result.ProcessPath,
                         TotalChoices: windowEnumerator.GetTotalChoicesCount(),
                         ModifierDownTick: _stateMachine.ModifierPressedAtTick,
-                        LetterDownTick: Environment.TickCount64,
+                        LetterDownTick: letterDownTick,
                         PreviousLetterUpTick: _previousLetterUpTick,
                         IsDynamic: isDynamic,
                         TriggerKey: letter));
@@ -292,6 +297,7 @@ internal class Hook(
     {
         ArgumentNullException.ThrowIfNull(_config);
 
+        var digitDownTick = Stopwatch.GetTimestamp();
         var index = DigitKeyToIndex(digit);
         if (switcher.SwitchToWindowByIndex(_config.Applications, index, out var window))
         {
@@ -306,7 +312,7 @@ internal class Hook(
                     ProcessPath: window.ProcessImagePath,
                     TotalChoices: windowEnumerator.GetTotalChoicesCount(),
                     ModifierDownTick: _stateMachine.ModifierPressedAtTick,
-                    LetterDownTick: Environment.TickCount64,
+                    LetterDownTick: digitDownTick,
                     PreviousLetterUpTick: _previousLetterUpTick,
                     IsDynamic: false,
                     TriggerKey: digit));
@@ -327,7 +333,7 @@ internal class Hook(
                     TargetProcessName: peekResult.TargetProcessName,
                     TargetProcessPath: peekResult.TargetProcessPath,
                     ArmTick: peekResult.ArmedAtTick,
-                    FinishTick: Environment.TickCount64,
+                    FinishTick: Stopwatch.GetTimestamp(),
                     IsDynamic: peekResult.IsDynamic));
             }
 

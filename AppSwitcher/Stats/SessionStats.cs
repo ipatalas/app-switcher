@@ -51,7 +51,7 @@ internal class SessionStats : ISessionStats
             _transitions.AddOrUpdate(key, 1, (_, count) => count + 1);
         }
 
-        if (fastestDurationMs.HasValue)
+        if (fastestDurationMs is > 0)
         {
             lock (_fastestSwitchLock)
             {

@@ -1,5 +1,6 @@
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -37,7 +38,7 @@ internal class Peeker(ILogger<Peeker> logger) : IDisposable
         _targetWasMinimized = result.State == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED;
         _targetProcessName = result.ProcessName;
         _targetProcessPath = result.ProcessPath;
-        _armedAtTick = Environment.TickCount64;
+        _armedAtTick = Stopwatch.GetTimestamp();
         _isDynamic = isDynamic;
         _timer = new Timer(_ => Activate(), null, PeekThresholdMs, Timeout.Infinite);
         logger.LogDebug(

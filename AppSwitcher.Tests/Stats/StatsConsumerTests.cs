@@ -3,6 +3,7 @@ using AppSwitcher.WindowDiscovery;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Channels;
 using System.Windows.Input;
@@ -49,34 +50,36 @@ public class StatsConsumerTests
             NullLogger<AppRegistryCache>.Instance);
     }
 
+    private static long TicksFromMs(long ms) => (long)(ms * Stopwatch.Frequency / 1000.0);
+
     private SwitchEvent MakeSwitchEvent(
         string processName,
         int totalChoices = 2,
-        long modifierDownTick = 1000,
-        long letterDownTick = 1200,
-        long? previousLetterUpTick = null,
+        long modifierDownMs = 0,
+        long letterDownMs = 200,
+        long? previousLetterUpMs = null,
         bool isDynamic = false,
         Key triggerKey = Key.N)
         => new(ProcessName: processName,
             ProcessId: null,
             ProcessPath: processName,
             TotalChoices: totalChoices,
-            ModifierDownTick: modifierDownTick,
-            LetterDownTick: letterDownTick,
-            PreviousLetterUpTick: previousLetterUpTick,
+            ModifierDownTick: TicksFromMs(modifierDownMs),
+            LetterDownTick: TicksFromMs(letterDownMs),
+            PreviousLetterUpTick: previousLetterUpMs.HasValue ? TicksFromMs(previousLetterUpMs.Value) : null,
             IsDynamic: isDynamic,
             TriggerKey: triggerKey);
 
     private PeekEvent MakePeekEvent(
         string targetProcessName,
         string targetProcessPath = "",
-        long armTick = 1000,
-        long finishTick = 1800,
+        long armMs = 0,
+        long finishMs = 800,
         bool isDynamic = false)
         => new(TargetProcessName: targetProcessName,
             TargetProcessPath: targetProcessPath,
-            ArmTick: armTick,
-            FinishTick: finishTick,
+            ArmTick: TicksFromMs(armMs),
+            FinishTick: TicksFromMs(finishMs),
             IsDynamic: isDynamic);
 
     private async Task WriteAndDrain(StatsEvent evt)
@@ -140,12 +143,12 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_UsesDurationFromModifierDown_WhenNoPreviousLetterUp()
     {
-        // duration = letterDownTick - modifierDownTick = 1200 - 1000 = 200ms (< idle threshold)
+        // duration = letterDownMs - modifierDownMs = 200 - 0 = 200ms (< idle threshold)
         var evt = MakeSwitchEvent(
             "notepad.exe",
-            modifierDownTick: 1000,
-            letterDownTick: 1200,
-            previousLetterUpTick: null);
+            modifierDownMs: 0,
+            letterDownMs: 200,
+            previousLetterUpMs: null);
 
         await WriteAndDrain(evt);
 
@@ -157,12 +160,12 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_UsesDurationFromPreviousLetterUp_WhenProvided()
     {
-        // duration = letterDownTick - previousLetterUpTick = 1200 - 1100 = 100ms
+        // duration = letterDownMs - previousLetterUpMs = 200 - 100 = 100ms
         var evt = MakeSwitchEvent(
             "notepad.exe",
-            modifierDownTick: 1000,
-            letterDownTick: 1200,
-            previousLetterUpTick: 1100);
+            modifierDownMs: 0,
+            letterDownMs: 200,
+            previousLetterUpMs: 100);
 
         await WriteAndDrain(evt);
 
@@ -173,12 +176,12 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_ClampsToBaseline_WhenDurationExceedsIdleThreshold()
     {
-        // duration = 5000 - 1000 = 4000ms > 1500ms idle threshold → clamped to 350ms baseline
+        // duration = 4000 - 0 = 4000ms > 1500ms idle threshold → clamped to 350ms baseline
         var evt = MakeSwitchEvent(
             "notepad.exe",
-            modifierDownTick: 1000,
-            letterDownTick: 5000,
-            previousLetterUpTick: null);
+            modifierDownMs: 0,
+            letterDownMs: 4000,
+            previousLetterUpMs: null);
 
         await WriteAndDrain(evt);
 
@@ -209,7 +212,7 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessPeek_RecordsStaticPeekInStaticBucket()
     {
-        var evt = MakePeekEvent("notepad.exe", armTick: 1000, finishTick: 1800, isDynamic: false);
+        var evt = MakePeekEvent("notepad.exe", armMs: 0, finishMs: 800, isDynamic: false);
 
         await WriteAndDrain(evt);
 
@@ -223,7 +226,7 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessPeek_RecordsDynamicPeekInDynamicBucket()
     {
-        var evt = MakePeekEvent("explorer.exe", armTick: 1000, finishTick: 1800, isDynamic: true);
+        var evt = MakePeekEvent("explorer.exe", armMs: 0, finishMs: 800, isDynamic: true);
 
         await WriteAndDrain(evt);
 
@@ -240,8 +243,8 @@ public class StatsConsumerTests
         var sut = CreateSut();
         var runTask = sut.StartAsync(cts.Token);
 
-        await _channel.Writer.WriteAsync(MakePeekEvent("notepad.exe", armTick: 0, finishTick: 600), CancellationToken.None);
-        await _channel.Writer.WriteAsync(MakePeekEvent("notepad.exe", armTick: 0, finishTick: 400), CancellationToken.None);
+        await _channel.Writer.WriteAsync(MakePeekEvent("notepad.exe", armMs: 0, finishMs: 600), CancellationToken.None);
+        await _channel.Writer.WriteAsync(MakePeekEvent("notepad.exe", armMs: 0, finishMs: 400), CancellationToken.None);
 
         await Task.Delay(100, CancellationToken.None);
         await cts.CancelAsync();
@@ -289,9 +292,9 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_SetsFastestSwitch_WhenDurationWithinIdleThreshold()
     {
-        // duration = 1200 - 1000 = 200ms ≤ 1500ms idle threshold
+        // duration = letterDownMs - modifierDownMs = 200 - 0 = 200ms ≤ 1500ms idle threshold
         var evt = MakeSwitchEvent("spotify.exe",
-            modifierDownTick: 1000, letterDownTick: 1200, triggerKey: Key.S);
+            modifierDownMs: 0, letterDownMs: 200, triggerKey: Key.S);
 
         await WriteAndDrain(evt);
 
@@ -305,9 +308,9 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_DoesNotSetFastestSwitch_WhenDurationExceedsIdleThreshold()
     {
-        // duration = 5000 - 1000 = 4000ms > 1500ms idle threshold
+        // duration = 4000 - 0 = 4000ms > 1500ms idle threshold
         var evt = MakeSwitchEvent("notepad.exe",
-            modifierDownTick: 1000, letterDownTick: 5000, triggerKey: Key.N);
+            modifierDownMs: 0, letterDownMs: 4000, triggerKey: Key.N);
 
         await WriteAndDrain(evt);
 
@@ -338,7 +341,7 @@ public class StatsConsumerTests
         var events = new StatsEvent[]
         {
             MakeSwitchEvent("notepad.exe"),
-            MakePeekEvent("code.exe", armTick: 0, finishTick: 500),
+            MakePeekEvent("code.exe", armMs: 0, finishMs: 500),
             new AltTabEvent(NavCount: 2),
         };
 
@@ -355,7 +358,7 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessSwitch_CallsRecordSwitchWithCorrectArguments()
     {
-        // duration = 1200 - 1000 = 200ms (< idle threshold, not clamped)
+        // duration = letterDownMs - modifierDownMs = 200 - 0 = 200ms (< idle threshold, not clamped)
         // savedMs = EfficiencyCalculator.SavedMs(2) — we verify the call, not the formula
         var sessionStats = Substitute.For<ISessionStats>();
         var sut = CreateSut(sessionStats);
@@ -363,8 +366,8 @@ public class StatsConsumerTests
         var runTask = sut.StartAsync(cts.Token);
 
         await _channel.Writer.WriteAsync(
-            MakeSwitchEvent("notepad.exe", totalChoices: 2, modifierDownTick: 1000,
-                letterDownTick: 1200, isDynamic: false, triggerKey: Key.N),
+            MakeSwitchEvent("notepad.exe", totalChoices: 2, modifierDownMs: 0,
+                letterDownMs: 200, isDynamic: false, triggerKey: Key.N),
             CancellationToken.None);
 
         await Task.Delay(50, CancellationToken.None);
@@ -384,14 +387,14 @@ public class StatsConsumerTests
     [Fact]
     public async Task ProcessPeek_CallsRecordPeekWithCorrectArguments()
     {
-        // duration = finishTick - armTick = 1800 - 1000 = 800ms
+        // duration = finishMs - armMs = 800 - 0 = 800ms
         var sessionStats = Substitute.For<ISessionStats>();
         var sut = CreateSut(sessionStats);
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         var runTask = sut.StartAsync(cts.Token);
 
         await _channel.Writer.WriteAsync(
-            MakePeekEvent("code.exe", armTick: 1000, finishTick: 1800, isDynamic: true),
+            MakePeekEvent("code.exe", armMs: 0, finishMs: 800, isDynamic: true),
             CancellationToken.None);
 
         await Task.Delay(50, CancellationToken.None);

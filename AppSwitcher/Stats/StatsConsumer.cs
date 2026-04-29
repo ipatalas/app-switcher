@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace AppSwitcher.Stats;
@@ -101,8 +102,8 @@ internal class StatsConsumer(
         registryCache.TryAdd(e.ProcessName, e.ProcessPath);
 
         var rawDurationMs = e.PreviousLetterUpTick.HasValue // is subsequent switch while holding modifier
-            ? (int)(e.LetterDownTick - e.PreviousLetterUpTick.Value)
-            : (int)(e.LetterDownTick - e.ModifierDownTick);
+            ? (int)Stopwatch.GetElapsedTime(e.PreviousLetterUpTick.Value, e.LetterDownTick).TotalMilliseconds
+            : (int)Stopwatch.GetElapsedTime(e.ModifierDownTick, e.LetterDownTick).TotalMilliseconds;
 
         var durationMs = rawDurationMs > IdleThresholdMs ? BaselineDurationMs : rawDurationMs;
 
@@ -123,7 +124,7 @@ internal class StatsConsumer(
     {
         registryCache.TryAdd(e.TargetProcessName, e.TargetProcessPath);
 
-        var durationMs = (int)(e.FinishTick - e.ArmTick);
+        var durationMs = (int)Stopwatch.GetElapsedTime(e.ArmTick, e.FinishTick).TotalMilliseconds;
 
         logger.LogDebug(
             "Peek at {ProcessName}: duration={DurationMs}ms, dynamic={IsDynamic}",

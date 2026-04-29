@@ -1,5 +1,6 @@
 using AppSwitcher.Extensions;
 using System.Collections.Frozen;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace AppSwitcher.Input;
@@ -49,7 +50,7 @@ internal sealed class KeyStateMachine
             }
 
             _state = State.ModifierHeld;
-            ModifierPressedAtTick = Environment.TickCount64;
+            ModifierPressedAtTick = Stopwatch.GetTimestamp();
             return new KeyTransition.ModifierPressed(IsFirstPress: true, HasSideEffect: hasSideEffect);
         }
 
@@ -143,7 +144,7 @@ internal sealed class KeyStateMachine
 
         return previousState switch
         {
-            State.ModifierHeld => new KeyTransition.ModifierReleasedClean(Environment.TickCount64 - ModifierPressedAtTick, hasSideEffect),
+            State.ModifierHeld => new KeyTransition.ModifierReleasedClean((long)Stopwatch.GetElapsedTime(ModifierPressedAtTick).TotalMilliseconds, hasSideEffect),
             State.ModifierHeldWithActionKey => new KeyTransition.ModifierReleasedAfterAction(hasSideEffect),
             _ => new KeyTransition.NoOp()
         };
