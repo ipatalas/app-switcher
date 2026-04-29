@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.10.0] - 2026-04-28
+## [1.10.0] - 2026-04-29
 - Add Dynamic Mode - automatically assign letters to running apps
 - Add statistics tracking and dashboard to show most frequently used apps and other insights
 - Add auto-dismissal indicator in elevated warning overlay
