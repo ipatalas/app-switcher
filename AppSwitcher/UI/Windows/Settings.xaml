@@ -18,7 +18,7 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="AppSwitcher Settings"
     MinHeight="600"
-    Height="750"
+    Height="770"
     MinWidth="900"
     MaxWidth="1200"
     Width="900" x:ClassModifier="internal">
