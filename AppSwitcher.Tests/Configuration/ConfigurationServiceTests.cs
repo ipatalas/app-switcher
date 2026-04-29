@@ -61,7 +61,7 @@ public class ConfigurationServiceTests : IDisposable
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
             DynamicModeEnabled: true,
-            StatsEnabled: true));
+            StatsEnabled: false));
     }
 
     [Fact]

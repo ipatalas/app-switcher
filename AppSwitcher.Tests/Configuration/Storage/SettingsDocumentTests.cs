@@ -30,6 +30,8 @@ public class SettingsDocumentTests
             OverlayEnabled = true,
             OverlayShowDelayMs = 500,
             OverlayKeepOpenWhileModifierHeld = true,
+            StatsEnabled = true,
+            DynamicModeEnabled = true,
             Theme = AppThemeSetting.Dark
         };
 
@@ -51,7 +53,7 @@ public class SettingsDocumentTests
             OverlayShowDelayMs: 500,
             OverlayKeepOpenWhileModifierHeld: true,
             PeekEnabled: false,
-            DynamicModeEnabled: false,
+            DynamicModeEnabled: true,
             StatsEnabled: true));
     }
 
@@ -99,6 +101,7 @@ public class SettingsDocumentTests
             OverlayShowDelayMs = 500,
             OverlayKeepOpenWhileModifierHeld = true,
             DynamicModeEnabled = true,
+            StatsEnabled = true
         });
     }
 
