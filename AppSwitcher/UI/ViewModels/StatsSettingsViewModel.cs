@@ -141,6 +141,14 @@ internal partial class StatsSettingsViewModel(
     // ── Commands ──────────────────────────────────────────────────────────────
 
     [RelayCommand]
+    private async Task EnableStats()
+    {
+        State.StatsEnabled = true;
+        State.Save();
+        await RefreshCommand.ExecuteAsync(null);
+    }
+
+    [RelayCommand]
     private async Task RefreshAsync()
     {
         IsLoading = true;
@@ -226,7 +234,7 @@ internal partial class StatsSettingsViewModel(
         }
 
         IsMaintenanceWarmup = d.IsMaintenanceWarmup;
-        IsSessionWarmup = d.IsSessionWarmup;
+        IsSessionWarmup = State.StatsEnabled && d.IsSessionWarmup;
 
         if (d.PersonalBestRecord is { } best)
         {

@@ -129,8 +129,18 @@
             </ui:CardControl>
 
             <!-- ═══════════════════════════════════════════════════════════════ -->
-            <!-- Hero row: 3 equal cards                                        -->
+            <!-- Bento box: blurred when stats are disabled, with overlay       -->
             <!-- ═══════════════════════════════════════════════════════════════ -->
+            <Grid>
+
+            <!-- Layer 1: blurred bento content -->
+            <StackPanel x:Name="BentoLayer">
+                <!-- BlurEffect always present; radius is controlled entirely from code-behind -->
+                <StackPanel.Effect>
+                    <BlurEffect Radius="0" RenderingBias="Quality" />
+                </StackPanel.Effect>
+
+            <!-- ─── Hero row: 3 equal cards ─────────────────────────────────── -->
             <UniformGrid Columns="3" Margin="0,0,0,16">
 
                 <!-- Life Gained -->
@@ -678,6 +688,84 @@
 
                 </StackPanel>
             </Grid>
+
+            </StackPanel>
+            <!-- End Layer 1 -->
+
+            <!-- Layer 2: Privacy Shield overlay; opacity + hit-test controlled from code-behind -->
+            <Grid x:Name="PrivacyOverlay"
+                  Opacity="0"
+                  IsHitTestVisible="False">
+
+                <!-- Frosted-glass backdrop: Rectangle carries opacity so child content stays at 100% -->
+                <Rectangle Fill="{DynamicResource ApplicationBackgroundBrush}" Opacity="0.3" />
+
+                <!-- Shield content -->
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Margin="48,32">
+
+                    <ui:SymbolIcon Symbol="ShieldLock48"
+                                   FontSize="52"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SystemAccentColorBrush}"
+                                   Margin="0,0,0,12" />
+
+                    <TextBlock Text="Privacy Shield"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Margin="0,0,0,6" />
+
+                    <TextBlock Text="Usage statistics are off by default"
+                               FontSize="13"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,20" />
+
+                    <!-- Privacy Pledge card -->
+                    <Border CornerRadius="8"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            Padding="16,12"
+                            MaxWidth="380"
+                            Margin="0,0,0,20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <ui:SymbolIcon Symbol="Checkmark16"
+                                               Foreground="{DynamicResource SuccessGreenBrush}"
+                                               Margin="0,0,8,0" />
+                                <TextBlock Text="Privacy Pledge"
+                                           FontWeight="SemiBold"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+                                All usage data is stored <Bold>locally on your device</Bold> only.
+                                Nothing is ever transmitted, sold, or shared.
+                                You can disable collection at any time.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <ui:Button Content="Enable Statistics"
+                               Appearance="Primary"
+                               HorizontalAlignment="Center"
+                               Padding="24,8"
+                               Command="{Binding EnableStatsCommand}" />
+
+                </StackPanel>
+            </Grid>
+            <!-- End Layer 2 -->
+
+            </Grid>
+            <!-- End bento box wrapper -->
 
         </StackPanel>
     </ScrollViewer>
