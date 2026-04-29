@@ -139,6 +139,11 @@ internal class StatsService(
     {
         try
         {
+            if (!dbProvider.Exists())
+            {
+                // stats are disabled, let's not create the file until they are enabled
+                return;
+            }
             using var database = dbProvider.Get();
             var today = DateTime.Now.Date;
             var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);

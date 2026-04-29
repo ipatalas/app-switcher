@@ -12,7 +12,7 @@ internal partial class Settings
 {
     private readonly SettingsViewModel _viewModel;
 
-    public Settings(INavigationViewPageProvider pageProvider, SettingsViewModel viewModel, ISnackbarService snackbarService)
+    public Settings(INavigationViewPageProvider pageProvider, SettingsViewModel viewModel, ISnackbarService snackbarService, IContentDialogService contentDialogService)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -20,6 +20,7 @@ internal partial class Settings
 
         NavigationView.SetPageProviderService(pageProvider);
         snackbarService.SetSnackbarPresenter(RootSnackbarPresenter);
+        contentDialogService.SetDialogHost(RootDialogHost);
     }
 
     protected override void OnActivated(EventArgs e)

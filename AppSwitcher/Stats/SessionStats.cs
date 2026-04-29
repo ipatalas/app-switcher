@@ -127,6 +127,19 @@ internal class SessionStats : ISessionStats
         }
     }
 
+    public void Clear()
+    {
+        _totalSwitches = 0;
+        _totalTimeSavedMs = 0;
+        _totalPeeks = 0;
+        _altTabSwitches = 0;
+        _altTabKeystrokes = 0;
+        _staticAppUsage.Clear();
+        _dynamicAppUsage.Clear();
+        _transitions.Clear();
+        _fastestSwitch = null;
+    }
+
     public DailyBucketDocument Snapshot(DateTime date)
     {
         FastestSwitchRecord? fastestSwitchSnapshot;

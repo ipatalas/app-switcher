@@ -40,6 +40,7 @@ internal static class ServicesConfiguration
 
         services.AddTransient<INavigationViewPageProvider, PageProviderService>();
         services.AddSingleton<ISnackbarService, SnackbarService>();
+        services.AddSingleton<IContentDialogService, ContentDialogService>();
 
         services.AddTransient<ConfigurationService>();
         services.AddTransient<ConfigurationValidator>();
@@ -113,7 +114,7 @@ internal static class ServicesConfiguration
             services.AddSingleton(mainDb);
 
             // stats db is lazy loaded so that when user has it disabled stats.db file will not appear until it's enabled again
-            services.AddSingleton(new StatsDbProvider(() =>
+            services.AddSingleton(new StatsDbProvider(statsDbPath, () =>
                 new LiteDatabase(new ConnectionString(statsDbPath) { Connection = ConnectionType.Direct })));
 
             return true;

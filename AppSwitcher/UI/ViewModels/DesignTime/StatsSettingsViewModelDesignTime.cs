@@ -15,6 +15,8 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
             null!,
             null!,
             null!,
+            null!,
+            null!,
             null!)
     {
         var chromeIcon = new BitmapImage(new Uri("pack://application:,,,/Resources/DesignTime/chrome.png"));

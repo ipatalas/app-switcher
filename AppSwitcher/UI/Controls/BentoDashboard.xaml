@@ -1,0 +1,635 @@
+<UserControl x:Class="AppSwitcher.UI.Controls.BentoDashboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:AppSwitcher.UI.ViewModels"
+             xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
+             d:DataContext="{d:DesignInstance designTime:StatsSettingsViewModelDesignTime, IsDesignTimeCreatable=True}"
+             ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+             ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="520">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <!-- ── Tooltip ───────────────────────────── -->
+        <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="MaxWidth" Value="350"/>
+            <Style.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="TextWrapping" Value="Wrap"/>
+                    <Setter Property="TextAlignment" Value="Left"></Setter>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                </Style>
+            </Style.Resources>
+        </Style>
+
+        <!-- ── Static color brushes (theme-independent) ──────────────────── -->
+        <SolidColorBrush x:Key="DangerRedBrush"               Color="#E81123" />
+        <SolidColorBrush x:Key="StreakOrangeBrush"            Color="#FF5722" />
+
+        <!-- ── Card hover (implicit — applies to all ui:Card without a local Style) -->
+        <Style TargetType="ui:Card" BasedOn="{StaticResource {x:Type ui:Card}}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Text styles ────────────────────────────────────────────────── -->
+        <Style x:Key="HeroValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+        <Style x:Key="HeroLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource SubtleGrayBrush}" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+        <Style x:Key="TimeLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedGrayBrush}"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="HeaderTotal" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedGrayBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="NerdLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SubtleGrayBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="NerdValue" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <!-- ─── Hero row: 3 equal cards ─────────────────────────────────── -->
+        <UniformGrid Columns="3" Margin="0,0,0,16">
+
+            <!-- Life Gained -->
+            <ui:Card Margin="0,0,6,0" Padding="16">
+                <StackPanel>
+                    <Grid>
+                        <ui:SymbolIcon Symbol="History24"
+                                       FontSize="20"
+                                       HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource SystemAccentColorBrush}" />
+                        <ui:SymbolIcon Symbol="Info16"
+                                       Opacity="0.4"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,0,0">
+                            <ToolTipService.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                        <Bold>Life Gained</Bold><LineBreak/>
+                                        The estimated total time saved by <Bold>teleporting</Bold> directly to applications.<LineBreak/><LineBreak/>
+                                        This is calculated by comparing instant AppSwitcher shortcuts against the average time a user spends searching for windows in the standard <Bold>Alt-Tab</Bold> menu.
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+                        </ui:SymbolIcon>
+                    </Grid>
+                    <TextBlock Text="{Binding LifeGained}"
+                               Style="{StaticResource HeroValue}"
+                               Margin="0,8,0,0" />
+                    <TextBlock Text="Life gained back"
+                               Style="{StaticResource HeroLabel}" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Productivity Streak -->
+            <ui:Card Margin="3,0,3,0" Padding="16">
+                <StackPanel>
+                    <Grid>
+                        <ui:SymbolIcon Symbol="Fire24"
+                                       FontSize="20"
+                                       HorizontalAlignment="Left"
+                                       Foreground="{StaticResource StreakOrangeBrush}" />
+                        <ui:SymbolIcon Symbol="Info16"
+                                       Opacity="0.4"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,0,0">
+                            <ToolTipService.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                        <Bold>Productivity Streak</Bold><LineBreak/>
+                                        Your current run of consecutive active days.<LineBreak/><LineBreak/>
+                                        • A day is marked <Bold>Active</Bold> once you perform 20+ switches.<LineBreak/>
+                                        • Today is a <Bold>grace period</Bold>. Your streak won't break until the day ends with zero activity.<LineBreak/>
+                                        • Consistency helps turn conscious effort into <Bold>permanent muscle memory</Bold>.<LineBreak/><LineBreak/>
+                                        <Italic>Don't break the chain!</Italic>
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+                        </ui:SymbolIcon>
+                    </Grid>
+                    <TextBlock Style="{StaticResource HeroValue}" Margin="0,8,0,0">
+                        <Run Text="{Binding TeleportStreak, Mode=OneWay}" />
+                        <Run Text=" Days" />
+                    </TextBlock>
+                    <TextBlock Text="Productivity streak"
+                               Style="{StaticResource HeroLabel}" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Muscle Memory Index -->
+            <ui:Card Margin="6,0,0,0" Padding="16">
+                <StackPanel>
+                    <Grid>
+                        <ui:SymbolIcon Symbol="Trophy24"
+                                       FontSize="20"
+                                       HorizontalAlignment="Left"
+                                       Foreground="{Binding MuscleMemoIconBrush}" />
+                        <ui:SymbolIcon Symbol="Info16"
+                                       Opacity="0.4"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,0,0">
+                            <ToolTipService.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                        <Bold>Muscle Memory Index</Bold><LineBreak/>
+                                        Measures automation on an <Bold>S-to-F scale</Bold>.<LineBreak/><LineBreak/>
+                                        <Italic>To reach S-Rank:</Italic><LineBreak/>
+                                        • Favor <Bold>Pinned</Bold> shortcuts (100% value)<LineBreak/>
+                                        • Minimize <Bold>Alt-Tab</Bold> relapses<LineBreak/>
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+                        </ui:SymbolIcon>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="{Binding MuscleMemoGrade}"
+                                   Style="{StaticResource HeroValue}"
+                                   Foreground="{Binding MuscleMemoIconBrush}"
+                                   VerticalAlignment="Bottom" />
+                        <TextBlock Text="{Binding MuscleMemoPersona}"
+                                   FontSize="13"
+                                   VerticalAlignment="Bottom"
+                                   Margin="12,0,0,5"
+                                   Foreground="{Binding MuscleMemoIconBrush}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Muscle Memory Index"
+                                   Style="{StaticResource HeroLabel}" />
+                        <TextBlock Text="LAST 30D"
+                                   Margin="8,4,0,0"
+                                   Style="{StaticResource TimeLabel}" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+        </UniformGrid>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- Main two-column grid                                           -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="300" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ─── Left column ─────────────────────────────────────────── -->
+            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+
+                <!-- Most Used Apps -->
+                <ui:Card Padding="20" Margin="0,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12" >
+                            <TextBlock Text="MOST USED APPS"
+                                       Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="LAST 30D" Style="{StaticResource TimeLabel}" />
+                        </StackPanel>
+
+                        <!-- Podium: top 3 apps — spread evenly across full width -->
+                        <ItemsControl ItemsSource="{Binding Podium}"
+                                      Visibility="{Binding HasPodiumData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:AppStatEntry}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <Image Source="{Binding Icon}"
+                                               Width="40" Height="40"
+                                               HorizontalAlignment="Center"
+                                               RenderOptions.BitmapScalingMode="HighQuality" />
+                                        <TextBlock Text="{Binding Switches, StringFormat={}{0:N0}}"
+                                                   FontWeight="Bold"
+                                                   FontSize="13"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,6,0,0"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   FontSize="11"
+                                                   HorizontalAlignment="Center"
+                                         Foreground="{DynamicResource SubtleGrayBrush}"
+                                         TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Empty state -->
+                        <Grid MinHeight="80">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasPodiumData}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.6">
+                                <ui:SymbolIcon Symbol="Target24" FontSize="24" Margin="0,0,0,6"/>
+                                <TextBlock Text="Establishing Baseline" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Perform 10 switches to unlock your profile"
+                                           FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,8"/>
+                                <ProgressBar Value="{Binding TotalSwitchCount}" Maximum="10" Width="180" Height="6"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Maintenance card -->
+                <ui:Card Padding="16" Margin="0,0,0,12">
+                    <ui:Card.Style>
+                        <Style TargetType="ui:Card" BasedOn="{StaticResource {x:Type ui:Card}}">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsMaintenanceHealthy}" Value="False">
+                                    <Setter Property="Background" Value="{DynamicResource CardWarningBackgroundBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardWarningBorderBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMaintenanceHealthy}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource CardHealthyBackgroundBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardHealthyBorderBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Card.Style>
+
+                    <StackPanel>
+                        <!-- Warmup state -->
+                        <Grid Visibility="{Binding IsMaintenanceWarmup, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ToolTipService.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                        It needs at least 14 days of data to identify stale shortcuts and provide accurate maintenance recommendations. The more you use AppSwitcher, the better it gets at optimizing your layout!
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="DataHistogram24"
+                                           FontSize="22"
+                                           Foreground="{DynamicResource SuccessGreenBrush}"
+                                           Margin="0,0,12,0"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Text="Collecting data to optimize your layout..."
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SuccessGreenBrush}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
+                        <!-- Healthy state -->
+                        <Grid Visibility="{Binding IsMaintenanceActuallyHealthy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="CheckmarkCircle24"
+                                           FontSize="22"
+                                           Foreground="{DynamicResource SuccessGreenBrush}"
+                                           Margin="0,0,12,0"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Text="Your layout is fully optimized. No stale shortcuts found."
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SuccessGreenBrush}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
+                        <!-- Warning state -->
+                        <Grid Visibility="{Binding IsMaintenanceWarning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image Grid.Column="0"
+                                   Source="{Binding FirstStaleShortcut.Icon}"
+                                   Width="32" Height="32"
+                                   Margin="0,0,12,0"
+                                   VerticalAlignment="Center"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="MAINTENANCE"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource WarningAmberBrush}" />
+                                <TextBlock FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                           TextWrapping="Wrap">
+                                    <Run Text="{Binding FirstStaleShortcut.DisplayName, Mode=OneWay}" />
+                                    <Run Text=" shortcut hasn't been used in 30 days." />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="2"
+                                       Appearance="Secondary"
+                                       VerticalAlignment="Center"
+                                       Margin="12,0,0,0"
+                                       Command="{Binding RemoveStaleShortcutCommand}"
+                                       CommandParameter="{Binding FirstStaleShortcut}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Wand24"
+                                                   Margin="0,0,6,0"
+                                                   FontSize="14" />
+                                    <TextBlock VerticalAlignment="Center" FontSize="12">
+                                        <Run Text="Remove '" /><Run Text="{Binding FirstStaleShortcut.Letter, Mode=OneWay}" /><Run Text="'" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </ui:Button>
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Habit Tracker -->
+                <ui:Card Padding="20">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="HABIT TRACKER"
+                                           Style="{StaticResource SectionHeader}" />
+                                <TextBlock Text="LAST 30D" Style="{StaticResource TimeLabel}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center">
+                                <ui:SymbolIcon Symbol="CheckmarkCircle24"
+                                               Foreground="{DynamicResource SuccessGreenBrush}"
+                                               Margin="0,0,4,0"
+                                               FontSize="14" />
+                                <TextBlock FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessGreenBrush}"
+                                           FontSize="12"
+                                           VerticalAlignment="Center">
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+                                                <Bold>Sober Streak</Bold><LineBreak/>
+                                                Consecutive days of "pure" AppSwitcher usage.<LineBreak/><LineBreak/>
+                                                • A day is considered <Bold>Sober</Bold> if AppSwitcher handles <Bold>95% or more</Bold> of your total task switching.<LineBreak/>
+                                                • Using the legacy Alt-Tab menu breaks this streak.<LineBreak/><LineBreak/>
+                                                <Italic>True mastery is never having to reach for the Tab key twice.</Italic>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                    <Run Text="{Binding AltTabSoberStreak, Mode=OneWay}" />
+                                    <Run Text="day sober streak" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Alt-Tab Relapses"
+                                           Style="{StaticResource NerdLabel}" />
+                                <ui:SymbolIcon Symbol="Info16"
+                                               Opacity="0.4"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Margin="8,0,0,0">
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+                                                <Bold>Habit Tracker</Bold><LineBreak/>
+                                                Monitors your transition away from inefficient legacy habits.<LineBreak/><LineBreak/>
+                                                • <Bold>Alt-Tab Relapse:</Bold> Occurs when you use the standard Windows Alt-Tab menu to find an app instead of a direct AppSwitcher key.<LineBreak/>
+                                                • <Bold>Wasted Keystrokes:</Bold> The number of extra "Tab" presses spent searching through menus that could have been handled in a single shortcut.<LineBreak/><LineBreak/>
+                                                <Italic>Goal: Reach a 95%+ "Cured" rate to maximize your workflow speed.</Italic>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </ui:SymbolIcon>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource NerdValue}"
+                                       Foreground="{StaticResource DangerRedBrush}">
+                                <Run Text="{Binding AltTabRelapsePct, Mode=OneWay}" />%
+                            </TextBlock>
+                        </Grid>
+
+                        <ProgressBar Value="{Binding AltTabRelapsePct}"
+                                     IsIndeterminate="{Binding IsSessionWarmup}"
+                                     Height="6"
+                                     Foreground="{StaticResource DangerRedBrush}"
+                                     BorderThickness="0"
+                                     Background="{DynamicResource ProgressBackgroundBrush}"
+                                     Margin="0,0,0,10" />
+
+                        <Grid Visibility="{Binding IsDataReady, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock FontSize="11"
+                                       Foreground="{DynamicResource SubtleGrayBrush}"
+                                       VerticalAlignment="Center" >
+                                <TextBlock.Text>
+                                    <Binding Path="AltTabCuredPct" Mode="OneWay" StringFormat="You're {0}% cured!" />
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock HorizontalAlignment="Right"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SubtleGrayBrush}"
+                                       VerticalAlignment="Center">
+                                <Run Text="{Binding WastedKeystrokes, Mode=OneWay}"
+                                     FontWeight="Bold"
+                                     Foreground="{StaticResource DangerRedBrush}" />
+                                <Run Text=" wasted keystrokes searching" />
+                            </TextBlock>
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+            </StackPanel>
+
+            <!-- ─── Right column ────────────────────────────────────────── -->
+            <StackPanel Grid.Column="1">
+
+                <!-- Speed Demon -->
+                <ui:Card Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="SPEED DEMON"
+                                           Style="{StaticResource SectionHeader}" />
+                                <TextBlock Text="LAST 30D" Style="{StaticResource TimeLabel}" />
+                            </StackPanel>
+
+                            <TextBlock HorizontalAlignment="Right"
+                                       Style="{StaticResource HeaderTotal}">
+                                <Run Text="{Binding TotalSwitchCount, Mode=OneWay, StringFormat={}{0:N0}}" />
+                                <Run Text=" switches" />
+                            </TextBlock>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <TextBlock Text="Avg Latency"
+                                       Style="{StaticResource NerdLabel}" />
+                            <TextBlock Text="{Binding AvgLatency}"
+                                       Style="{StaticResource NerdValue}" />
+                        </Grid>
+
+                        <Grid ToolTip="{Binding PersonalBestTooltip}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Personal Best"
+                                           Style="{StaticResource NerdLabel}"
+                                           Margin="0,0,6,0" />
+                                <Image Source="{Binding PersonalBestIcon}"
+                                       Width="16" Height="16"
+                                       VerticalAlignment="Center"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                            </StackPanel>
+                    <TextBlock Text="{Binding PersonalBestDisplay}"
+                               Style="{StaticResource NerdValue}"
+                               Foreground="{DynamicResource SuccessGreenBrush}" />
+                        </Grid>
+
+                    <TextBlock Text="{Binding PersonalBestLabel}"
+                               FontSize="10"
+                               Foreground="{DynamicResource MutedGrayBrush}"
+                               HorizontalAlignment="Right"
+                               Margin="0,2,0,0" />
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Peek Story -->
+                <ui:Card Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="PEEK STORY"
+                                           Style="{StaticResource SectionHeader}" />
+                                <TextBlock Text="LAST 30D" Style="{StaticResource TimeLabel}" />
+                            </StackPanel>
+
+                            <TextBlock HorizontalAlignment="Right"
+                                       Style="{StaticResource HeaderTotal}">
+                                <Run Text="{Binding TotalPeekCount, Mode=OneWay, StringFormat={}{0:N0}}" />
+                                <Run Text=" peeks" />
+                            </TextBlock>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <TextBlock Text="Avg Glance"
+                                       Style="{StaticResource NerdLabel}" />
+                            <TextBlock Text="{Binding AvgGlanceSec}"
+                                       Style="{StaticResource NerdValue}" />
+                        </Grid>
+
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Most Peeked"
+                                           Style="{StaticResource NerdLabel}"
+                                           Margin="0,0,6,0" />
+                                <Image Source="{Binding MostPeekedApp.Icon}"
+                                       Width="14" Height="14"
+                                       VerticalAlignment="Center"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding MostPeekedApp.DisplayName, FallbackValue='—'}"
+                                       Style="{StaticResource NerdValue}" />
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Discovery Gap -->
+                <ui:Card Padding="16">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" >
+                                <TextBlock Text="DISCOVERY GAP"
+                                           Style="{StaticResource SectionHeader}" />
+                                <TextBlock Text="LAST 30D" Style="{StaticResource TimeLabel}" />
+                            </StackPanel>
+                            <ui:SymbolIcon Symbol="Info16"
+                                           Opacity="0.4"
+                                           VerticalAlignment="Top"
+                                           HorizontalAlignment="Right">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock>
+                                            <Bold>Discovery Gap</Bold><LineBreak/>
+                                            The split between intentional shortcuts and automatic assignments.<LineBreak/><LineBreak/>
+                                            • <Bold>Static:</Bold> Keys you have manually pinned to specific apps. These are the most reliable for building muscle memory.<LineBreak/>
+                                            • <Bold>Dynamic:</Bold> Keys the engine automatically assigned based on the app's name.<LineBreak/><LineBreak/>
+                                            <Italic>Tip: Moving frequently used Dynamic apps to Static mappings will increase your overall Muscle Memory Index.</Italic>
+                                        </TextBlock>
+                                    </ToolTip>
+                                </ToolTipService.ToolTip>
+                            </ui:SymbolIcon>
+                        </Grid>
+
+                        <ProgressBar Value="{Binding StaticPct}"
+                                     IsIndeterminate="{Binding IsSessionWarmup}"
+                                     Height="18"
+                                     BorderThickness="0"
+                                     Background="{DynamicResource ProgressBackgroundBrush}"
+                                     Margin="0,0,0,8" />
+                        <Grid Visibility="{Binding IsDataReady, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock FontSize="11"
+                                       Foreground="{DynamicResource SubtleGrayBrush}">
+                                <Run Text="{Binding StaticPct, Mode=OneWay}" /><Run Text="% Static" />
+                            </TextBlock>
+                            <TextBlock HorizontalAlignment="Right"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SubtleGrayBrush}">
+                                <Run Text="{Binding DynamicPct, Mode=OneWay}" /><Run Text="% Dynamic" />
+                            </TextBlock>
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

@@ -8,6 +8,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System.Windows;
 using System.Windows.Media;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
@@ -21,7 +23,10 @@ internal partial class StatsSettingsViewModel(
     StatsRepository statsRepository,
     AppRegistryCache appRegistryCache,
     IconExtractor iconExtractor,
-    StatsCalculator statsCalculator) : ObservableObject
+    IContentDialogService dialogService,
+    StatsDbProvider statsDbProvider,
+    StatsCalculator statsCalculator)
+    : ObservableObject
 {
     public ISettingsState State { get; } = state;
 
@@ -132,6 +137,11 @@ internal partial class StatsSettingsViewModel(
             return _historicBucketsCache;
         }
 
+        if (!State.StatsEnabled)
+        {
+            return [];
+        }
+
         lock (_historicBucketsCacheLock)
         {
             _historicBucketsCache ??= statsRepository.GetAllHistoricBuckets();
@@ -146,6 +156,51 @@ internal partial class StatsSettingsViewModel(
         State.StatsEnabled = true;
         State.Save();
         await RefreshCommand.ExecuteAsync(null);
+    }
+
+    [RelayCommand]
+    private async Task DisableStats()
+    {
+        State.StatsEnabled = false;
+        State.Save();
+        await RefreshCommand.ExecuteAsync(null);
+    }
+
+    [RelayCommand]
+    private async Task ResetStats()
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Reset all stats?",
+            Content = "This action cannot be undone.",
+            CloseButtonText = "Cancel",
+            PrimaryButtonText = "Reset",
+            PrimaryButtonAppearance = ControlAppearance.Danger,
+            DefaultButton = ContentDialogButton.Close,
+        };
+        var result = await dialogService.ShowAsync(dialog, CancellationToken.None);
+
+        if (result == ContentDialogResult.Primary)
+        {
+            try
+            {
+                statsDbProvider.Delete();
+                sessionStats.Clear();
+                await RefreshCommand.ExecuteAsync(null);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to reset stats");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"An error occurred while resetting stats:\n{e.Message}\n\nPlease try again.",
+                    CloseButtonText = "OK",
+                    DefaultButton = ContentDialogButton.Close,
+                };
+                await dialogService.ShowAsync(errorDialog, CancellationToken.None);
+            }
+        }
     }
 
     [RelayCommand]
@@ -234,7 +289,7 @@ internal partial class StatsSettingsViewModel(
         }
 
         IsMaintenanceWarmup = d.IsMaintenanceWarmup;
-        IsSessionWarmup = State.StatsEnabled && d.IsSessionWarmup;
+        IsSessionWarmup = !State.StatsEnabled || d.IsSessionWarmup;
 
         if (d.PersonalBestRecord is { } best)
         {
