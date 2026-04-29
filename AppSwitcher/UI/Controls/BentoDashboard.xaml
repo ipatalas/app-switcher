@@ -30,8 +30,9 @@
         </Style>
 
         <!-- ── Static color brushes (theme-independent) ──────────────────── -->
-        <SolidColorBrush x:Key="DangerRedBrush"               Color="#E81123" />
-        <SolidColorBrush x:Key="StreakOrangeBrush"            Color="#FF5722" />
+        <SolidColorBrush x:Key="DangerRedBrush"    Color="#E81123" />
+        <SolidColorBrush x:Key="StreakOrangeBrush" Color="#FF5722" />
+        <Color x:Key="ShadowWalkerColor" R="139" G="92" B="246" />
 
         <!-- ── Card hover (implicit — applies to all ui:Card without a local Style) -->
         <Style TargetType="ui:Card" BasedOn="{StaticResource {x:Type ui:Card}}">
@@ -161,7 +162,24 @@
                         <ui:SymbolIcon Symbol="Trophy24"
                                        FontSize="20"
                                        HorizontalAlignment="Left"
-                                       Foreground="{Binding MuscleMemoIconBrush}" />
+                                       Foreground="{Binding MuscleMemoIconBrush}">
+                            <ui:SymbolIcon.Style>
+                                <Style TargetType="ui:SymbolIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MuscleMemoGrade}" Value="S">
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="{StaticResource ShadowWalkerColor}"
+                                                                      BlurRadius="12"
+                                                                      ShadowDepth="0"
+                                                                      Opacity="0.8" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:SymbolIcon.Style>
+                        </ui:SymbolIcon>
                         <ui:SymbolIcon Symbol="Info16"
                                        Opacity="0.4"
                                        VerticalAlignment="Top"
@@ -182,9 +200,25 @@
                     </Grid>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <TextBlock Text="{Binding MuscleMemoGrade}"
-                                   Style="{StaticResource HeroValue}"
                                    Foreground="{Binding MuscleMemoIconBrush}"
-                                   VerticalAlignment="Bottom" />
+                                   VerticalAlignment="Bottom">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource HeroValue}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MuscleMemoGrade}" Value="S">
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="{StaticResource ShadowWalkerColor}"
+                                                                      BlurRadius="12"
+                                                                      ShadowDepth="0"
+                                                                      Opacity="0.8" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Text="{Binding MuscleMemoPersona}"
                                    FontSize="13"
                                    VerticalAlignment="Bottom"
