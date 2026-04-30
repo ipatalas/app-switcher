@@ -17,7 +17,7 @@ Three metrics are shown at a glance: **Life Gained**, **Productivity Streak**, a
 
 Every time you switch windows, AppSwitcher compares two things:
 
-- **How long Alt-Tab would have taken** — estimated using [Hick's Law](https://en.wikipedia.org/wiki/Hick%27s_law), which accounts for the number of apps currently running. More open apps = more scanning time = more time lost.
+- **How long Alt-Tab would have taken** — estimated using a simple linear scaling, which accounts for the number of apps currently running. More open apps = more scanning time = more time lost.
 - **How long your AppSwitcher switch actually took** — measured directly.
 
 The difference is accumulated over time and shown as *Life Gained* — the real minutes and hours you've reclaimed by not hunting through Alt-Tab.
