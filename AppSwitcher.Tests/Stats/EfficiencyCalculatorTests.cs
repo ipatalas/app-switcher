@@ -7,10 +7,10 @@ namespace AppSwitcher.Tests.Stats;
 public class EfficiencyCalculatorTests
 {
     [Theory]
-    [InlineData(0, 500 + 0 + 400)]    // log₂(1) = 0
-    [InlineData(1, 500 + 150 + 400)]  // log₂(2) = 1 → 150ms
-    [InlineData(3, 500 + 300 + 400)]  // log₂(4) = 2 → 300ms
-    [InlineData(7, 500 + 450 + 400)]  // log₂(8) = 3 → 450ms
+    [InlineData(0, 100 + 140 * 0)]  // 100ms
+    [InlineData(1, 100 + 140 * 1)]  // 240ms
+    [InlineData(3, 100 + 140 * 3)]  // 520ms
+    [InlineData(7, 100 + 140 * 7)]  // 1080ms
     public void AltTabTimeMs_ReturnsExpectedValue(int windowCount, int expectedMs)
     {
         var result = EfficiencyCalculator.AltTabTimeMs(windowCount);
@@ -19,11 +19,13 @@ public class EfficiencyCalculatorTests
     }
 
     [Theory]
-    [InlineData(0, 900 - 350)]   // 900ms alt-tab - 350ms AppSwitcher = 550ms saved
-    [InlineData(1, 1050 - 350)]  // 1050ms - 350ms = 700ms saved
-    public void SavedMs_ReturnsAltTabMinusAppSwitcher(int windowCount, int expectedSavedMs)
+    [InlineData(1, 100, 240 - 100)]
+    [InlineData(1, 200, 240 - 200)]
+    [InlineData(3, 50, 520 - 50)]
+    [InlineData(7, 80, 1080 - 80)]
+    public void SavedMs_ReturnsAltTabMinusAppSwitcher(int windowCount, int actualDurationMs, int expectedSavedMs)
     {
-        var result = EfficiencyCalculator.SavedMs(windowCount);
+        var result = EfficiencyCalculator.SavedMs(windowCount, actualDurationMs);
 
         result.Should().Be(expectedSavedMs);
     }
@@ -32,7 +34,7 @@ public class EfficiencyCalculatorTests
     public void SavedMs_NeverReturnsNegative()
     {
         // Even with 0 choices, saved time should be non-negative
-        var result = EfficiencyCalculator.SavedMs(0);
+        var result = EfficiencyCalculator.SavedMs(0, 100);
 
         result.Should().BeGreaterThanOrEqualTo(0);
     }
@@ -40,18 +42,9 @@ public class EfficiencyCalculatorTests
     [Fact]
     public void SavedMs_IncreasesWithMoreChoices()
     {
-        var savedFor1 = EfficiencyCalculator.SavedMs(1);
-        var savedFor10 = EfficiencyCalculator.SavedMs(10);
+        var savedFor1 = EfficiencyCalculator.SavedMs(1, 100);
+        var savedFor10 = EfficiencyCalculator.SavedMs(10, 100);
 
         savedFor10.Should().BeGreaterThan(savedFor1);
-    }
-
-    [Fact]
-    public void AltTabTimeMs_IncludesAllThreeComponents()
-    {
-        // With 1 window: 500 (base) + 150×log₂(2) (scan) + 400 (taps) = 1050
-        var result = EfficiencyCalculator.AltTabTimeMs(1);
-
-        result.Should().Be(1050);
     }
 }

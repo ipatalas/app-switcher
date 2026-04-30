@@ -107,7 +107,7 @@ internal class StatsConsumer(
 
         var durationMs = rawDurationMs > IdleThresholdMs ? BaselineDurationMs : rawDurationMs;
 
-        var savedMs = EfficiencyCalculator.SavedMs(e.TotalChoices);
+        var savedMs = EfficiencyCalculator.SavedMs(e.TotalChoices, durationMs);
 
         logger.LogDebug(
             "Switch to {ProcessName}: duration={DurationMs}ms, saved={SavedMs}ms, choices={Choices}, dynamic={IsDynamic}",
