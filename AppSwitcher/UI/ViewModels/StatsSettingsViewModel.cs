@@ -194,6 +194,7 @@ internal partial class StatsSettingsViewModel(
             {
                 statsDbProvider.Delete();
                 sessionStats.Clear();
+                _historicBucketsCache = null;
                 await RefreshCommand.ExecuteAsync(null);
             }
             catch (Exception e)
