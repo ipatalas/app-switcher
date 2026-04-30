@@ -1,0 +1,40 @@
+---
+title: Dynamic Mode (automatic)
+description: Let AppSwitcher automatically assign hotkeys to every running app — no configuration needed.
+---
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Dynamic Mode is **on by default**. The moment AppSwitcher starts, it scans all running applications and assigns a hotkey to each one that isn't already covered by a static entry — giving you instant keyboard access to every open app with zero setup.
+
+## How Keys Are Assigned
+
+AppSwitcher uses the **first letter of each app's display name** (the same name shown in the AppSwitcher UI) as the hotkey for that app.
+
+A few rules govern what happens in edge cases:
+
+- **Static entry owns the letter** — if you have manually pinned an app to a key, that letter is reserved and will never be used for a dynamic app. This protects your muscle memory.
+
+  > *Example: Notepad is statically assigned to* `N` *→ Notion gets no dynamic key, even though it also starts with N.*
+
+- **Multiple dynamic apps share the same first letter** — all of them are assigned that letter. Pressing the hotkey repeatedly cycles through them in turn, exactly like the [NextApp cycle mode](../cycle-modes/#nextapp).
+
+## Pinning a Dynamic App
+
+Every dynamically assigned app shows a small **Pin** button next to it in the Applications list. Clicking it promotes the app to a static entry, giving you full control over its key, cycle mode, and launch behaviour.
+
+<Aside type="tip">
+  Need more control over a specific app — like always keeping your IDE on a fixed key? Pin it or read the full [Hotkeys (manual)](../hotkeys/) guide.
+</Aside>
+
+## Disabling Dynamic Mode
+
+If you prefer to manage every hotkey yourself, you can turn Dynamic Mode off entirely:
+
+<Steps>
+1. Open Settings by double-clicking the tray icon.
+2. Go to the **General** tab.
+3. Toggle **Dynamic Mode** off.
+4. Click **Save & Apply**.
+</Steps>
+
+With Dynamic Mode disabled, only your manually configured static entries will be active.
