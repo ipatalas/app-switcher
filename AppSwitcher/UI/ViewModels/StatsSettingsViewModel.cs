@@ -36,6 +36,14 @@ internal partial class StatsSettingsViewModel(
     [ObservableProperty] private int _teleportStreak;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TodaySwitchProgress))]
+    [NotifyPropertyChangedFor(nameof(IsTodayStreakComplete))]
+    private int _todaySwitchCount;
+
+    public int TodaySwitchProgress => Math.Min(TodaySwitchCount, 20) * 5;
+    public bool IsTodayStreakComplete => TodaySwitchCount >= 20;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MuscleMemoIconBrush))]
     private string _muscleMemoGrade = "—";
 
@@ -258,6 +266,7 @@ internal partial class StatsSettingsViewModel(
     {
         LifeGained = d.LifeGained;
         TeleportStreak = d.TeleportStreak;
+        TodaySwitchCount = d.TodaySwitchCount;
         MuscleMemoGrade = d.MuscleMemoGrade;
         MuscleMemoPersona = d.MuscleMemoPersona;
         AltTabRelapsePct = d.AltTabRelapsePct;

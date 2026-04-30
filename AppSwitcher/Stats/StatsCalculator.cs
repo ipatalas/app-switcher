@@ -1,6 +1,5 @@
 using AppSwitcher.Stats.Storage;
 using System.Collections.Immutable;
-using System.IO;
 using System.Windows.Input;
 
 namespace AppSwitcher.Stats;
@@ -23,7 +22,8 @@ internal record StatsMetrics(
     int TotalPeekCount,
     string AvgGlanceSec,
     string AvgLatency,
-    int StaticPct);
+    int StaticPct,
+    int TodaySwitchCount);
 
 /// <summary>Pure app usage data without any WPF/UI types — safe to use in tests.</summary>
 internal record AppUsageSummary(
@@ -53,10 +53,10 @@ internal class StatsCalculator(AppRegistryCache appRegistryCache)
         var recentBuckets = allBuckets.Where(b => b.Date >= cutoff).ToList();
 
         var combined = BuildCombinedAppStats(recentBuckets, today);
-        bool isMaintenanceWarmup = allBuckets.Count < 14;
+        var isMaintenanceWarmup = allBuckets.Count < 14;
 
         var totalSwitchCount = recentBuckets.Sum(b => b.TotalSwitches) + today.TotalSwitches;
-        bool isSessionWarmup = totalSwitchCount < 10;
+        var isSessionWarmup = totalSwitchCount < 10;
 
         var muscleMemo = (isSessionWarmup ? null : ComputeMuscleMemoGrade(recentBuckets, today)) ??
                          new MuscleMemoResult("—", "Measuring...");
@@ -79,7 +79,8 @@ internal class StatsCalculator(AppRegistryCache appRegistryCache)
             TotalPeekCount: recentBuckets.Sum(b => b.TotalPeeks) + today.TotalPeeks,
             AvgGlanceSec: ComputeAvgGlance(combined),
             AvgLatency: ComputeAvgLatency(isSessionWarmup ? ImmutableDictionary<string, AppAggregateStats>.Empty : combined),
-            StaticPct: ComputeStaticPct(recentBuckets, today));
+            StaticPct: ComputeStaticPct(recentBuckets, today),
+            TodaySwitchCount: today.TotalSwitches);
     }
 
     // ── Computation helpers (internal for unit testing) ───────────────────────

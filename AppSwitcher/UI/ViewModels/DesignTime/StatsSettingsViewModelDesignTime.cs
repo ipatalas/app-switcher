@@ -26,6 +26,7 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
 
         LifeGained = "1h 42m";
         TeleportStreak = 12;
+        TodaySwitchCount = 13;
         MuscleMemoGrade = "B";
         MuscleMemoPersona = "The Navigator";
         TotalSwitchCount = 2510;

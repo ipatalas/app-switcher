@@ -121,38 +121,69 @@
 
             <!-- Productivity Streak -->
             <ui:Card Margin="3,0,3,0" Padding="16">
-                <StackPanel>
-                    <Grid>
-                        <ui:SymbolIcon Symbol="Fire24"
-                                       FontSize="20"
-                                       HorizontalAlignment="Left"
-                                       Foreground="{StaticResource StreakOrangeBrush}" />
-                        <ui:SymbolIcon Symbol="Info16"
-                                       Opacity="0.4"
-                                       VerticalAlignment="Top"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,0,0,0">
-                            <ToolTipService.ToolTip>
-                                <ToolTip>
-                                    <TextBlock>
-                                        <Bold>Productivity Streak</Bold><LineBreak/>
-                                        Your current run of consecutive active days.<LineBreak/><LineBreak/>
-                                        • A day is marked <Bold>Active</Bold> once you perform 20+ switches.<LineBreak/>
-                                        • Today is a <Bold>grace period</Bold>. Your streak won't break until the day ends with zero activity.<LineBreak/>
-                                        • Consistency helps turn conscious effort into <Bold>permanent muscle memory</Bold>.<LineBreak/><LineBreak/>
-                                        <Italic>Don't break the chain!</Italic>
-                                    </TextBlock>
-                                </ToolTip>
-                            </ToolTipService.ToolTip>
-                        </ui:SymbolIcon>
-                    </Grid>
-                    <TextBlock Style="{StaticResource HeroValue}" Margin="0,8,0,0">
-                        <Run Text="{Binding TeleportStreak, Mode=OneWay}" />
-                        <Run Text=" Days" />
-                    </TextBlock>
-                    <TextBlock Text="Productivity streak"
-                               Style="{StaticResource HeroLabel}" />
-                </StackPanel>
+                <Grid>
+                    <StackPanel>
+                        <Grid>
+                            <ui:SymbolIcon Symbol="Fire24"
+                                           FontSize="20"
+                                           HorizontalAlignment="Left"
+                                           Foreground="{StaticResource StreakOrangeBrush}" />
+                            <ui:SymbolIcon Symbol="Info16"
+                                           Opacity="0.4"
+                                           VerticalAlignment="Top"
+                                           HorizontalAlignment="Right"
+                                           Margin="0,0,0,0">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock>
+                                            <Bold>Productivity Streak</Bold><LineBreak/>
+                                            Your current run of consecutive active days.<LineBreak/><LineBreak/>
+                                            • A day is marked <Bold>Active</Bold> once you perform 20+ switches.<LineBreak/>
+                                            • Today is a <Bold>grace period</Bold>. Your streak won't break until the day ends with zero activity.<LineBreak/>
+                                            • Consistency helps turn conscious effort into <Bold>permanent muscle memory</Bold>.<LineBreak/><LineBreak/>
+                                            <Italic>Don't break the chain!</Italic>
+                                        </TextBlock>
+                                    </ToolTip>
+                                </ToolTipService.ToolTip>
+                            </ui:SymbolIcon>
+                        </Grid>
+                        <TextBlock Style="{StaticResource HeroValue}" Margin="0,8,0,0">
+                            <Run Text="{Binding TeleportStreak, Mode=OneWay}" />
+                            <Run Text=" Days" />
+                        </TextBlock>
+                        <TextBlock Text="Productivity streak"
+                                   Style="{StaticResource HeroLabel}" />
+                    </StackPanel>
+
+                    <!-- Today's streak progress ring -->
+                    <ui:ProgressRing
+                        Width="13" Height="13"
+                        Margin="0,0,1,0"
+                        IsIndeterminate="False"
+                        Progress="{Binding TodaySwitchProgress}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom">
+                        <ui:ProgressRing.Style>
+                            <Style TargetType="ui:ProgressRing" BasedOn="{StaticResource {x:Type ui:ProgressRing}}">
+                                <Setter Property="Foreground" Value="{DynamicResource MutedGrayBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTodayStreakComplete}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessGreenBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:ProgressRing.Style>
+                        <ToolTipService.ToolTip>
+                            <ToolTip>
+                                <TextBlock>
+                                    <Bold>Today's Progress</Bold><LineBreak/>
+                                    <Run Text="{Binding TodaySwitchCount, Mode=OneWay}" />
+                                    <Run Text=" / 20 switches" />
+                                </TextBlock>
+                            </ToolTip>
+                        </ToolTipService.ToolTip>
+                    </ui:ProgressRing>
+                </Grid>
             </ui:Card>
 
             <!-- Muscle Memory Index -->
