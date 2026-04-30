@@ -45,8 +45,9 @@ export default defineConfig({
 					label: 'Configuration',
 					items: [
 						{ label: 'Choosing a Modifier Key', slug: 'configuration/choosing-modifier' },
-						{ label: 'Assigning Hotkeys', slug: 'configuration/hotkeys' },
-					{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
+					{ label: 'Hotkeys (manual)', slug: 'configuration/hotkeys' },
+					{ label: 'Dynamic Mode (automatic)', slug: 'configuration/dynamic-mode' },
+				{ label: 'Cycle Modes', slug: 'configuration/cycle-modes' },
 					{ label: 'Peek Mode', slug: 'configuration/peek-mode' },
 					{ label: 'Startup & Tray', slug: 'configuration/startup' },
 					],
@@ -64,6 +65,12 @@ export default defineConfig({
 					items: [
 						{ label: 'Troubleshooting', slug: 'reference/troubleshooting' },
 						{ label: 'Changelog', slug: 'reference/changelog' },
+					],
+				},
+				{
+					label: 'Insights',
+					items: [
+						{ label: 'Statistics & Grading', slug: 'insights/statistics' },
 					],
 				},
 			],

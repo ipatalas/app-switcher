@@ -1,0 +1,72 @@
+---
+title: Statistics & Grading
+description: Understand your productivity stats, how the Muscle Memory Index is calculated, and what your grade means.
+---
+import Screenshot from '@components/Screenshot.astro';
+import { Aside } from '@astrojs/starlight/components';
+
+AppSwitcher quietly tracks how you work and turns that data into a handful of meaningful numbers. No accounts, no cloud — everything stays on your machine.
+
+## Your Productivity Dashboard
+
+<Screenshot src="/docs/images/stats.png" alt="AppSwitcher productivity stats — Life Gained, Productivity Streak, and Muscle Memory Index" width="800" height="120" />
+
+Three metrics are shown at a glance: **Life Gained**, **Productivity Streak**, and your **Muscle Memory Index** with its grade and persona.
+
+## Life Gained
+
+Every time you switch windows, AppSwitcher compares two things:
+
+- **How long Alt-Tab would have taken** — estimated using [Hick's Law](https://en.wikipedia.org/wiki/Hick%27s_law), which accounts for the number of apps currently running. More open apps = more scanning time = more time lost.
+- **How long your AppSwitcher switch actually took** — measured directly.
+
+The difference is accumulated over time and shown as *Life Gained* — the real minutes and hours you've reclaimed by not hunting through Alt-Tab.
+
+## Productivity Streak
+
+The number of consecutive days you used AppSwitcher. Miss a day and the streak resets. It's a simple nudge to keep the habit going.
+
+## Habit Tracker
+
+The **Habit Tracker** monitors your transition away from inefficient legacy habits. It runs over the last 30 days and surfaces two signals:
+
+- **Alt-Tab Relapse** — occurs when you use the standard Windows Alt-Tab menu to find an app instead of pressing a direct AppSwitcher hotkey. Each relapse is counted and shown as a percentage of all your window-switching activity. The lower the number, the better.
+- **Wasted Keystrokes** — the number of extra `Tab` presses spent scanning through the Alt-Tab carousel that could have been replaced by a single AppSwitcher hotkey press.
+
+A "Sober Streak" counts the consecutive days you've gone without an Alt-Tab relapse. The goal is a **95%+ "Cured" rate** — the point where AppSwitcher has fully replaced the Alt-Tab habit and your workflow speed is maximised.
+
+## Muscle Memory Index & Grading
+
+The Muscle Memory Index is a score from 0 to 100 that reflects how consistently you reach for AppSwitcher instead of Alt-Tab. The scoring rewards deliberate, keyboard-driven switching:
+
+- **Static-app switches** (manually pinned hotkeys) carry the most weight.
+- **Dynamic-app switches** also score positively, at a slightly lower weight.
+- **Alt-Tab relapses** are penalised.
+
+The principle is straightforward: the more you use AppSwitcher — especially your pinned static hotkeys — the higher your score climbs.
+
+<Aside type="note">
+  Your grade improves as you reach for AppSwitcher instead of Alt-Tab. Pinning your most-used apps to static hotkeys gives the biggest score boost. Not sure which apps to pin? [Dynamic Mode](../../configuration/dynamic-mode/) can handle the rest automatically.
+</Aside>
+
+### Grade Table
+
+| Grade | Score | Persona |
+|-------|-------|---------|
+| S | ≥ 96 | Shadow Walker |
+| A | ≥ 85 | Teleporter |
+| B | ≥ 70 | The Navigator |
+| C | ≥ 50 | Learner |
+| D | ≥ 30 | Novice |
+| F | < 30 | Alt-Tabber |
+
+## Persona Glossary
+
+| Persona | What it means |
+|---------|---------------|
+| **Shadow Walker** | You move between windows without thinking. AppSwitcher is pure reflex — Alt-Tab is a distant memory. |
+| **Teleporter** | Near-instant, deliberate switching. You know exactly where you're going before you press the key. |
+| **The Navigator** | Solid habits are forming. You reach for AppSwitcher most of the time and only occasionally fall back. |
+| **Learner** | You're building the muscle memory. More than half your switches are already keyboard-driven. |
+| **Novice** | You've started the journey. Keep reaching for those hotkeys and the score will follow. |
+| **Alt-Tabber** | Old habits die hard. AppSwitcher is installed — now it's time to start using it. |

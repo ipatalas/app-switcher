@@ -8,18 +8,18 @@
   <meta name="google-site-verification" content="FEsw5tOCO0jmlfqEPkk3kGtx-yuTCzbj1HIKi4dUcmg" />
   <link rel="icon" type="image/png" sizes="64x64" href="app-switcher.png" />
   <link rel="preload" fetchpriority="high" as="image" href="poster.jpg" type="image/jpeg" />
-  <title>AppSwitcher — Free Windows App Switcher with Custom Hotkeys</title>
+  <title>AppSwitcher - Free Windows App Switcher with Custom Hotkeys</title>
   <meta name="description"
-    content="AppSwitcher is a free Windows utility that assigns hotkeys to your most-used apps for instant window switching — no more Alt+Tab hunting. Works on Windows 10 &amp; 11." />
+    content="AppSwitcher is a free Windows utility that assigns hotkeys to your most-used apps for instant window switching - no more Alt+Tab hunting. Works on Windows 10 &amp; 11." />
   <link rel="canonical" href="https://app-switcher.com/" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://app-switcher.com/" />
-  <meta property="og:title" content="AppSwitcher — Free Windows App Switcher with Custom Hotkeys" />
+  <meta property="og:title" content="AppSwitcher - Free Windows App Switcher with Custom Hotkeys" />
   <meta property="og:description"
     content="Assign hotkeys to your most-used apps and switch instantly. Free for Windows 10 &amp; 11. No more Alt+Tab." />
   <meta property="og:image" content="https://app-switcher.com/poster.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AppSwitcher — Free Windows App Switcher with Custom Hotkeys" />
+  <meta name="twitter:title" content="AppSwitcher - Free Windows App Switcher with Custom Hotkeys" />
   <meta name="twitter:description"
     content="Assign hotkeys to your most-used apps and switch instantly. Free for Windows 10 &amp; 11." />
   <meta name="twitter:image" content="https://app-switcher.com/poster.jpg" />
@@ -736,6 +736,61 @@
     .footer-note {
       margin-top: 0.4rem;
     }
+
+    /* STATS SECTION */
+    .stats-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .stats-inner .section-label {
+      margin-bottom: 0.6rem;
+    }
+
+    .stats-inner .section-title {
+      margin-bottom: 0.6rem;
+    }
+
+    .stats-sub {
+      color: var(--muted);
+      font-size: 1.02rem;
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .stats-img-wrap {
+      display: inline-block;
+      border-radius: 14px;
+      box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.04),
+        0 10px 24px rgba(0, 0, 0, 0.09),
+        0 24px 56px rgba(0, 0, 0, 0.12);
+    }
+
+    .stats-img-wrap img {
+      display: block;
+      max-width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .stats-privacy {
+      margin-top: 1.5rem;
+      font-size: 0.83rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -780,7 +835,7 @@
         "name": "Does AppSwitcher run on startup?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Not by default, but it's easy to enable. Head to the settings and toggle the startup option — that's all it takes."
+          "text": "Not by default, but it's easy to enable. Head to the settings and toggle the startup option - that's all it takes."
         }
       },
       {
@@ -804,7 +859,7 @@
         "name": "Why is Windows SmartScreen blocking the app?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "As an independent developer, AppSwitcher hasn't built up a reputation with Microsoft yet, which triggers SmartScreen. It's safe to run — just click More info then Run anyway to proceed."
+          "text": "As an independent developer, AppSwitcher hasn't built up a reputation with Microsoft yet, which triggers SmartScreen. It's safe to run - just click More info then Run anyway to proceed."
         }
       }
     ]
@@ -840,7 +895,7 @@
   <section class="hero">
     <div class="hero-badge">Free for Windows</div>
     <h1>Switch apps in an <em>instant</em>.<br>No more Alt+Tab.</h1>
-    <p>Most people have 5–6 apps open at any time. AppSwitcher gives each one its own key — jump to exactly what you
+    <p>Most people have 5-6 apps open at any time. AppSwitcher gives each one its own key - jump to exactly what you
       need, instantly.</p>
     <div class="hero-actions">
       <div class="dl-wrapper">
@@ -889,7 +944,29 @@
         <source src="demo.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="demo-caption">AppSwitcher in action — switch to any app in under a second</div>
+    <div class="demo-caption">AppSwitcher in action - switch to any app in under a second</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-section">
+    <div class="stats-inner">
+      <div class="section-label">Progress & Efficiency</div>
+      <div class="section-title">See how much time you're reclaiming.</div>
+      <p class="stats-sub">AppSwitcher tracks your switching habits and turns them into real numbers - hours saved,
+        streaks built, and muscle memory earned.</p>
+      <div class="stats-img-wrap">
+        <img src="stats.png"
+          alt="AppSwitcher productivity stats - time saved, productivity streak, and Muscle Memory Index" width="800" />
+      </div>
+      <p class="stats-privacy">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+          aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        100% Privacy. Your stats stay on your machine - where they belong.
+      </p>
+    </div>
   </div>
 
   <!-- FEATURES -->
@@ -901,10 +978,10 @@
       <div class="feature-card">
         <div class="feature-icon">🚀</div>
         <h3>Instant Keyboard-Driven Window Switching</h3>
-        <p>Stop hunting through Alt+Tab — assign any key combination and land on the right window immediately.
+        <p>Stop hunting through Alt+Tab - assign any key combination and land on the right window immediately.
           Every app gets its own hotkey (e.g., <code class="code-inline">Apps+C</code>
           → VS Code, <code class="code-inline">Apps+T</code>
-          → Terminal). Press it, you're there — no menus, no mouse, no cycling through unrelated windows. <strong>If the
+          → Terminal). Press it, you're there - no menus, no mouse, no cycling through unrelated windows. <strong>If the
             app
             isn't running yet, AppSwitcher will launch it for you automatically.</strong></p>
       </div>
@@ -913,11 +990,11 @@
         <h3>Three Intelligent Cycle Modes per App</h3>
         <p>Configure exactly how each hotkey behaves. Choose from three modes:</p>
         <ul class="feature-list">
-          <li><strong>NextApp</strong> — round-robins between multiple apps on the
+          <li><strong>NextApp</strong> - round-robins between multiple apps on the
             same key</li>
-          <li><strong>Hide</strong> — minimizes the focused window when pressed
+          <li><strong>Hide</strong> - minimizes the focused window when pressed
             again</li>
-          <li><strong>NextWindow</strong> — cycles through every open window of a
+          <li><strong>NextWindow</strong> - cycles through every open window of a
             single app</li>
         </ul>
       </div>
@@ -967,13 +1044,13 @@
       <div class="section-label">Trust & Transparency</div>
       <div class="section-title">Nothing to hide.</div>
       <p class="section-copy">AppSwitcher uses a
-        system-wide keyboard hook to detect your hotkeys — which can sound alarming. Here's why you can trust
+        system-wide keyboard hook to detect your hotkeys - which can sound alarming. Here's why you can trust
         it.</p>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🔍</div>
           <h3>Open Source</h3>
-          <p>The full source code is publicly available. You don't have to take our word for it — read every
+          <p>The full source code is publicly available. You don't have to take our word for it - read every
             line yourself and see exactly what the app does.</p>
           <a class="feature-link" href="https://github.com/ipatalas/app-switcher" target="_blank" rel="noreferrer">View
             on GitHub →</a>
@@ -982,13 +1059,13 @@
           <div class="feature-icon">📵</div>
           <h3>100% Offline</h3>
           <p>AppSwitcher never connects to the internet. There are no auto-updates, no telemetry, no servers.
-            Feel free to block it in your firewall — it will work just fine.</p>
+            Feel free to block it in your firewall - it will work just fine.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>Minimal Privileges</h3>
           <p>The app runs without administrator rights by default and requests only the minimum permissions it
-            needs to do its job — nothing more.</p>
+            needs to do its job - nothing more.</p>
         </div>
       </div>
       <div class="alert-warning">
@@ -997,7 +1074,7 @@
           <p class="alert-title">Windows
             SmartScreen may appear on first launch</p>
           <p class="alert-copy">As an independent release, AppSwitcher
-            hasn't built up a reputation with Microsoft yet. It's completely safe — click <strong>More
+            hasn't built up a reputation with Microsoft yet. It's completely safe - click <strong>More
               info</strong> then <strong>Run anyway</strong> to proceed.</p>
         </div>
       </div>
@@ -1046,7 +1123,7 @@
           </svg>
         </button>
         <div class="faq-a" id="faq-answer-3" aria-hidden="true">Not by default, but it's easy to enable. Head to the
-          settings and toggle the startup option — that's all it takes.</div>
+          settings and toggle the startup option - that's all it takes.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-answer-4"
@@ -1086,7 +1163,7 @@
         </button>
         <div class="faq-a" id="faq-answer-6" aria-hidden="true">As an independent developer, AppSwitcher hasn't built up
           a "reputation" with
-          Microsoft yet, which triggers SmartScreen. It's safe to run — just click <strong>More info</strong>
+          Microsoft yet, which triggers SmartScreen. It's safe to run - just click <strong>More info</strong>
           then <strong>Run anyway</strong> to proceed.</div>
       </div>
     </div>
@@ -1105,7 +1182,7 @@
           <path
             d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
         </svg>
-        Download for Windows — Free
+        Download for Windows - Free
         <svg class="dl-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
           viewBox="0 0 24 24">
           <path d="M6 9l6 6 6-6" />
