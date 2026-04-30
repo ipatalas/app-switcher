@@ -5,7 +5,7 @@ permissions:
 
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   push-chocolatey:
@@ -50,6 +50,51 @@ jobs:
           identifier: ipatalas.AppSwitcher
           max-versions-to-keep: 5
           token: ${{ secrets.WINGET_GITHUB_TOKEN }}
+      - name: Find Dynamic Branch Name
+        id: get_branch
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          PATTERN="ipatalas.AppSwitcher-${VERSION}"
+
+          FULL_REF=$(git ls-remote --heads https://${{ secrets.WINGET_FORK_TOKEN }}@github.com/ipatalas/winget-pkgs.git "refs/heads/$PATTERN*" | cut -f2)
+
+          if [ -z "$FULL_REF" ]; then
+            echo "Error: Could not find a branch matching $PATTERN"
+            exit 1
+          fi
+
+          BRANCH_NAME=${FULL_REF#refs/heads/}
+          echo "Found branch: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Checkout Specific Branch (Shallow)
+        uses: actions/checkout@v4
+        with:
+          repository: ipatalas/winget-pkgs
+          token: ${{ secrets.WINGET_FORK_TOKEN }}
+          ref: ${{ steps.get_branch.outputs.branch_name }}
+      - name: Fix Manifest
+        run: |
+          FILE_PATH="manifests/i/ipatalas/AppSwitcher/${{ env.VERSION }}/ipatalas.AppSwitcher.installer.yaml"
+
+          echo "Editing $FILE_PATH on branch $BRANCH_NAME"
+
+          sed -i '/InstallerLocale:/d' "$FILE_PATH"
+          sed -i 's/Architecture: x86/Architecture: neutral/g' "$FILE_PATH"
+
+      - name: Push Fixes to Fork
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes needed."
+          else
+            git commit -m "Remove InstallerLocale and set Architecture to neutral"
+            git push origin HEAD
+          fi
 
   deploy-website:
     uses: ./.github/workflows/website.yml
