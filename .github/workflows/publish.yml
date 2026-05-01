@@ -69,11 +69,13 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Checkout Specific Branch (Shallow)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ipatalas/winget-pkgs
           token: ${{ secrets.WINGET_FORK_TOKEN }}
           ref: ${{ steps.get_branch.outputs.branch_name }}
+          sparse-checkout: manifests/i/ipatalas/AppSwitcher/${{ env.VERSION }}
+          sparse-checkout-cone-mode: false
       - name: Fix Manifest
         run: |
           FILE_PATH="manifests/i/ipatalas/AppSwitcher/${{ env.VERSION }}/ipatalas.AppSwitcher.installer.yaml"
