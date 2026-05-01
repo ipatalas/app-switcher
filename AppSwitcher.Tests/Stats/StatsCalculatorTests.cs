@@ -14,6 +14,7 @@ namespace AppSwitcher.Tests.Stats;
 
 public class StatsCalculatorTests
 {
+    private static readonly DateOnly Today = DateOnly.FromDateTime(DateTime.Today);
     private readonly StatsCalculator _sut = new(FakeRegistryCache());
 
     private static AppConfig EmptyConfig() =>
@@ -56,12 +57,12 @@ public class StatsCalculatorTests
     }
 
     private static DailyBucketDocument EmptyToday() =>
-        new() { Date = DateTime.Today };
+        new() { Date = Today };
 
-    private static DailyBucketDocument BucketOn(DateTime date, int totalSwitches = 0, int altTabSwitches = 0) =>
+    private static DailyBucketDocument BucketOn(DateOnly date, int totalSwitches = 0, int altTabSwitches = 0) =>
         new()
         {
-            Date = date.Date,
+            Date = date,
             TotalSwitches = totalSwitches,
             AltTabSwitches = altTabSwitches,
         };
@@ -85,7 +86,7 @@ public class StatsCalculatorTests
     [InlineData(5_400_000,  "1h 30m")]    // 1 hour 30 minutes
     public void ComputeLifeGained_FormatsCorrectly(int timeSavedMs, string expectedResult)
     {
-        var today = new DailyBucketDocument { Date = DateTime.Today, TotalTimeSavedMs = timeSavedMs };
+        var today = new DailyBucketDocument { Date = Today, TotalTimeSavedMs = timeSavedMs };
 
         var result = StatsCalculator.ComputeLifeGained([], today);
 
@@ -97,10 +98,10 @@ public class StatsCalculatorTests
     {
         var buckets = new[]
         {
-            new DailyBucketDocument { Date = DateTime.Today.AddDays(-1), TotalTimeSavedMs = 3_600_000 }, // 1h
-            new DailyBucketDocument { Date = DateTime.Today.AddDays(-2), TotalTimeSavedMs = 3_600_000 }, // 1h
+            new DailyBucketDocument { Date = Today.AddDays(-1), TotalTimeSavedMs = 3_600_000 }, // 1h
+            new DailyBucketDocument { Date = Today.AddDays(-2), TotalTimeSavedMs = 3_600_000 }, // 1h
         };
-        var today = new DailyBucketDocument { Date = DateTime.Today, TotalTimeSavedMs = 3_600_000 }; // 1h
+        var today = new DailyBucketDocument { Date = Today, TotalTimeSavedMs = 3_600_000 }; // 1h
 
         var result = StatsCalculator.ComputeLifeGained(buckets, today);
 
@@ -131,7 +132,7 @@ public class StatsCalculatorTests
     {
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             AltTabSwitches = relapses,
             StaticAppUsage = staticSwitches > 0
                 ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new() { Switches = staticSwitches } }
@@ -151,7 +152,7 @@ public class StatsCalculatorTests
     [Fact]
     public void ComputeStreak_ReturnsZero_WhenNoBuckets()
     {
-        var result = StatsCalculator.ComputeStreak([], DateTime.Today, _ => true);
+        var result = StatsCalculator.ComputeStreak([], Today, _ => true);
 
         result.Should().Be(0);
     }
@@ -161,10 +162,10 @@ public class StatsCalculatorTests
     {
         DailyBucketDocument[] buckets =
         [
-            BucketOn(DateTime.Today.AddDays(-2), totalSwitches: 25)
+            BucketOn(Today.AddDays(-2), totalSwitches: 25)
         ];
 
-        var result = StatsCalculator.ComputeStreak(buckets, DateTime.Today, b => b.TotalSwitches >= 20);
+        var result = StatsCalculator.ComputeStreak(buckets, Today, b => b.TotalSwitches >= 20);
 
         result.Should().Be(0);
     }
@@ -174,12 +175,12 @@ public class StatsCalculatorTests
     {
         DailyBucketDocument[] buckets =
         [
-            BucketOn(DateTime.Today.AddDays(-1), totalSwitches: 25),
-            BucketOn(DateTime.Today.AddDays(-2), totalSwitches: 25),
-            BucketOn(DateTime.Today.AddDays(-3), totalSwitches: 25)
+            BucketOn(Today.AddDays(-1), totalSwitches: 25),
+            BucketOn(Today.AddDays(-2), totalSwitches: 25),
+            BucketOn(Today.AddDays(-3), totalSwitches: 25)
         ];
 
-        var result = StatsCalculator.ComputeStreak(buckets, DateTime.Today, b => b.TotalSwitches >= 20);
+        var result = StatsCalculator.ComputeStreak(buckets, Today, b => b.TotalSwitches >= 20);
 
         result.Should().Be(3);
     }
@@ -189,13 +190,13 @@ public class StatsCalculatorTests
     {
         var buckets = new[]
         {
-            BucketOn(DateTime.Today.AddDays(-1), totalSwitches: 25),
-            BucketOn(DateTime.Today.AddDays(-2), totalSwitches: 25),
+            BucketOn(Today.AddDays(-1), totalSwitches: 25),
+            BucketOn(Today.AddDays(-2), totalSwitches: 25),
             // gap at -3
-            BucketOn(DateTime.Today.AddDays(-4), totalSwitches: 25),
+            BucketOn(Today.AddDays(-4), totalSwitches: 25),
         };
 
-        var result = StatsCalculator.ComputeStreak(buckets, DateTime.Today, b => b.TotalSwitches >= 20);
+        var result = StatsCalculator.ComputeStreak(buckets, Today, b => b.TotalSwitches >= 20);
 
         result.Should().Be(2);
     }
@@ -205,12 +206,12 @@ public class StatsCalculatorTests
     {
         var buckets = new[]
         {
-            BucketOn(DateTime.Today.AddDays(-1), totalSwitches: 25),
-            BucketOn(DateTime.Today.AddDays(-2), totalSwitches: 5), // below threshold
-            BucketOn(DateTime.Today.AddDays(-3), totalSwitches: 25),
+            BucketOn(Today.AddDays(-1), totalSwitches: 25),
+            BucketOn(Today.AddDays(-2), totalSwitches: 5), // below threshold
+            BucketOn(Today.AddDays(-3), totalSwitches: 25),
         };
 
-        var result = StatsCalculator.ComputeStreak(buckets, DateTime.Today, b => b.TotalSwitches >= 20);
+        var result = StatsCalculator.ComputeStreak(buckets, Today, b => b.TotalSwitches >= 20);
 
         result.Should().Be(1);
     }
@@ -230,7 +231,7 @@ public class StatsCalculatorTests
     {
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             TotalSwitches = 80,
             AltTabSwitches = 20,
         };
@@ -255,7 +256,7 @@ public class StatsCalculatorTests
     {
         var bucket = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             TotalSwitches = 97,
             AltTabSwitches = 3,
         };
@@ -270,7 +271,7 @@ public class StatsCalculatorTests
     {
         var bucket = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             TotalSwitches = 90,
             AltTabSwitches = 10,
         };
@@ -296,7 +297,7 @@ public class StatsCalculatorTests
         // 5 alt-tab switches but 15 keystrokes → 10 wasted
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             AltTabSwitches = 5,
             AltTabKeystrokes = 15,
         };
@@ -321,7 +322,7 @@ public class StatsCalculatorTests
     {
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
                 ["a.exe"] = new() { Switches = 75 },
@@ -354,12 +355,12 @@ public class StatsCalculatorTests
         {
             new DailyBucketDocument
             {
-                Date = DateTime.Today.AddDays(-1),
+                Date = Today.AddDays(-1),
                 FastestSwitch = new FastestSwitchRecord { DurationMs = 80, AppName = "slow.exe", Letter = "S" },
             },
             new DailyBucketDocument
             {
-                Date = DateTime.Today.AddDays(-2),
+                Date = Today.AddDays(-2),
                 FastestSwitch = new FastestSwitchRecord { DurationMs = 40, AppName = "fast.exe", Letter = "F" },
             },
         };
@@ -377,13 +378,13 @@ public class StatsCalculatorTests
         {
             new DailyBucketDocument
             {
-                Date = DateTime.Today.AddDays(-1),
+                Date = Today.AddDays(-1),
                 FastestSwitch = new FastestSwitchRecord { DurationMs = 80, AppName = "slow.exe", Letter = "S" },
             },
         };
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             FastestSwitch = new FastestSwitchRecord { DurationMs = 30, AppName = "today.exe", Letter = "T" },
         };
 
@@ -446,7 +447,7 @@ public class StatsCalculatorTests
     {
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
                 ["code.exe"] = new() { Switches = 10 },
@@ -469,7 +470,7 @@ public class StatsCalculatorTests
         ];
         var today = new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
                 ["used.exe"] = new() { Switches = 5 },
@@ -615,13 +616,13 @@ public class StatsCalculatorTests
     {
         var oldBucket = new DailyBucketDocument
         {
-            Date = DateTime.Today.AddDays(-31),
+            Date = Today.AddDays(-31),
             AltTabSwitches = 1000, // would skew relapse pct if included
             TotalSwitches = 0,
         };
         var recentBucket = new DailyBucketDocument
         {
-            Date = DateTime.Today.AddDays(-1),
+            Date = Today.AddDays(-1),
             TotalSwitches = 100,
             AltTabSwitches = 0,
         };

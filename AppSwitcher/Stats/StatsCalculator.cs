@@ -141,7 +141,7 @@ internal class StatsCalculator(AppRegistryCache appRegistryCache)
 
     internal static int ComputeStreak(
         IReadOnlyList<DailyBucketDocument> allBuckets,
-        DateTime today,
+        DateOnly today,
         Func<DailyBucketDocument, bool> predicate)
     {
         var streak = 0;

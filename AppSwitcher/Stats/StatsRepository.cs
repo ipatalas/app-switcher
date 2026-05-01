@@ -10,7 +10,7 @@ internal class StatsRepository(StatsDbProvider dbProvider, ILogger<StatsReposito
     /// </summary>
     public IReadOnlyList<DailyBucketDocument> GetAllHistoricBuckets()
     {
-        var today = DateTime.Today;
+        var today = DateOnly.FromDateTime(DateTime.Today);
 
         try
         {

@@ -140,7 +140,7 @@ internal class SessionStats : ISessionStats
         _fastestSwitch = null;
     }
 
-    public DailyBucketDocument Snapshot(DateTime date)
+    public DailyBucketDocument Snapshot(DateOnly date)
     {
         FastestSwitchRecord? fastestSwitchSnapshot;
         lock (_fastestSwitchLock)
@@ -150,7 +150,7 @@ internal class SessionStats : ISessionStats
 
         return new DailyBucketDocument
         {
-            Date = date.Date,
+            Date = date,
             TotalSwitches = _totalSwitches,
             TotalTimeSavedMs = _totalTimeSavedMs,
             TotalPeeks = _totalPeeks,

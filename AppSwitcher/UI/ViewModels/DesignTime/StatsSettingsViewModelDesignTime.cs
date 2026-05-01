@@ -63,7 +63,7 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
         var stats = new SessionStats();
         stats.LoadFrom(new DailyBucketDocument
         {
-            Date = DateTime.Today,
+            Date = DateOnly.FromDateTime(DateTime.Today),
             TotalSwitches = 47,
             TotalTimeSavedMs = 2_840_000,
             TotalPeeks = 12,

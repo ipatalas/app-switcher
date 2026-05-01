@@ -35,7 +35,7 @@ internal class DailyBucketDocument
     public const string CollectionName = "daily_buckets";
 
     [BsonId]
-    public DateTime Date { get; init; }
+    public DateOnly Date { get; init; }
 
     public int TotalSwitches { get; init; }
 

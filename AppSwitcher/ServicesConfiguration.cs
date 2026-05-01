@@ -6,6 +6,7 @@ using AppSwitcher.Input;
 using AppSwitcher.Overlay;
 using AppSwitcher.Startup;
 using AppSwitcher.Stats;
+using AppSwitcher.Stats.Migrations;
 using AppSwitcher.Stats.Storage;
 using AppSwitcher.UI.Pages;
 using AppSwitcher.UI.ViewModels;
@@ -73,6 +74,8 @@ internal static class ServicesConfiguration
         services.AddSingleton<StatsService>();
         services.AddTransient<StatsRepository>();
         services.AddTransient<StatsCalculator>();
+        services.AddTransient<StatsMigrationRunner>();
+        services.AddImplementationsOf<IStatsMigration>(ServiceLifetime.Transient);
 
         services.AddCliHandler();
 
@@ -103,6 +106,9 @@ internal static class ServicesConfiguration
     private static bool SetupDatabases(this ServiceCollection services, bool isPortableMode)
     {
         BsonMapper.Global.EnumAsInteger = true;
+        BsonMapper.Global.RegisterType<DateOnly>(
+            serialize: d => d.ToString("yyyy-MM-dd"),
+            deserialize: bson => DateOnly.ParseExact(bson.AsString, "yyyy-MM-dd"));
 
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var mainDbPath = GetDbPath("settings.db");

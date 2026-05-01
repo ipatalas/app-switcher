@@ -1,3 +1,4 @@
+using AppSwitcher.Stats.Migrations;
 using AppSwitcher.Stats.Storage;
 using AppConfig = AppSwitcher.Configuration.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ internal class StatsService(
     SessionStats sessionStats,
     AppRegistryCache registryCache,
     StatsDbProvider dbProvider,
+    StatsMigrationRunner statsMigrationRunner,
     ILoggerFactory loggerFactory) : IDisposable
 {
     private readonly Channel<StatsEvent> _channel = Channel.CreateBounded<StatsEvent>(
@@ -78,6 +80,12 @@ internal class StatsService(
 
     private void StartConsumer()
     {
+        if (!statsMigrationRunner.RunPending())
+        {
+            _logger.LogError("Stats DB migrations failed — stats collection not started");
+            return;
+        }
+
         LoadTodaysBucket();
 
         _cts = new CancellationTokenSource();
@@ -120,7 +128,8 @@ internal class StatsService(
         try
         {
             using var database = dbProvider.Get();
-            var snapshot = sessionStats.Snapshot(DateTime.Now);
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var snapshot = sessionStats.Snapshot(today);
             var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);
             col.Upsert(snapshot);
             _logger.LogDebug("Stats flushed for {Date} (reason={Reason})", snapshot.Date.ToString("yyyy-MM-dd"), reason);
@@ -145,9 +154,9 @@ internal class StatsService(
                 return;
             }
             using var database = dbProvider.Get();
-            var today = DateTime.Now.Date;
+            var today = DateOnly.FromDateTime(DateTime.Today);
             var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);
-            var existing = col.FindById(today);
+            var existing = col.FindOne(b => b.Date == today);
             if (existing is not null)
             {
                 sessionStats.LoadFrom(existing);

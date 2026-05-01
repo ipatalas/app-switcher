@@ -251,7 +251,7 @@ internal partial class StatsSettingsViewModel(
     {
         using var _ = logger.MeasureTime($"ComputeStatsMetrics(IsCached = {_historicBucketsCache is not null})");
 
-        var today = sessionStats.Snapshot(DateTime.Today);
+        var today = sessionStats.Snapshot(DateOnly.FromDateTime(DateTime.Today));
         var allBuckets = GetHistoricBuckets();
 
         var configuredApps = State.Applications

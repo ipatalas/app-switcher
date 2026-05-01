@@ -9,11 +9,12 @@ namespace AppSwitcher.Tests.Stats;
 public class SessionStatsTests
 {
     private readonly SessionStats _sut = new();
+    private readonly DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
 
     [Fact]
     public void Snapshot_ReturnsZeroes_WhenNoEventsRecorded()
     {
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalSwitches.Should().Be(0);
         result.TotalTimeSavedMs.Should().Be(0);
@@ -29,7 +30,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 200, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalSwitches.Should().Be(2);
     }
@@ -40,7 +41,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 300, isDynamic: false);
         _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 500, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalTimeSavedMs.Should().Be(800);
     }
@@ -51,7 +52,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 200, savedMs: 100, isDynamic: false);
         _sut.RecordSwitch("notepad.exe", null, durationMs: 300, savedMs: 100, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.StaticAppUsage["notepad.exe"].TotalSwitchTimeMs.Should().Be(500);
     }
@@ -63,7 +64,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
         _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.StaticAppUsage["notepad.exe"].Switches.Should().Be(2);
         result.StaticAppUsage["code.exe"].Switches.Should().Be(1);
@@ -76,7 +77,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
         _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.DynamicAppUsage["explorer.exe"].Switches.Should().Be(2);
         result.StaticAppUsage.Should().BeEmpty();
@@ -88,7 +89,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
         _sut.RecordSwitch("explorer.exe", null, durationMs: 100, savedMs: 100, isDynamic: true);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.StaticAppUsage.Should().ContainKey("notepad.exe");
         result.StaticAppUsage.Should().NotContainKey("explorer.exe");
@@ -102,7 +103,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
         _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.Transitions["notepad.exe|code.exe"].Should().Be(2);
     }
@@ -112,7 +113,7 @@ public class SessionStatsTests
     {
         _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.Transitions.Should().BeEmpty();
     }
@@ -123,7 +124,7 @@ public class SessionStatsTests
         _sut.RecordPeek("notepad.exe", durationMs: 600, isDynamic: false);
         _sut.RecordPeek("notepad.exe", durationMs: 400, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalPeeks.Should().Be(2);
     }
@@ -134,7 +135,7 @@ public class SessionStatsTests
         _sut.RecordPeek("notepad.exe", durationMs: 600, isDynamic: false);
         _sut.RecordPeek("notepad.exe", durationMs: 400, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.StaticAppUsage["notepad.exe"].Peeks.Should().Be(2);
         result.StaticAppUsage["notepad.exe"].TotalPeekTimeMs.Should().Be(1000);
@@ -146,7 +147,7 @@ public class SessionStatsTests
     {
         _sut.RecordPeek("explorer.exe", durationMs: 500, isDynamic: true);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.DynamicAppUsage["explorer.exe"].Peeks.Should().Be(1);
         result.DynamicAppUsage["explorer.exe"].TotalPeekTimeMs.Should().Be(500);
@@ -158,7 +159,7 @@ public class SessionStatsTests
     {
         var doc = new DailyBucketDocument
         {
-            Date = DateTime.Now.Date,
+            Date = _today,
             TotalSwitches = 10,
             TotalTimeSavedMs = 5000,
             TotalPeeks = 3,
@@ -177,7 +178,7 @@ public class SessionStatsTests
         };
 
         _sut.LoadFrom(doc);
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalSwitches.Should().Be(10);
         result.TotalTimeSavedMs.Should().Be(5000);
@@ -192,7 +193,7 @@ public class SessionStatsTests
     {
         var doc = new DailyBucketDocument
         {
-            Date = DateTime.Now.Date,
+            Date = _today,
             TotalSwitches = 5,
             TotalTimeSavedMs = 2000,
             TotalPeeks = 0,
@@ -204,7 +205,7 @@ public class SessionStatsTests
         _sut.LoadFrom(doc);
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 500, isDynamic: false);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.TotalSwitches.Should().Be(6);
         result.TotalTimeSavedMs.Should().Be(2500);
@@ -213,11 +214,11 @@ public class SessionStatsTests
     [Fact]
     public void Snapshot_DateIsDateOnly()
     {
-        var now = new DateTime(2026, 4, 21, 15, 30, 0, DateTimeKind.Utc);
+        var date = new DateOnly(2026, 4, 21);
 
-        var result = _sut.Snapshot(now);
+        var result = _sut.Snapshot(date);
 
-        result.Date.Should().Be(new DateTime(2026, 4, 21, 0, 0, 0, DateTimeKind.Utc));
+        result.Date.Should().Be(new DateOnly(2026, 4, 21));
     }
 
     // ── Alt+Tab ─────────────────────────────────────────────────────────────
@@ -228,7 +229,7 @@ public class SessionStatsTests
         _sut.RecordAltTab(1);
         _sut.RecordAltTab(3);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.AltTabSwitches.Should().Be(2);
         result.AltTabKeystrokes.Should().Be(4);
@@ -239,7 +240,7 @@ public class SessionStatsTests
     {
         var doc = new DailyBucketDocument
         {
-            Date = DateTime.Now.Date,
+            Date = _today,
             TotalSwitches = 0,
             TotalTimeSavedMs = 0,
             TotalPeeks = 0,
@@ -251,7 +252,7 @@ public class SessionStatsTests
         };
 
         _sut.LoadFrom(doc);
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.AltTabSwitches.Should().Be(7);
         result.AltTabKeystrokes.Should().Be(19);
@@ -265,7 +266,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 200, triggerKey: Key.S);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.FastestSwitch.Should().NotBeNull();
         result.FastestSwitch!.DurationMs.Should().Be(200);
@@ -281,7 +282,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("spotify.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 150, triggerKey: Key.S);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.FastestSwitch!.DurationMs.Should().Be(150);
         result.FastestSwitch.AppName.Should().Be("spotify.exe");
@@ -296,7 +297,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: 400, triggerKey: Key.N);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.FastestSwitch!.DurationMs.Should().Be(150);
         result.FastestSwitch.AppName.Should().Be("spotify.exe");
@@ -309,7 +310,7 @@ public class SessionStatsTests
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false,
             fastestDurationMs: null, triggerKey: Key.N);
 
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.FastestSwitch.Should().BeNull();
     }
@@ -319,7 +320,7 @@ public class SessionStatsTests
     {
         var doc = new DailyBucketDocument
         {
-            Date = DateTime.Now.Date,
+            Date = _today,
             TotalSwitches = 1,
             TotalTimeSavedMs = 100,
             TotalPeeks = 0,
@@ -332,7 +333,7 @@ public class SessionStatsTests
         };
 
         _sut.LoadFrom(doc);
-        var result = _sut.Snapshot(DateTime.Now);
+        var result = _sut.Snapshot(_today);
 
         result.FastestSwitch.Should().NotBeNull();
         result.FastestSwitch!.DurationMs.Should().Be(85);
