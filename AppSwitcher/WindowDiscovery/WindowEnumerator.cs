@@ -50,8 +50,7 @@ internal class WindowEnumerator(ILogger<WindowEnumerator> logger, IProcessPathEx
     /// </summary>
     public int GetTotalChoicesCount()
     {
-        var count = GetCachedWindows()
-            .Count(x => !x.ProcessName.Equals("appswitcher.exe", StringComparison.InvariantCultureIgnoreCase));
+        var count = GetCachedWindows().Count;
         return count;
     }
 
