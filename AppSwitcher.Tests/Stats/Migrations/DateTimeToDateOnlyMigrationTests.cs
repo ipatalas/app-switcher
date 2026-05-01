@@ -2,6 +2,7 @@ using AppSwitcher.Stats.Migrations;
 using AppSwitcher.Stats.Storage;
 using AwesomeAssertions;
 using LiteDB;
+using NSubstitute;
 using Xunit;
 
 namespace AppSwitcher.Tests.Stats.Migrations;
@@ -9,7 +10,8 @@ namespace AppSwitcher.Tests.Stats.Migrations;
 public class DateTimeToDateOnlyMigrationTests : IDisposable
 {
     private readonly LiteDatabase _db;
-    private readonly DateTimeToDateOnlyMigration _sut = new();
+    private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
+    private readonly DateTimeToDateOnlyMigration _sut;
 
     public DateTimeToDateOnlyMigrationTests()
     {
@@ -18,6 +20,7 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
             serialize: d => d.ToString("yyyy-MM-dd"),
             deserialize: v => DateOnly.Parse(v.AsString));
         _db = new LiteDatabase(":memory:");
+        _sut = new DateTimeToDateOnlyMigration(_timeProvider);
     }
 
     public void Dispose() => _db.Dispose();
@@ -46,6 +49,7 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
     public void Up_PreservesLocalCalendarDate_WhenUtcCrossesDateBoundary()
     {
         var targetTimeZone = TimeZoneInfo.CreateCustomTimeZone("UTC+2", TimeSpan.FromHours(2), null, null);
+        _timeProvider.LocalTimeZone.Returns(targetTimeZone);
         // UTC 2026-04-15T22:00 = local 2026-04-16T00:00 in UTC+2
         // The migration uses ToLocalTime().Date so the stored key reflects local date
         var col = _db.GetCollection(DailyBucketDocument.CollectionName);

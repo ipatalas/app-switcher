@@ -39,6 +39,7 @@ internal static class ServicesConfiguration
             return null;
         }
 
+        services.AddSingleton(TimeProvider.System);
         services.AddTransient<INavigationViewPageProvider, PageProviderService>();
         services.AddSingleton<ISnackbarService, SnackbarService>();
         services.AddSingleton<IContentDialogService, ContentDialogService>();
