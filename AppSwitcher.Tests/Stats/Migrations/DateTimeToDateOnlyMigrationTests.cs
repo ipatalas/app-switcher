@@ -12,6 +12,7 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
     private readonly LiteDatabase _db;
     private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
     private readonly DateTimeToDateOnlyMigration _sut;
+    private readonly TimeZoneInfo _targetTimeZone = TimeZoneInfo.CreateCustomTimeZone("UTC+2", TimeSpan.FromHours(2), null, null);
 
     public DateTimeToDateOnlyMigrationTests()
     {
@@ -21,6 +22,7 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
             deserialize: v => DateOnly.Parse(v.AsString));
         _db = new LiteDatabase(":memory:");
         _sut = new DateTimeToDateOnlyMigration(_timeProvider);
+        _timeProvider.LocalTimeZone.Returns(_targetTimeZone);
     }
 
     public void Dispose() => _db.Dispose();
@@ -48,8 +50,6 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
     [Fact]
     public void Up_PreservesLocalCalendarDate_WhenUtcCrossesDateBoundary()
     {
-        var targetTimeZone = TimeZoneInfo.CreateCustomTimeZone("UTC+2", TimeSpan.FromHours(2), null, null);
-        _timeProvider.LocalTimeZone.Returns(targetTimeZone);
         // UTC 2026-04-15T22:00 = local 2026-04-16T00:00 in UTC+2
         // The migration uses ToLocalTime().Date so the stored key reflects local date
         var col = _db.GetCollection(DailyBucketDocument.CollectionName);
@@ -61,7 +61,7 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
 
         var result = col.FindAll().Single();
         var storedId = result["_id"].AsString;
-        var expectedDate = TimeZoneInfo.ConvertTimeFromUtc(utcDate, targetTimeZone).Date;
+        var expectedDate = TimeZoneInfo.ConvertTimeFromUtc(utcDate, _targetTimeZone).Date;
         storedId.Should().Be(expectedDate.ToString("yyyy-MM-dd"));
     }
 
