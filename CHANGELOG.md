@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.10.1] - 2026-05-01
+- Add small indicator for Productivity Streak section so it's more clear whether today's streak is completed or not
+- Fix bug when resetting stats would not reset everything in many cases
+- Other minor fixes and improvements
+
 ## [1.10.0] - 2026-04-29
 - Add Dynamic Mode - automatically assign letters to running apps
 - Add statistics tracking and dashboard to show most frequently used apps and other insights
