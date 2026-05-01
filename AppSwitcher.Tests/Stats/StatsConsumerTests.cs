@@ -192,25 +192,6 @@ public class StatsConsumerTests
     }
 
     [Fact]
-    public async Task ProcessSwitch_RecordsTransition_WhenTwoSwitchesOccur()
-    {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-        var sut = CreateSut();
-        var runTask = sut.StartAsync(cts.Token);
-
-        await _channel.Writer.WriteAsync(MakeSwitchEvent("notepad.exe"), CancellationToken.None);
-        await _channel.Writer.WriteAsync(MakeSwitchEvent("code.exe"), CancellationToken.None);
-
-        await Task.Delay(100, CancellationToken.None);
-        await cts.CancelAsync();
-        try { await runTask; } catch (OperationCanceledException) { }
-
-        var snapshot = _realStats.Snapshot(_today);
-        snapshot.Transitions.Should().ContainKey("notepad.exe|code.exe");
-        snapshot.Transitions["notepad.exe|code.exe"].Should().Be(1);
-    }
-
-    [Fact]
     public async Task ProcessPeek_RecordsStaticPeekInStaticBucket()
     {
         var evt = MakePeekEvent("notepad.exe", armMs: 0, finishMs: 800, isDynamic: false);

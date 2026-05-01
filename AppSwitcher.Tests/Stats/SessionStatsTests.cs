@@ -21,7 +21,6 @@ public class SessionStatsTests
         result.TotalPeeks.Should().Be(0);
         result.StaticAppUsage.Should().BeEmpty();
         result.DynamicAppUsage.Should().BeEmpty();
-        result.Transitions.Should().BeEmpty();
     }
 
     [Fact]
@@ -98,27 +97,6 @@ public class SessionStatsTests
     }
 
     [Fact]
-    public void RecordSwitch_TracksTransitions_WhenPreviousProcessNameProvided()
-    {
-        _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
-        _sut.RecordSwitch("code.exe", "notepad.exe", durationMs: 100, savedMs: 100, isDynamic: false);
-
-        var result = _sut.Snapshot(_today);
-
-        result.Transitions["notepad.exe|code.exe"].Should().Be(2);
-    }
-
-    [Fact]
-    public void RecordSwitch_DoesNotAddTransition_WhenNoPreviousProcess()
-    {
-        _sut.RecordSwitch("code.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
-
-        var result = _sut.Snapshot(_today);
-
-        result.Transitions.Should().BeEmpty();
-    }
-
-    [Fact]
     public void RecordPeek_IncrementsTotalPeeks()
     {
         _sut.RecordPeek("notepad.exe", durationMs: 600, isDynamic: false);
@@ -170,10 +148,6 @@ public class SessionStatsTests
             DynamicAppUsage = new Dictionary<string, AppUsageStats>
             {
                 ["explorer.exe"] = new() { Switches = 3 }
-            },
-            Transitions = new Dictionary<string, int>
-            {
-                ["notepad.exe|code.exe"] = 4
             }
         };
 
@@ -185,7 +159,6 @@ public class SessionStatsTests
         result.TotalPeeks.Should().Be(3);
         result.StaticAppUsage["code.exe"].Switches.Should().Be(7);
         result.DynamicAppUsage["explorer.exe"].Switches.Should().Be(3);
-        result.Transitions["notepad.exe|code.exe"].Should().Be(4);
     }
 
     [Fact]
@@ -198,8 +171,7 @@ public class SessionStatsTests
             TotalTimeSavedMs = 2000,
             TotalPeeks = 0,
             StaticAppUsage = [],
-            DynamicAppUsage = [],
-            Transitions = []
+            DynamicAppUsage = []
         };
 
         _sut.LoadFrom(doc);
@@ -247,8 +219,7 @@ public class SessionStatsTests
             AltTabSwitches = 7,
             AltTabKeystrokes = 19,
             StaticAppUsage = [],
-            DynamicAppUsage = [],
-            Transitions = []
+            DynamicAppUsage = []
         };
 
         _sut.LoadFrom(doc);
@@ -328,8 +299,7 @@ public class SessionStatsTests
             AltTabKeystrokes = 0,
             FastestSwitch = new FastestSwitchRecord { DurationMs = 85, AppName = "spotify.exe", Letter = "S" },
             StaticAppUsage = [],
-            DynamicAppUsage = [],
-            Transitions = []
+            DynamicAppUsage = []
         };
 
         _sut.LoadFrom(doc);

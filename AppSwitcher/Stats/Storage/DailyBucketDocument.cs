@@ -47,8 +47,6 @@ internal class DailyBucketDocument
 
     public Dictionary<string, AppUsageStats> DynamicAppUsage { get; init; } = [];
 
-    public Dictionary<string, int> Transitions { get; init; } = [];
-
     public int AltTabSwitches { get; init; }
 
     public int AltTabKeystrokes { get; init; }

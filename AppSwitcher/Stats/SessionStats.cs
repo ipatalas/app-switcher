@@ -24,9 +24,6 @@ internal class SessionStats : ISessionStats
     private readonly ConcurrentDictionary<string, AppUsageStats> _dynamicAppUsage =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly ConcurrentDictionary<string, int> _transitions =
-        new(StringComparer.OrdinalIgnoreCase);
-
     public void RecordSwitch(string processName, string? previousProcessName, int durationMs, int savedMs,
         bool isDynamic,
         int? fastestDurationMs = null, Key triggerKey = Key.A)
@@ -44,12 +41,6 @@ internal class SessionStats : ISessionStats
                 existing.TotalSwitchTimeMs += durationMs;
                 return existing;
             });
-
-        if (previousProcessName is not null)
-        {
-            var key = $"{previousProcessName}|{processName}";
-            _transitions.AddOrUpdate(key, 1, (_, count) => count + 1);
-        }
 
         if (fastestDurationMs is > 0)
         {
@@ -120,11 +111,6 @@ internal class SessionStats : ISessionStats
             _dynamicAppUsage[key] = value.Clone();
         }
 
-        _transitions.Clear();
-        foreach (var (key, value) in doc.Transitions)
-        {
-            _transitions[key] = value;
-        }
     }
 
     public void Clear()
@@ -136,7 +122,6 @@ internal class SessionStats : ISessionStats
         _altTabKeystrokes = 0;
         _staticAppUsage.Clear();
         _dynamicAppUsage.Clear();
-        _transitions.Clear();
         _fastestSwitch = null;
     }
 
@@ -164,8 +149,7 @@ internal class SessionStats : ISessionStats
             DynamicAppUsage = _dynamicAppUsage.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.Clone(),
-                StringComparer.OrdinalIgnoreCase),
-            Transitions = new Dictionary<string, int>(_transitions, StringComparer.OrdinalIgnoreCase)
+                StringComparer.OrdinalIgnoreCase)
         };
     }
 }
