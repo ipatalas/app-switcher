@@ -56,7 +56,7 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exa
 
 - ~~**Peek mode:** show target app as long as hotkey is held down and then bring back the original app when released.~~
 - **Custom key combinations:** allow more complex hotkeys, for example `Ctrl+Shift+T`.
-- **Dynamic bindings:** automatically assign letters based on app name
+- ~~**Dynamic bindings:** automatically assign letters based on app name~~
 - **More modifiers:** add ~~Caps Lock~~ and function keys as optional modifiers.
 
 ---
