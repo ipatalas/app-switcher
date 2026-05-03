@@ -16,10 +16,6 @@ public class DateTimeToDateOnlyMigrationTests : IDisposable
 
     public DateTimeToDateOnlyMigrationTests()
     {
-        BsonMapper.Global.EnumAsInteger = true;
-        BsonMapper.Global.RegisterType(
-            serialize: d => d.ToString("yyyy-MM-dd"),
-            deserialize: v => DateOnly.Parse(v.AsString));
         _db = new LiteDatabase(":memory:");
         _sut = new DateTimeToDateOnlyMigration(_timeProvider);
         _timeProvider.LocalTimeZone.Returns(_targetTimeZone);

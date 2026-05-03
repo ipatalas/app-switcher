@@ -9,13 +9,7 @@ namespace AppSwitcher.Tests.Configuration.Migrations;
 
 public class MigrationRunnerTests : IDisposable
 {
-    private readonly LiteDatabase _db;
-
-    public MigrationRunnerTests()
-    {
-        BsonMapper.Global.EnumAsInteger = true;
-        _db = new LiteDatabase(":memory:");
-    }
+    private readonly LiteDatabase _db = new(":memory:");
 
     public void Dispose() => _db.Dispose();
 

@@ -301,7 +301,7 @@ public class KeyStateMachineTests
         const int delayMs = 50;
         _sut.ProcessKeyDown(Key.Apps);
 
-        await Task.Delay(delayMs);
+        await Task.Delay(delayMs, TestContext.Current.CancellationToken);
         var result = _sut.ProcessKeyUp(Key.Apps);
 
         result.Should().BeOfType<ModifierReleasedClean>()

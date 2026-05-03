@@ -49,7 +49,7 @@ public class PeekerTests : IDisposable
     {
         _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2), isDynamic: false);
 
-        await Task.Delay(Peeker.PeekThresholdMs / 2);
+        await Task.Delay(Peeker.PeekThresholdMs / 2, TestContext.Current.CancellationToken);
         var result = _sut.TryFinish(out _);
 
         result.Should().BeFalse();
@@ -61,7 +61,7 @@ public class PeekerTests : IDisposable
         var previousWindow = MakeWindow(processId: 1);
         _sut.Arm(previousWindow, MakeResult(processId: 2), isDynamic: false);
 
-        await Task.Delay(Peeker.PeekThresholdMs + 100);
+        await Task.Delay(Peeker.PeekThresholdMs + 100, TestContext.Current.CancellationToken);
         var result = _sut.TryFinish(out var peekResult);
 
         result.Should().BeTrue();
@@ -83,7 +83,7 @@ public class PeekerTests : IDisposable
     public async Task TryFinish_ReturnsFalse_WhenCalledTwice()
     {
         _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2), isDynamic: false);
-        await Task.Delay(Peeker.PeekThresholdMs + 100);
+        await Task.Delay(Peeker.PeekThresholdMs + 100, TestContext.Current.CancellationToken);
 
         _sut.TryFinish(out _);
         var result = _sut.TryFinish(out _);
@@ -97,7 +97,7 @@ public class PeekerTests : IDisposable
         _sut.Arm(MakeWindow(processId: 1), MakeResult(processId: 2), isDynamic: false);
         _sut.Cancel();
 
-        await Task.Delay(Peeker.PeekThresholdMs + 100);
+        await Task.Delay(Peeker.PeekThresholdMs + 100, TestContext.Current.CancellationToken);
         var result = _sut.TryFinish(out _);
 
         result.Should().BeFalse();
@@ -109,7 +109,7 @@ public class PeekerTests : IDisposable
         var minimizedTarget = MakeResult(processId: 2, state: SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
         _sut.Arm(MakeWindow(processId: 1), minimizedTarget, isDynamic: false);
 
-        await Task.Delay(Peeker.PeekThresholdMs + 100);
+        await Task.Delay(Peeker.PeekThresholdMs + 100, TestContext.Current.CancellationToken);
         _sut.TryFinish(out var peekResult);
 
         peekResult!.TargetWasMinimized.Should().BeTrue();
@@ -121,7 +121,7 @@ public class PeekerTests : IDisposable
         var normalTarget = MakeResult(processId: 2, state: SHOW_WINDOW_CMD.SW_NORMAL);
         _sut.Arm(MakeWindow(processId: 1), normalTarget, isDynamic: false);
 
-        await Task.Delay(Peeker.PeekThresholdMs + 100);
+        await Task.Delay(Peeker.PeekThresholdMs + 100, TestContext.Current.CancellationToken);
         _sut.TryFinish(out var peekResult);
 
         peekResult!.TargetWasMinimized.Should().BeFalse();

@@ -17,11 +17,6 @@ public class StatsMigrationRunnerTests : IDisposable
 
     public StatsMigrationRunnerTests()
     {
-        BsonMapper.Global.EnumAsInteger = true;
-        BsonMapper.Global.RegisterType<DateOnly>(
-            serialize: d => d.ToString("yyyy-MM-dd"),
-            deserialize: v => DateOnly.Parse(v.AsString));
-
         _db = new LiteDatabase(":memory:");
 
         // StatsMigrationRunner disposes the ILiteDatabase returned by the factory (using var db = ...).

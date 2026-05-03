@@ -19,7 +19,6 @@ public class FixPackagedAppsMigrationTests : IDisposable
 
     public FixPackagedAppsMigrationTests()
     {
-        BsonMapper.Global.EnumAsInteger = true;
         _db = new LiteDatabase(":memory:");
         _sut = new FixPackagedAppsMigration(_packagedAppsService);
     }
