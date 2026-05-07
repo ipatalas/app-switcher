@@ -1,9 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Windows.Input;
 
 namespace AppSwitcher.Configuration.Storage;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Used for LiteDB serialization")]
 internal class ApplicationConfigurationDocument
 {
     public Key Key { get; init; }

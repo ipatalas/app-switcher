@@ -13,7 +13,7 @@
       MinWidth="200"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,14,0">
         <StackPanel Margin="0,5,0,20">
 
             <ui:TextBlock Text="App Switcher Overlay"

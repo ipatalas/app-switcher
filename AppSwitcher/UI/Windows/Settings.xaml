@@ -40,7 +40,7 @@
         <ui:NavigationView
             Grid.Row="0"
             x:Name="NavigationView"
-            Padding="20"
+            Padding="20, 20, 6, 20"
             FrameMargin="0"
             Margin="10,45,10,10"
             IsBackButtonVisible="Collapsed"
