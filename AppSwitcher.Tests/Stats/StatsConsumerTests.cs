@@ -17,7 +17,6 @@ public class StatsConsumerTests
         Channel.CreateUnbounded<StatsEvent>();
 
     private readonly SessionStats _realStats = new();
-    private readonly DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
 
     private StatsConsumer CreateSut(
         ISessionStats? sessionStats = null,
@@ -122,7 +121,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
         snapshot.StaticAppUsage.Should().ContainKey("notepad.exe");
         snapshot.DynamicAppUsage.Should().BeEmpty();
@@ -135,7 +134,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
         snapshot.DynamicAppUsage.Should().ContainKey("explorer.exe");
         snapshot.StaticAppUsage.Should().BeEmpty();
@@ -154,7 +153,7 @@ public class StatsConsumerTests
         await WriteAndDrain(evt);
 
         // Just verify it was recorded (duration logic is internal)
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
     }
 
@@ -170,7 +169,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
     }
 
@@ -187,7 +186,7 @@ public class StatsConsumerTests
         await WriteAndDrain(evt);
 
         // Verify switch was still recorded despite idle clamping
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
     }
 
@@ -198,7 +197,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalPeeks.Should().Be(1);
         snapshot.StaticAppUsage["notepad.exe"].Peeks.Should().Be(1);
         snapshot.StaticAppUsage["notepad.exe"].TotalPeekTimeMs.Should().Be(800);
@@ -212,7 +211,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalPeeks.Should().Be(1);
         snapshot.DynamicAppUsage["explorer.exe"].Peeks.Should().Be(1);
         snapshot.StaticAppUsage.Should().BeEmpty();
@@ -232,7 +231,7 @@ public class StatsConsumerTests
         await cts.CancelAsync();
         try { await runTask; } catch (OperationCanceledException) { }
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.StaticAppUsage["notepad.exe"].TotalPeekTimeMs.Should().Be(1000);
     }
 
@@ -264,7 +263,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.AltTabSwitches.Should().Be(1);
         snapshot.AltTabKeystrokes.Should().Be(3);
     }
@@ -280,7 +279,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.FastestSwitch.Should().NotBeNull();
         snapshot.FastestSwitch!.DurationMs.Should().Be(200);
         snapshot.FastestSwitch.AppName.Should().Be("spotify.exe");
@@ -296,7 +295,7 @@ public class StatsConsumerTests
 
         await WriteAndDrain(evt);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.FastestSwitch.Should().BeNull();
     }
 
@@ -313,7 +312,7 @@ public class StatsConsumerTests
 
         await WriteAndDrainAll(events);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(5);
     }
 
@@ -329,7 +328,7 @@ public class StatsConsumerTests
 
         await WriteAndDrainAll(events);
 
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(1);
         snapshot.TotalPeeks.Should().Be(1);
         snapshot.AltTabSwitches.Should().Be(1);
@@ -449,7 +448,7 @@ public class StatsConsumerTests
         // Assert: every event must be recorded.
         // Old code: 5 orphaned waiters → 5 drops → TotalSwitches == 5 (FAIL).
         // Fixed code: readTask reused across ticks → 0 drops → TotalSwitches == 10 (PASS).
-        var snapshot = _realStats.Snapshot(_today);
+        var snapshot = _realStats.GetSnapshots().Single();
         snapshot.TotalSwitches.Should().Be(eventCount);
     }
 }

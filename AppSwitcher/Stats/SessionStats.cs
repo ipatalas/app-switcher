@@ -1,155 +1,117 @@
 using AppSwitcher.Extensions;
 using AppSwitcher.Stats.Storage;
-using System.Collections.Concurrent;
 using System.Windows.Input;
 
 namespace AppSwitcher.Stats;
 
 internal class SessionStats : ISessionStats
 {
-    private int _totalSwitches;
-    private int _totalTimeSavedMs;
-    private int _totalPeeks;
-    private int _altTabSwitches;
-    private int _altTabKeystrokes;
-
-    private FastestSwitchRecord? _fastestSwitch;
-    private readonly object _fastestSwitchLock = new();
+    private DailyBucketDocument? _rolloverSnapshot;
+    private DailyBucketDocument _currentSnapshot = new();
+    // All Record* calls happen from one thread, but they can still clash with another thread calling GetSnapshots
+    // This could potentially lead to an exception when modifying the dictionary while it's being read, so we use a lock to be safe
+    private readonly object _lock = new();
 
     public event Action? DataChanged;
-
-    private readonly ConcurrentDictionary<string, AppUsageStats> _staticAppUsage =
-        new(StringComparer.OrdinalIgnoreCase);
-
-    private readonly ConcurrentDictionary<string, AppUsageStats> _dynamicAppUsage =
-        new(StringComparer.OrdinalIgnoreCase);
 
     public void RecordSwitch(string processName, string? previousProcessName, int durationMs, int savedMs,
         bool isDynamic,
         int? fastestDurationMs = null, Key triggerKey = Key.A)
     {
-        Interlocked.Increment(ref _totalSwitches);
-        Interlocked.Add(ref _totalTimeSavedMs, savedMs);
-
-        var bucket = isDynamic ? _dynamicAppUsage : _staticAppUsage;
-        bucket.AddOrUpdate(
-            processName,
-            _ => new AppUsageStats { Switches = 1, TotalSwitchTimeMs = durationMs },
-            (_, existing) =>
-            {
-                existing.Switches++;
-                existing.TotalSwitchTimeMs += durationMs;
-                return existing;
-            });
-
-        if (fastestDurationMs is > 0)
+        lock (_lock)
         {
-            lock (_fastestSwitchLock)
-            {
-                if (_fastestSwitch is null || fastestDurationMs.Value < _fastestSwitch.DurationMs)
-                {
-                    _fastestSwitch = new FastestSwitchRecord
-                    {
-                        DurationMs = fastestDurationMs.Value,
-                        AppName = processName,
-                        Letter = triggerKey.ToFriendlyString(),
-                        Date = DateTime.Today,
-                    };
-                }
-            }
+            CheckRollover();
+            _currentSnapshot.RecordSwitch(processName, durationMs, savedMs, isDynamic);
+            _currentSnapshot.RecordFastestSwitch(processName, fastestDurationMs, triggerKey);
         }
 
         DataChanged?.Invoke();
     }
 
-    public void RecordPeek(string processName, int durationMs, bool isDynamic)    {
-        Interlocked.Increment(ref _totalPeeks);
-
-        var bucket = isDynamic ? _dynamicAppUsage : _staticAppUsage;
-        bucket.AddOrUpdate(
-            processName,
-            _ => new AppUsageStats { Peeks = 1, TotalPeekTimeMs = durationMs },
-            (_, existing) =>
-            {
-                existing.Peeks++;
-                existing.TotalPeekTimeMs += durationMs;
-                return existing;
-            });
+    public void RecordPeek(string processName, int durationMs, bool isDynamic)
+    {
+        lock (_lock)
+        {
+            CheckRollover();
+            _currentSnapshot.RecordPeek(processName, durationMs, isDynamic);
+        }
 
         DataChanged?.Invoke();
     }
 
     public void RecordAltTab(int tabCount)
     {
-        Interlocked.Increment(ref _altTabSwitches);
-        Interlocked.Add(ref _altTabKeystrokes, tabCount);
+        lock (_lock)
+        {
+            CheckRollover();
+            _currentSnapshot.RecordAltTab(tabCount);
+        }
+
         DataChanged?.Invoke();
     }
 
     public void LoadFrom(DailyBucketDocument doc)
     {
-        _totalSwitches = doc.TotalSwitches;
-        _totalTimeSavedMs = doc.TotalTimeSavedMs;
-        _totalPeeks = doc.TotalPeeks;
-        _altTabSwitches = doc.AltTabSwitches;
-        _altTabKeystrokes = doc.AltTabKeystrokes;
-
-        lock (_fastestSwitchLock)
+        lock (_lock)
         {
-            _fastestSwitch = doc.FastestSwitch?.Clone();
+            _currentSnapshot = doc.Clone();
+            _rolloverSnapshot = null;
         }
-
-        _staticAppUsage.Clear();
-        foreach (var (key, value) in doc.StaticAppUsage)
-        {
-            _staticAppUsage[key] = value.Clone();
-        }
-
-        _dynamicAppUsage.Clear();
-        foreach (var (key, value) in doc.DynamicAppUsage)
-        {
-            _dynamicAppUsage[key] = value.Clone();
-        }
-
     }
 
     public void Clear()
     {
-        _totalSwitches = 0;
-        _totalTimeSavedMs = 0;
-        _totalPeeks = 0;
-        _altTabSwitches = 0;
-        _altTabKeystrokes = 0;
-        _staticAppUsage.Clear();
-        _dynamicAppUsage.Clear();
-        _fastestSwitch = null;
+        lock (_lock)
+        {
+            _currentSnapshot = new DailyBucketDocument { Date = DateOnly.FromDateTime(DateTime.Today) };
+            _rolloverSnapshot = null;
+        }
     }
 
-    public DailyBucketDocument Snapshot(DateOnly date)
+    public void ClearRollover()
     {
-        FastestSwitchRecord? fastestSwitchSnapshot;
-        lock (_fastestSwitchLock)
+        lock (_lock)
         {
-            fastestSwitchSnapshot = _fastestSwitch?.Clone();
+            _rolloverSnapshot = null;
+        }
+    }
+
+    /// <summary>
+    /// Returns all buffered snapshots, this could be today's and yesterday's if there was anything recorded yesterday
+    /// </summary>
+    public IReadOnlyList<DailyBucketDocument> GetSnapshots()
+    {
+        lock (_lock)
+        {
+            var today = _currentSnapshot.Clone();
+            var previous = _rolloverSnapshot;
+
+            return previous is null ? [today] : [previous, today];
+        }
+    }
+
+    private void CheckRollover()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (today == _currentSnapshot.Date)
+        {
+            return;
         }
 
-        return new DailyBucketDocument
+        if (HasAnyData())
         {
-            Date = date,
-            TotalSwitches = _totalSwitches,
-            TotalTimeSavedMs = _totalTimeSavedMs,
-            TotalPeeks = _totalPeeks,
-            AltTabSwitches = _altTabSwitches,
-            AltTabKeystrokes = _altTabKeystrokes,
-            FastestSwitch = fastestSwitchSnapshot,
-            StaticAppUsage = _staticAppUsage.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.Clone(),
-                StringComparer.OrdinalIgnoreCase),
-            DynamicAppUsage = _dynamicAppUsage.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.Clone(),
-                StringComparer.OrdinalIgnoreCase)
-        };
+            _rolloverSnapshot = _currentSnapshot.Clone();
+        }
+
+        _currentSnapshot = new DailyBucketDocument { Date = DateOnly.FromDateTime(DateTime.Today) };
     }
+
+    private bool HasAnyData() =>
+        _currentSnapshot.TotalSwitches > 0 || _currentSnapshot.TotalPeeks > 0 || _currentSnapshot.AltTabSwitches > 0;
+
+    /// <summary>
+    /// For testing only. Simulates the app having last recorded an event on a prior date,
+    /// so that the next <c>Record*</c> call triggers day-rollover detection.
+    /// </summary>
+    internal void SimulateLastRecordedDate(DateOnly date) => _currentSnapshot.Date = date;
 }

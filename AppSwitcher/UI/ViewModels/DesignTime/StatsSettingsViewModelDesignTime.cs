@@ -71,21 +71,18 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
             AltTabKeystrokes = 23,
             FastestSwitch = new FastestSwitchRecord
             {
-                DurationMs = 45,
-                AppName = "WindowsTerminal.exe",
-                Letter = "T",
-                Date = new DateTime(2026, 4, 10),
+                DurationMs = 45, AppName = "WindowsTerminal.exe", Letter = "T", Date = new DateTime(2026, 4, 10),
             },
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["Code.exe"] = new() { Switches = 18, Peeks = 3, TotalPeekTimeMs = 4500, TotalSwitchTimeMs = 720 },
-                ["WindowsTerminal.exe"] = new() { Switches = 14, Peeks = 2, TotalPeekTimeMs = 1000, TotalSwitchTimeMs = 560 },
-                ["brave.exe"] = new() { Switches = 8, Peeks = 1, TotalPeekTimeMs = 800, TotalSwitchTimeMs = 320 },
+                ["Code.exe"] = new(18, 3, 4500, 720),
+                ["WindowsTerminal.exe"] = new(14, 2, 1000, 560),
+                ["brave.exe"] = new(8, 1, 800, 320),
             },
             DynamicAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["Slack.exe"] = new() { Switches = 5, Peeks = 6, TotalPeekTimeMs = 18000, TotalSwitchTimeMs = 200 },
-                ["notepad.exe"] = new() { Switches = 2, Peeks = 0, TotalPeekTimeMs = 0, TotalSwitchTimeMs = 80 },
+                ["Slack.exe"] = new(5, 6, 18000, 200),
+                ["notepad.exe"] = new(2, 0, 0, 80),
             },
         });
         return stats;

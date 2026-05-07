@@ -128,11 +128,19 @@ internal class StatsService(
         try
         {
             using var database = dbProvider.Get();
-            var today = DateOnly.FromDateTime(DateTime.Today);
-            var snapshot = sessionStats.Snapshot(today);
             var col = database.GetCollection<DailyBucketDocument>(DailyBucketDocument.CollectionName);
-            col.Upsert(snapshot);
-            _logger.LogDebug("Stats flushed for {Date} (reason={Reason})", snapshot.Date.ToString("yyyy-MM-dd"), reason);
+            var snapshots = sessionStats.GetSnapshots();
+
+            foreach (var snapshot in snapshots)
+            {
+                col.Upsert(snapshot);
+                _logger.LogDebug("Stats flushed for {Date} (reason={Reason})", snapshot.Date.ToString("yyyy-MM-dd"), reason);
+            }
+
+            if (snapshots.Count > 1)
+            {
+                sessionStats.ClearRollover();
+            }
         }
         catch (Exception ex)
         {

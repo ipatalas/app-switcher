@@ -135,10 +135,10 @@ public class StatsCalculatorTests
             Date = Today,
             AltTabSwitches = relapses,
             StaticAppUsage = staticSwitches > 0
-                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new() { Switches = staticSwitches } }
+                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(staticSwitches)}
                 : [],
             DynamicAppUsage = dynamicSwitches > 0
-                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new() { Switches = dynamicSwitches } }
+                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(dynamicSwitches)}
                 : [],
         };
 
@@ -325,11 +325,11 @@ public class StatsCalculatorTests
             Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["a.exe"] = new() { Switches = 75 },
+                ["a.exe"] = new(75),
             },
             DynamicAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["b.exe"] = new() { Switches = 25 },
+                ["b.exe"] = new(25),
             },
         };
 
@@ -450,7 +450,7 @@ public class StatsCalculatorTests
             Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["code.exe"] = new() { Switches = 10 },
+                ["code.exe"] = new(10),
             },
         };
         List<(string, Key C)> configuredApps = [("code.exe", Key.C)];
@@ -473,7 +473,7 @@ public class StatsCalculatorTests
             Date = Today,
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {
-                ["used.exe"] = new() { Switches = 5 },
+                ["used.exe"] = new(5),
             },
         };
 
