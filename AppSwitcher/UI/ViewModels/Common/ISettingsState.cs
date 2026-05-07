@@ -31,5 +31,6 @@ internal interface ISettingsState : INotifyPropertyChanged
     bool Save();
     ApplicationShortcutViewModel? AddApplication(ApplicationSelectionArgs args);
     void RemoveApplication(ApplicationShortcutViewModel application);
+    void MoveApplication(int oldIndex, int newIndex);
     ApplicationShortcutViewModel? PinApplication(DynamicApplicationViewModel dynamic);
 }

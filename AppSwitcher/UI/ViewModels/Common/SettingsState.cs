@@ -344,6 +344,11 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
         Applications.Remove(application);
     }
 
+    public void MoveApplication(int oldIndex, int newIndex)
+    {
+        Applications.Move(oldIndex, newIndex);
+    }
+
     public ApplicationShortcutViewModel? PinApplication(DynamicApplicationViewModel dynamic)
     {
         if (Applications.Any(a => a.ProcessName.Equals(dynamic.ProcessName, StringComparison.OrdinalIgnoreCase)))

@@ -134,5 +134,6 @@ internal class SettingsStateDesignTime : ObservableObject, ISettingsState
     public bool Save() => true;
     public ApplicationShortcutViewModel? AddApplication(ApplicationSelectionArgs args) => null;
     public void RemoveApplication(ApplicationShortcutViewModel application) { }
+    public void MoveApplication(int oldIndex, int newIndex) { }
     public ApplicationShortcutViewModel? PinApplication(DynamicApplicationViewModel dynamic) => null;
 }

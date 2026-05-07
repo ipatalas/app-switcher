@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:dd="urn:gong-wpf-dragdrop"
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
       xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       xmlns:common="clr-namespace:AppSwitcher.UI.ViewModels.Common"
@@ -78,7 +79,14 @@
                              ItemsSource="{Binding State.Applications, Mode=OneWay}"
                              UseLayoutRounding="True"
                              ScrollViewer.CanContentScroll="False"
-                             Grid.IsSharedSizeScope="True">
+                             Grid.IsSharedSizeScope="True"
+                             dd:DragDrop.IsDragSource="True"
+                             dd:DragDrop.IsDropTarget="True"
+                             dd:DragDrop.DropHandler="{Binding}"
+                             dd:DragDrop.UseDefaultDragAdorner="True"
+                             dd:DragDrop.DefaultDragAdornerOpacity="0.75"
+                             dd:DragDrop.UseVisualSourceItemSizeForDragAdorner="True"
+                             dd:DragDrop.DropTargetAdornerBrush="{DynamicResource SystemAccentColorBrush}">
                     <ui:ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
@@ -106,28 +114,43 @@
                                 <ui:CardExpander.Header>
                                     <Grid UseLayoutRounding="True" HorizontalAlignment="Stretch" ShowGridLines="False" Grid.IsSharedSizeScope="False">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20" SharedSizeGroup="Col0" />
                                             <ColumnDefinition Width="45" SharedSizeGroup="Col1" />
                                             <ColumnDefinition Width="30" SharedSizeGroup="Col2" />
                                             <ColumnDefinition Width="*" MinWidth="200" />
                                             <ColumnDefinition Width="150" SharedSizeGroup="Col4" />
                                         </Grid.ColumnDefinitions>
 
-                                        <controls:KeyAssignmentButton Grid.Column="0" Key="{Binding Key}" />
+                                        <!-- Drag handle -->
+                                        <ui:SymbolIcon Grid.Column="0"
+                                                       Symbol="ReOrderDotsVertical20"
+                                                       FontSize="14"
+                                                       Cursor="SizeAll"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                       ToolTipService.ToolTip="Drag to reorder" />
 
-                                        <Image Grid.Column="1" Source="{Binding ProcessIcon}" Width="24" Height="24" HorizontalAlignment="Left" />
+                                        <controls:KeyAssignmentButton Grid.Column="1" Key="{Binding Key}"
+                                                                      dd:DragDrop.DragSourceIgnore="True" />
+
+                                        <Image Grid.Column="2" Source="{Binding ProcessIcon}" Width="24" Height="24" HorizontalAlignment="Left"
+                                               dd:DragDrop.DragSourceIgnore="True" />
 
                                         <ui:TextBlock
-                                            Grid.Column="2"
+                                            Grid.Column="3"
                                             Text="{Binding DisplayName}"
                                             Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                             VerticalAlignment="Center"
-                                            TextTrimming="CharacterEllipsis" />
+                                            TextTrimming="CharacterEllipsis"
+                                            dd:DragDrop.DragSourceIgnore="True" />
 
-                                        <StackPanel Grid.Column="3"
+                                        <StackPanel Grid.Column="4"
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
-                                                    Margin="0,0,20,0">
+                                                    Margin="0,0,20,0"
+                                                    dd:DragDrop.DragSourceIgnore="True">
 
                                             <ui:SymbolIcon Symbol="Warning24"
                                                            VerticalAlignment="Center"
@@ -170,7 +193,7 @@
                                         </StackPanel>
                                     </Grid>
                                 </ui:CardExpander.Header>
-                                <Grid Margin="0">
+                                <Grid Margin="0" dd:DragDrop.DragSourceIgnore="True">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="120" />
                                         <ColumnDefinition Width="*" />

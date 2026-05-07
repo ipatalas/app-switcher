@@ -51,6 +51,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="KeyboardHookLite" Version="1.1.4" />
