@@ -19,12 +19,17 @@ Peek mode is **off by default**.
 
 ## How It Works
 
-With peek mode enabled, every cross-process switch becomes a reversible peek:
+With peek mode enabled, every cross-process switch can become a reversible peek:
 
-1. Hold your modifier key and press an app's hotkey — the target app comes to the front.
-2. **Release the modifier key** (or the hotkey itself) — AppSwitcher automatically switches you back to the window you were in before.
+1. **Hold** your modifier key and press an app's hotkey — keep both keys held down.
+2. After **400 ms**, peek activates: the target app comes to the front and AppSwitcher arms the return trip.
+3. **Release the modifier key** (or the hotkey itself) — AppSwitcher automatically switches you back to the window you were in before.
 
 The return is instantaneous: no extra keypress, no context menu, no delay.
+
+<Aside type="tip">
+  The key is the **hold**. A quick tap switches normally; holding the hotkey for at least 400 ms is what triggers peek. If you release before the threshold, nothing happens — it's treated as a regular switch.
+</Aside>
 
 <Aside type="tip">
   Peek mode is ideal for quickly checking a chat message, glancing at a reference document, or confirming a build status — then snapping straight back to your editor.

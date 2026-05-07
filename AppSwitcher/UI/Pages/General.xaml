@@ -141,7 +141,20 @@
                 </ui:CardControl.Content>
             </ui:CardControl>
 
-            <ui:CardControl Margin="0,4,0,0"
+            <DockPanel Margin="2,10,0,8" >
+                <ui:HyperlinkButton DockPanel.Dock="Right"
+                                    Content="Learn more"
+                                    NavigateUri="https://app-switcher.com/peek-mode/"
+                                    Padding="0"
+                                    FontSize="12"
+                                    VerticalAlignment="Center" />
+                <ui:TextBlock Text="Peek mode"
+                              FontTypography="BodyStrong"
+                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                              VerticalAlignment="Center" />
+            </DockPanel>
+
+            <ui:CardControl Margin="0,0,0,0"
                             Padding="20,10,20,10"
                             Icon="{ui:SymbolIcon Eye24}">
                 <ui:CardControl.Header>
@@ -152,7 +165,7 @@
                                       TextWrapping="WrapWithOverflow" />
                         <ui:TextBlock Appearance="Secondary"
                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                      Text="Hold the modifier key to switch to an app, then release to automatically return to your previous window."
+                                      Text="Hold the hotkey (modifier + letter) for at least 400 ms to activate. Release the modifier to automatically snap back to your previous window."
                                       TextWrapping="WrapWithOverflow" />
                     </StackPanel>
                 </ui:CardControl.Header>
