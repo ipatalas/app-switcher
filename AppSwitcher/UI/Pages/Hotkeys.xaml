@@ -6,6 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:dd="urn:gong-wpf-dragdrop"
       xmlns:controls="clr-namespace:AppSwitcher.UI.Controls"
+      xmlns:converters="clr-namespace:AppSwitcher.UI.Converters"
       xmlns:designTime="clr-namespace:AppSwitcher.UI.ViewModels.DesignTime"
       xmlns:common="clr-namespace:AppSwitcher.UI.ViewModels.Common"
       mc:Ignorable="d"
@@ -18,6 +19,7 @@
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}" x:ClassModifier="internal">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:CycleModeToLabelConverter x:Key="CycleModeToLabelConverter" />
     </Page.Resources>
     <Grid Margin="0">
         <Grid.RowDefinitions>
@@ -118,6 +120,7 @@
                                             <ColumnDefinition Width="45" SharedSizeGroup="Col1" />
                                             <ColumnDefinition Width="30" SharedSizeGroup="Col2" />
                                             <ColumnDefinition Width="*" MinWidth="200" />
+                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="150" SharedSizeGroup="Col4" />
                                         </Grid.ColumnDefinitions>
 
@@ -145,7 +148,35 @@
                                             TextTrimming="CharacterEllipsis"
                                             dd:DragDrop.DragSourceIgnore="True" />
 
+                                        <!-- Badges: CycleMode + AutoStart -->
                                         <StackPanel Grid.Column="4"
+                                                    Orientation="Horizontal"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,8,0"
+                                                    dd:DragDrop.DragSourceIgnore="True">
+
+                                            <Border CornerRadius="8"
+                                                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    Padding="7, 3, 7,0"
+                                                    Margin="0,0,4,0"
+                                                    VerticalAlignment="Center">
+                                                <ui:TextBlock FontSize="11"
+                                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                              Text="{Binding CycleMode, Converter={StaticResource CycleModeToLabelConverter}}" />
+                                            </Border>
+
+                                            <ui:SymbolIcon Symbol="Play24"
+                                                           FontSize="12"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource SystemAccentColorBrush}"
+                                                           ToolTipService.ToolTip="Auto-start enabled"
+                                                           Visibility="{Binding StartIfNotRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="5"
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
