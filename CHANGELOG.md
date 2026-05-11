@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.10.2] - 2026-05-11
+- Fix scrollbar overlapping controls in Settings window General page
+- Fix bug when stats were not reset on each new day when app is not restarted
+- Add option to reorder apps in the settings
+- Other minor fixes and improvements
+
 ## [1.10.1] - 2026-05-01
 - Add small indicator for Productivity Streak section so it's more clear whether today's streak is completed or not
 - Fix bug when resetting stats would not reset everything in many cases
