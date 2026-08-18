@@ -27,12 +27,18 @@
                    Click="CycleModeButton_Click"
                    Tag="Hide"
                    Style="{StaticResource CycleModeButtonStyle}"
-                   ToolTipService.ToolTip="Subsequent hotkey will toggle visibility of the application"/>
+                   ToolTipService.ToolTip="Subsequent hotkey will toggle visibility of the application (Z-order first window)"/>
         <ui:Button x:Name="NextWindowButton"
                    Content="Next Window"
                    Click="CycleModeButton_Click"
                    Tag="NextWindow"
                    Style="{StaticResource CycleModeButtonStyle}"
                    ToolTipService.ToolTip="Subsequent hotkey will toggle between all windows of the application"/>
+        <ui:Button x:Name="ToggleWindowButton"
+                   Content="Toggle Window"
+                   Click="CycleModeButton_Click"
+                   Tag="ToggleWindow"
+                   Style="{StaticResource CycleModeButtonStyle}"
+                   ToolTipService.ToolTip="Always show/hide the last active window of this app (does not jump to other windows)"/>
     </StackPanel>
 </UserControl>

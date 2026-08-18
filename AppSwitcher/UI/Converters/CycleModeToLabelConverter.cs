@@ -15,6 +15,7 @@ public sealed class CycleModeToLabelConverter : IValueConverter
                 CycleMode.NextApp => "Next App",
                 CycleMode.Hide => "Hide",
                 CycleMode.NextWindow => "Next Window",
+                CycleMode.ToggleWindow => "Toggle Window",
                 _ => value.ToString() ?? string.Empty
             }
             : string.Empty;

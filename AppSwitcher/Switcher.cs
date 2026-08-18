@@ -31,7 +31,13 @@ internal sealed record AppSwitchResult(
 
 internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
 {
+    // Avoid re-launching slow-starting apps when the hotkey is pressed repeatedly
+    // while the first instance is still creating its window.
+    private const int StartDebounceMs = 10_000;
+
     private readonly List<HWND> _nextWindows = [];
+    private readonly Dictionary<string, HWND> _lastToggleWindows = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, long> _recentStarts = new(StringComparer.OrdinalIgnoreCase);
 
     public AppSwitchResult? Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
     {
@@ -74,8 +80,11 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImagePath);
 
         logger.LogDebug("Switching to window #{Number} of {AppName}", index + 1, appName);
-        ActivateWindow(focusedAppWindows[index]);
-        focusedWindow = focusedAppWindows[index];
+        if (ActivateWindow(focusedAppWindows[index]))
+        {
+            focusedWindow = focusedAppWindows[index];
+        }
+
         return true;
     }
 
@@ -90,11 +99,18 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         var matchingWindows = topLevelWindows.Where(w =>
                 w.ProcessImagePath.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
-        var window = matchingWindows.FirstOrDefault();
-        if (window is null)
+        if (matchingWindows.Count == 0)
         {
             if (appConfig.StartIfNotRunning)
             {
+                if (WasStartedRecently(appConfig))
+                {
+                    logger.LogInformation(
+                        "{ProcessName} was started less than {DebounceSeconds}s ago and has no window yet - ignoring repeated start request",
+                        appConfig.ProcessName, StartDebounceMs / 1000);
+                    return null;
+                }
+
                 if (appConfig.Type == ApplicationType.Packaged)
                 {
                     Process.Start("explorer.exe", $"shell:AppsFolder\\{appConfig.Aumid}");
@@ -107,6 +123,7 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
                     logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
                 }
 
+                _recentStarts[appConfig.ProcessPath] = Stopwatch.GetTimestamp();
                 return AppSwitchResult.FromStarted(appConfig.ProcessPath);
             }
             logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);
@@ -114,29 +131,89 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         }
 
         var currentWindow = windowEnumerator.GetCurrentWindow();
+        var firstWindow = matchingWindows[0];
 
-        if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.NextApp)
+        // ToggleWindow has its own remembered-target logic; other modes share the off-app gate.
+        if (appConfig.CycleMode == CycleMode.ToggleWindow)
         {
-            _nextWindows.Clear();
-            logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
-            ActivateWindow(window);
-            return AppSwitchResult.FromApplicationWindow(window);
+            return ExecuteToggleWindow(appConfig, matchingWindows, currentWindow);
+        }
+
+        var isOnThisApp = currentWindow is not null &&
+                          matchingWindows.Exists(w => w.ProcessId == currentWindow.ProcessId);
+
+        if (!isOnThisApp || appConfig.CycleMode == CycleMode.NextApp)
+        {
+            return ActivateFirst(appConfig, firstWindow);
         }
 
         if (appConfig.CycleMode == CycleMode.Hide)
         {
-            logger.LogDebug("Hiding {ProcessName}", appConfig.ProcessName);
-            HideWindow(window.Handle);
-        }
-        else if (appConfig.CycleMode == CycleMode.NextWindow)
-        {
-            logger.LogDebug("Switching to next window of {ProcessName}", appConfig.ProcessName);
-            var nextWindow = GetNextWindow(matchingWindows, currentWindow);
-            logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
-            ActivateWindow(nextWindow);
+            logger.LogInformation("Hiding {ProcessName} window {Handle} (state {State})",
+                appConfig.ProcessName, firstWindow.Handle, firstWindow.State);
+            HideWindow(firstWindow.Handle);
+            return null;
         }
 
-        return null;
+        if (appConfig.CycleMode == CycleMode.NextWindow)
+        {
+            var nextWindow = GetNextWindow(matchingWindows, currentWindow!);
+            logger.LogInformation("Switching to next window of {ProcessName}: {Handle} (state {State})",
+                appConfig.ProcessName, nextWindow.Handle, nextWindow.State);
+            ActivateWindow(nextWindow);
+            return null;
+        }
+
+        return ActivateFirst(appConfig, firstWindow);
+    }
+
+    private AppSwitchResult? ActivateFirst(ApplicationConfiguration appConfig, ApplicationWindow window)
+    {
+        _nextWindows.Clear();
+        logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
+        return TryActivate(window);
+    }
+
+    private AppSwitchResult? ExecuteToggleWindow(
+        ApplicationConfiguration appConfig,
+        List<ApplicationWindow> matchingWindows,
+        ApplicationWindow? currentWindow)
+    {
+        HWND? remembered = _lastToggleWindows.TryGetValue(appConfig.ProcessName, out var handle)
+            ? handle
+            : null;
+
+        var matchingHandles = matchingWindows.ConvertAll(static w => w.Handle);
+        var resolution = ToggleWindowTargetResolver.Resolve(
+            matchingHandles,
+            currentWindow?.Handle,
+            remembered,
+            currentIsMinimized: IsMinimized(currentWindow));
+
+        if (resolution is null)
+        {
+            return null;
+        }
+
+        var target = matchingWindows.Find(w => w.Handle == resolution.Value.Handle);
+        if (target is null)
+        {
+            return null;
+        }
+
+        _lastToggleWindows[appConfig.ProcessName] = target.Handle;
+
+        if (resolution.Value.Action == ToggleWindowAction.Hide)
+        {
+            logger.LogInformation("ToggleWindow: hiding {ProcessName} window {Handle} (state {State}, foreground is {Foreground})",
+                appConfig.ProcessName, target.Handle, target.State, DescribeWindow(currentWindow));
+            HideWindow(target.Handle);
+            return null;
+        }
+
+        logger.LogInformation("ToggleWindow: activating {ProcessName} window {Handle} (state {State}, foreground is {Foreground})",
+            appConfig.ProcessName, target.Handle, target.State, DescribeWindow(currentWindow));
+        return TryActivate(target);
     }
 
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
@@ -161,7 +238,10 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         return matchingWindows.First(w => !_nextWindows.Contains(w.Handle));
     }
 
-    internal void ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
+    private AppSwitchResult? TryActivate(ApplicationWindow window) =>
+        ActivateWindow(window) ? AppSwitchResult.FromApplicationWindow(window) : null;
+
+    internal bool ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
     {
         var hwnd = window.Handle;
         if (PInvoke.IsIconic(hwnd))
@@ -185,7 +265,7 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         INPUT[] inputs = [input];
         PInvoke.SendInput(inputs, Marshal.SizeOf(typeof(INPUT)));
 
-        PInvoke.SetForegroundWindow(hwnd);
+        var setForegroundSucceeded = (bool)PInvoke.SetForegroundWindow(hwnd);
 
         var fgHandle = PInvoke.GetForegroundWindow();
 
@@ -206,12 +286,49 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
             }
         }
 
-        if (pulseBorder && configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
+        var activated = PInvoke.GetForegroundWindow() == hwnd;
+        if (!activated)
+        {
+            logger.LogWarning(
+                "Failed to bring {ProcessName} window {Handle} to the foreground (SetForegroundWindow returned {SetForegroundResult}); {ForegroundInfo}",
+                window.ProcessName, hwnd, setForegroundSucceeded, DescribeForegroundWindow());
+        }
+
+        if (activated && pulseBorder && configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
         {
             // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
             _ = PulseBorder(hwnd, Color.Gold, 100);
         }
+
+        return activated;
     }
+
+    private string DescribeForegroundWindow()
+    {
+        try
+        {
+            return DescribeWindow(windowEnumerator.GetCurrentWindow());
+        }
+        catch (Exception ex)
+        {
+            return $"unidentifiable: {ex.Message}";
+        }
+    }
+
+    private static string DescribeWindow(ApplicationWindow? window) =>
+        window is null
+            ? "unknown"
+            : $"{window.ProcessName} window {window.Handle} (\"{window.Title}\", state {window.State}, " +
+              $"position ({window.Position.X},{window.Position.Y}), size {window.Size.Width}x{window.Size.Height})";
+
+    private static bool IsMinimized(ApplicationWindow? window) =>
+        window is
+        {
+            State: SHOW_WINDOW_CMD.SW_SHOWMINIMIZED
+                or SHOW_WINDOW_CMD.SW_MINIMIZE
+                or SHOW_WINDOW_CMD.SW_SHOWMINNOACTIVE
+                or SHOW_WINDOW_CMD.SW_FORCEMINIMIZE
+        };
 
     private async Task PulseBorder(IntPtr hwnd, Color highlightColor, int durationMs = 400)
     {
@@ -246,6 +363,10 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
     {
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
+
+    private bool WasStartedRecently(ApplicationConfiguration appConfig) =>
+        _recentStarts.TryGetValue(appConfig.ProcessPath, out var startedAtTick) &&
+        Stopwatch.GetElapsedTime(startedAtTick).TotalMilliseconds < StartDebounceMs;
 
     private static unsafe uint GetWindowThreadProcessId(HWND hwnd)
     {

@@ -49,6 +49,7 @@ public partial class CycleModeSelector : UserControl
         NextAppButton.Appearance = GetButtonAppearance(NextAppButton.Tag?.ToString());
         HideButton.Appearance = GetButtonAppearance(HideButton.Tag?.ToString());
         NextWindowButton.Appearance = GetButtonAppearance(NextWindowButton.Tag?.ToString());
+        ToggleWindowButton.Appearance = GetButtonAppearance(ToggleWindowButton.Tag?.ToString());
         return;
 
         ControlAppearance GetButtonAppearance(string? tag) =>

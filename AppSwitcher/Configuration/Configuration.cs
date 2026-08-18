@@ -8,7 +8,8 @@ public enum CycleMode
 {
     NextApp = 0,
     Hide,
-    NextWindow
+    NextWindow,
+    ToggleWindow
 }
 
 internal record Configuration(

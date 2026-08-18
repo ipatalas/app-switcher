@@ -55,7 +55,7 @@ internal static class ServicesConfiguration
         services.AddSingleton<DynamicModeService>();
         services.AddSingleton<IAppNameResolver, AppNameResolver>();
         services.AddSingleton<Peeker>();
-        services.AddTransient<Switcher>();
+        services.AddSingleton<Switcher>();
         services.AddTransient<AutoStart>();
         services.AddSingleton<IconExtractor>();
         services.AddTransient<OverlayShowTimer>();
