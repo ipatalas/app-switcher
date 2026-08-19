@@ -18,7 +18,7 @@ public class ToggleWindowTargetResolverTests
     }
 
     [Fact]
-    public void Resolve_ActivatesRemembered_WhenSiblingIsForeground()
+    public void Resolve_HidesSibling_WhenSiblingIsForeground()
     {
         var remembered = H(10);
         var sibling = H(20);
@@ -28,7 +28,7 @@ public class ToggleWindowTargetResolverTests
             currentHandle: sibling,
             rememberedHandle: remembered);
 
-        result.Should().Be(new ToggleWindowTargetResolver.Result(remembered, ToggleWindowAction.Activate));
+        result.Should().Be(new ToggleWindowTargetResolver.Result(sibling, ToggleWindowAction.Hide));
     }
 
     [Fact]
@@ -56,7 +56,11 @@ public class ToggleWindowTargetResolverTests
 
         hide.Should().Be(new ToggleWindowTargetResolver.Result(remembered, ToggleWindowAction.Hide));
 
-        var restore = ToggleWindowTargetResolver.Resolve(matching, currentHandle: sibling, rememberedHandle: remembered);
+        var restore = ToggleWindowTargetResolver.Resolve(
+            matching,
+            currentHandle: sibling,
+            rememberedHandle: remembered,
+            rememberedIsMinimized: true);
 
         restore.Should().Be(new ToggleWindowTargetResolver.Result(remembered, ToggleWindowAction.Activate));
     }

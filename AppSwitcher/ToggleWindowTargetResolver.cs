@@ -10,7 +10,7 @@ internal enum ToggleWindowAction
 
 /// <summary>
 /// Pure resolution for <see cref="Configuration.CycleMode.ToggleWindow"/>:
-/// prefer a remembered handle, else the focused matching window, else the first match.
+/// prefer the focused matching window, else a remembered handle, else the first match.
 /// </summary>
 internal static class ToggleWindowTargetResolver
 {
@@ -23,24 +23,45 @@ internal static class ToggleWindowTargetResolver
     /// True when <paramref name="currentHandle"/> is a minimized window.
     /// Minimized windows can remain the foreground HWND; they should be restored, not hidden again.
     /// </param>
+    /// <param name="rememberedIsMinimized">
+    /// True when <paramref name="rememberedHandle"/> is a minimized window.
+    /// After a hide, Windows often focuses a sibling; restore the remembered window instead of retargeting.
+    /// </param>
     /// <returns>Null when <paramref name="matchingHandles"/> is empty.</returns>
     public static Result? Resolve(
         IReadOnlyList<HWND> matchingHandles,
         HWND? currentHandle,
         HWND? rememberedHandle,
-        bool currentIsMinimized = false)
+        bool currentIsMinimized = false,
+        bool rememberedIsMinimized = false)
     {
         if (matchingHandles.Count == 0)
         {
             return null;
         }
 
-        // Remembered stays sticky so minimize handing focus to a sibling does not retarget.
-        var target = Contains(matchingHandles, rememberedHandle)
-            ? rememberedHandle!.Value
-            : Contains(matchingHandles, currentHandle)
-                ? currentHandle!.Value
-                : matchingHandles[0];
+        var currentIsMatch = Contains(matchingHandles, currentHandle);
+        var rememberedIsMatch = Contains(matchingHandles, rememberedHandle);
+
+        // After we hide the remembered window, Windows often focuses a sibling.
+        // Restore that minimized window instead of adopting the sibling as the new target.
+        HWND target;
+        if (rememberedIsMatch && rememberedIsMinimized && currentIsMatch && currentHandle != rememberedHandle)
+        {
+            target = rememberedHandle!.Value;
+        }
+        else if (currentIsMatch)
+        {
+            target = currentHandle!.Value;
+        }
+        else if (rememberedIsMatch)
+        {
+            target = rememberedHandle!.Value;
+        }
+        else
+        {
+            target = matchingHandles[0];
+        }
 
         var isForegroundTarget = currentHandle is { } current && current == target;
         var action = isForegroundTarget && !currentIsMinimized

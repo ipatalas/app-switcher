@@ -56,13 +56,13 @@ Subsequent presses toggle visibility of the frontmost window in Z-order.
 
 **Best for:** Multi-window apps where you always want the *same* window (the last one you used).
 
-Pressing the hotkey shows or hides the last active window of that app. It does **not** jump to
-other open windows of the same process.
+Pressing the hotkey shows or hides the last active window of that app. It does **not** cycle
+through other open windows of the same process.
 
 * First press focuses a window and remembers it.
 * Next press minimises that same window.
-* Press again to restore it — even if other windows of the app are open, or if minimizing handed focus to a sibling.
-* The remembered window stays sticky until it is closed; focusing another window of the same app does not retarget.
+* Press again to restore it — even if minimizing handed focus to a sibling.
+* Focusing another window of the same app retargets: the next hotkey show/hides that window instead.
 
-**Example:** You have two Terminal tabs/windows. `Apps+T` keeps toggling the terminal you were
-last working in, without cycling to the other one.
+**Example:** You have two Terminal windows. `Apps+T` toggles the one you were last working in.
+Click the other terminal, then `Apps+T` starts toggling that one.

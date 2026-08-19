@@ -39,6 +39,6 @@
                    Click="CycleModeButton_Click"
                    Tag="ToggleWindow"
                    Style="{StaticResource CycleModeButtonStyle}"
-                   ToolTipService.ToolTip="Always show/hide the last active window of this app (does not jump to other windows)"/>
+                   ToolTipService.ToolTip="Show/hide the last used window; focusing another window of this app retargets"/>
     </StackPanel>
 </UserControl>

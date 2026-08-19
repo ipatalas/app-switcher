@@ -182,13 +182,17 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         HWND? remembered = _lastToggleWindows.TryGetValue(appConfig.ProcessName, out var handle)
             ? handle
             : null;
+        var rememberedWindow = remembered is { } rememberedHandle
+            ? matchingWindows.Find(w => w.Handle == rememberedHandle)
+            : null;
 
         var matchingHandles = matchingWindows.ConvertAll(static w => w.Handle);
         var resolution = ToggleWindowTargetResolver.Resolve(
             matchingHandles,
             currentWindow?.Handle,
             remembered,
-            currentIsMinimized: IsMinimized(currentWindow));
+            currentIsMinimized: IsMinimized(currentWindow),
+            rememberedIsMinimized: IsMinimized(rememberedWindow));
 
         if (resolution is null)
         {
