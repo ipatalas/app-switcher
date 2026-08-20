@@ -165,7 +165,7 @@
                                       TextWrapping="WrapWithOverflow" />
                         <ui:TextBlock Appearance="Secondary"
                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                      Text="Hold the hotkey (modifier + letter) for at least 400 ms to activate. Release the modifier to automatically snap back to your previous window."
+                                      Text="Hold the hotkey (modifier + letter or punctuation) for at least 400 ms to activate. Release the modifier to automatically snap back to your previous window."
                                       TextWrapping="WrapWithOverflow" />
                     </StackPanel>
                 </ui:CardControl.Header>

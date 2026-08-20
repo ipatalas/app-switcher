@@ -86,9 +86,9 @@
                         </ui:SymbolIcon.Style>
                     </ui:SymbolIcon>
 
-                    <!-- Hotkey badge (D1/D2/… for windows, letter key for apps) -->
+                    <!-- Hotkey badge (1–0 for windows, letter or punctuation for apps) -->
                     <ui:Button Grid.Column="3"
-                               Content="{Binding HotkeyKey}"
+                               Content="{Binding HotkeyDisplay}"
                                Appearance="Secondary"
                                Width="26"
                                Height="26"

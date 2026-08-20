@@ -95,7 +95,7 @@ The app starts in the background. Open Settings from the system tray icon to con
 
 1. Right-click the tray icon and open **Settings**.
 2. Add a hotkey and choose the target app.
-3. Pick a modifier and a letter key.
+3. Pick a modifier and a letter or punctuation key.
 4. Optional: enable **Start if not running** for that app.
 
 Tip: the `Menu/Apps` key is often an excellent modifier because it is usually unused as a shortcut modifier.
