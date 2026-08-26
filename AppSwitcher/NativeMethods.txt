@@ -1,5 +1,6 @@
 ﻿ShowWindow
 SetForegroundWindow
+BringWindowToTop
 GetApplicationUserModelId
 GetBinaryType
 GetForegroundWindow

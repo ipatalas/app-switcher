@@ -271,23 +271,17 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
 
         var setForegroundSucceeded = (bool)PInvoke.SetForegroundWindow(hwnd);
 
-        var fgHandle = PInvoke.GetForegroundWindow();
-
-        if (fgHandle != hwnd)
+        if (PInvoke.GetForegroundWindow() != hwnd)
         {
-            var threadId1 = GetWindowThreadProcessId(hwnd);
-            var threadId2 = GetWindowThreadProcessId(fgHandle);
+            setForegroundSucceeded = ForceForegroundViaAttachThreadInput(hwnd);
+        }
 
-            if (threadId1 != threadId2)
-            {
-                PInvoke.AttachThreadInput(threadId1, threadId2, true);
-                PInvoke.SetForegroundWindow(hwnd);
-                PInvoke.AttachThreadInput(threadId1, threadId2, false);
-            }
-            else
-            {
-                PInvoke.SetForegroundWindow(hwnd);
-            }
+        if (PInvoke.GetForegroundWindow() != hwnd)
+        {
+            // Last resort: the mechanism used by the Alt+Tab switcher, not subject to foreground-lock
+            // restrictions - needed e.g. when a ShellHost.exe light-dismiss flyout (Quick Settings)
+            // holds the foreground.
+            PInvoke.SwitchToThisWindow(hwnd, true);
         }
 
         var activated = PInvoke.GetForegroundWindow() == hwnd;
@@ -305,6 +299,49 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         }
 
         return activated;
+    }
+
+    // SetForegroundWindow is called on our own thread, so it is our thread that must share input
+    // state with the foreground window's thread to pass the foreground-rights check (the previous
+    // version attached the target and foreground threads to each other, which grants nothing).
+    private static bool ForceForegroundViaAttachThreadInput(HWND hwnd)
+    {
+        var foregroundHandle = PInvoke.GetForegroundWindow();
+        if (foregroundHandle == hwnd || foregroundHandle == HWND.Null)
+        {
+            return foregroundHandle == hwnd;
+        }
+
+        var currentThreadId = PInvoke.GetCurrentThreadId();
+        var foregroundThreadId = GetWindowThreadProcessId(foregroundHandle);
+        var targetThreadId = GetWindowThreadProcessId(hwnd);
+
+        var attachedToForeground = foregroundThreadId != currentThreadId &&
+                                   PInvoke.AttachThreadInput(currentThreadId, foregroundThreadId, true);
+        var attachedToTarget = targetThreadId != currentThreadId &&
+                               targetThreadId != foregroundThreadId &&
+                               PInvoke.AttachThreadInput(currentThreadId, targetThreadId, true);
+        try
+        {
+            var succeeded = (bool)PInvoke.SetForegroundWindow(hwnd);
+            if (PInvoke.GetForegroundWindow() != hwnd)
+            {
+                PInvoke.BringWindowToTop(hwnd);
+            }
+
+            return succeeded;
+        }
+        finally
+        {
+            if (attachedToTarget)
+            {
+                PInvoke.AttachThreadInput(currentThreadId, targetThreadId, false);
+            }
+            if (attachedToForeground)
+            {
+                PInvoke.AttachThreadInput(currentThreadId, foregroundThreadId, false);
+            }
+        }
     }
 
     private string DescribeForegroundWindow()
