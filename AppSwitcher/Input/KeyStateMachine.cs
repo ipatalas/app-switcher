@@ -62,7 +62,7 @@ internal sealed class KeyStateMachine
             return new KeyTransition.NoOp();
         }
 
-        if (key.IsLetter())
+        if (key.IsApplicationKey())
         {
             _state = State.ModifierHeldWithActionKey;
             return new KeyTransition.LetterKeyPressed(key);
@@ -184,13 +184,13 @@ internal abstract record KeyTransition
     /// <summary>Modifier was pressed. <see cref="IsFirstPress"/> distinguishes first press from key-repeat.</summary>
     public sealed record ModifierPressed(bool IsFirstPress, bool HasSideEffect) : ModifierTransition(HasSideEffect);
 
-    /// <summary>Modifier released without any letter or digit key pressed while held.</summary>
+    /// <summary>Modifier released without any letter, punctuation, or digit key pressed while held.</summary>
     public sealed record ModifierReleasedClean(long HeldDurationMs, bool HasSideEffect) : ModifierTransition(HasSideEffect);
 
-    /// <summary>Modifier released after at least one letter or digit was pressed while held (matched or not).</summary>
+    /// <summary>Modifier released after at least one letter, punctuation, or digit was pressed while held (matched or not).</summary>
     public sealed record ModifierReleasedAfterAction(bool HasSideEffect) : ModifierTransition(HasSideEffect);
 
-    /// <summary>A letter key was pressed while the modifier is held.</summary>
+    /// <summary>A letter or punctuation application key was pressed while the modifier is held.</summary>
     public sealed record LetterKeyPressed(Key Key) : KeyTransition;
 
     /// <summary>A digit key was pressed while the modifier is held.</summary>

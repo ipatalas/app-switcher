@@ -1,6 +1,6 @@
 ---
 title: Cycle Modes
-description: Understand the three hotkey cycle modes and when to use each one.
+description: Understand the four hotkey cycle modes and when to use each one.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
@@ -18,7 +18,7 @@ Pressing the hotkey cycles through all open windows of the target application, o
 ### Direct Selection (Numeric Keys)
 You don’t have to cycle one by one. AppSwitcher assigns a **stable number (1–0)** to every open window of the target application.
 
-* **How it works:** While holding your modifier key, simply tap a number to "teleport" directly to that specific window. For example, if `Modifier + E` is your shortcut for Vivaldi, pressing `Modifier + E` then `2` takes you straight to your second window.
+* **How it works:** While holding your modifier key, simply tap a number to "teleport" directly to that specific window. For example, if `modifier + E` is your shortcut for Vivaldi, pressing `modifier + E` then `2` takes you straight to your second window.
 * **No Overlay Required:** This feature is always active. While the **Show Overlay** setting (see screenshot) helps visualize which number belongs to which window, the shortcuts work even if the overlay is turned off.
 * **Stable Indexing:** These numbers are tied to the internal window handle. They won't shift positions while you are working; they only change if a window is closed and a new one is opened.
 
@@ -42,7 +42,27 @@ each one in sequence. Useful for toggling between two related apps (e.g. a brows
 
 **Best for:** Apps you want to quickly show and dismiss (e.g. terminal, music player).
 
-Pressing the hotkey brings the app into focus. Pressing it again minimises the focused window.
-Subsequent presses toggle visibility.
+Pressing the hotkey brings the app into focus (its frontmost window). Pressing it again minimises that frontmost window.
+Subsequent presses toggle visibility of the frontmost window in Z-order.
 
 **Example:** `Apps+T` opens your terminal. Pressing `Apps+T` again minimises it out of the way.
+
+<Aside type="note">
+  With multiple windows, Hide always targets the frontmost matching window. If you need to
+  stick to one specific window, use **Toggle Window** instead.
+</Aside>
+
+## Toggle Window
+
+**Best for:** Multi-window apps where you always want the *same* window (the last one you used).
+
+Pressing the hotkey shows or hides the last active window of that app. It does **not** cycle
+through other open windows of the same process.
+
+* First press focuses a window and remembers it.
+* Next press minimises that same window.
+* Press again to restore it — even if minimizing handed focus to a sibling.
+* Focusing another window of the same app retargets: the next hotkey show/hides that window instead.
+
+**Example:** You have two Terminal windows. `Apps+T` toggles the one you were last working in.
+Click the other terminal, then `Apps+T` starts toggling that one.

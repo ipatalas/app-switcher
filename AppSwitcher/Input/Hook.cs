@@ -238,6 +238,7 @@ internal class Hook(
                 var letterDownTick = Stopwatch.GetTimestamp();
                 var currentWindow = windowEnumerator.GetCurrentWindow();
                 var result = switcher.Execute(matchingApps);
+                LogSwitchOutcome(letter, result);
                 var isAppStealingKeyEvents = result != null && _processesStealingKeyEvents.Contains(result.ProcessName);
 
                 if (_config.StatsEnabled && result is { WasStarted: false })
@@ -297,6 +298,25 @@ internal class Hook(
         }
     }
 
+    private void LogSwitchOutcome(Key letter, AppSwitchResult? result)
+    {
+        if (result is { WasStarted: true })
+        {
+            logger.LogInformation("{Modifier} + {Letter}: starting {ProcessName} (no running window found)",
+                _config!.Modifier, letter, result.ProcessName);
+        }
+        else if (result is not null)
+        {
+            logger.LogInformation("{Modifier} + {Letter}: switching to {ProcessName} window {Handle}",
+                _config!.Modifier, letter, result.ProcessName, result.Handle);
+        }
+        else
+        {
+            // The specific reason (hide, in-app cycle, etc.) is logged by Switcher at Info level.
+            logger.LogDebug("{Modifier} + {Letter}: no foreground change", _config!.Modifier, letter);
+        }
+    }
+
     private void MonitorPotentialElevation(AppSwitchResult result)
     {
         _ = Task.Run(async () =>
@@ -340,6 +360,11 @@ internal class Hook(
             }
 
             logger.LogDebug("{Modifier} + {Digit} detected, switched to window #{Number}", _config.Modifier, digit, index + 1);
+            if (window is not null)
+            {
+                logger.LogInformation("{Modifier} + {Digit}: switching to window #{Number} of {ProcessName}",
+                    _config.Modifier, digit, index + 1, window.ProcessName);
+            }
             RefreshOrHideOverlay();
         }
     }

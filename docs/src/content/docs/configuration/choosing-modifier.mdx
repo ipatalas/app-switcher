@@ -19,7 +19,7 @@ Without blocking, a hotkey like `Apps+B` would switch to your browser *and* trig
 the modifier's side effect at the same time. AppSwitcher prevents this automatically
 for all modifiers that have known side effects.
 
-When you press a modifier+letter combination that **is not assigned** to any app,
+When you press a modifier+letter (or punctuation) combination that **is not assigned** to any app,
 AppSwitcher replays the full combination to Windows so the original shortcut still
 fires. For example, if `Win+F` is bound to your browser but `Win+D` is not,
 pressing `Win+D` will still show the desktop.
@@ -43,7 +43,7 @@ The following modifiers have side effects that AppSwitcher suppresses:
 All of these are currently suppressed by AppSwitcher, so you can use them safely
 as modifiers without worrying about unwanted side effects.
 **Only the configured modifier is blocked** — if you choose `Apps` as your modifier, the `Win` key will still function normally and open Start when pressed on its own.
-Also when modifier alone is pressed, the side effect will still occur (e.g. pressing `Apps` by itself will open the context menu), but as long as you hold the modifier down while pressing a letter key, the side effect will be blocked.
+Also when modifier alone is pressed, the side effect will still occur (e.g. pressing `Apps` by itself will open the context menu), but as long as you hold the modifier down while pressing a letter or punctuation key, the side effect will be blocked.
 
 ## Modifiers with Hotkey Conflicts
 

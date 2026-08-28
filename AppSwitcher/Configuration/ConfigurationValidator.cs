@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AppSwitcher.Extensions;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Input;
@@ -62,13 +63,13 @@ internal class ConfigurationValidator(ILogger<ConfigurationValidator> logger)
         {
             if (!File.Exists(app.ProcessPath))
             {
-                return ValidationResult.Error(app.ProcessName,"Application process path missing or invalid. Re-add the application to fix it.");
+                return ValidationResult.Error(app.ProcessName, "Application process path missing or invalid. Re-add the application to fix it.");
             }
         }
 
-        if (app.Key is Key.None or not (>=Key.A and <= Key.Z))
+        if (!app.Key.IsApplicationKey())
         {
-            return ValidationResult.Error(app.ProcessName, "Application key invalid - it should be a single letter");
+            return ValidationResult.Error(app.ProcessName, "Application key invalid - it should be a single letter or punctuation key");
         }
 
         return ValidationResult.Success;

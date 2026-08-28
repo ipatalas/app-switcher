@@ -1,4 +1,5 @@
 ﻿using AppSwitcher.Configuration;
+using AppSwitcher.Input;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
 using Windows.Win32.Foundation;
@@ -27,11 +28,17 @@ internal sealed record AppSwitchResult(
 
     public static AppSwitchResult FromStarted(string processPath) =>
         new(null, processPath, HWND.Null, SHOW_WINDOW_CMD.SW_SHOW, NeedsElevation: false, WasStarted: true);
-};
+}
 
 internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumerator, ConfigurationManager configurationManager)
 {
+    // Avoid re-launching slow-starting apps when the hotkey is pressed repeatedly
+    // while the first instance is still creating its window.
+    private const int StartDebounceMs = 10_000;
+
     private readonly List<HWND> _nextWindows = [];
+    private readonly Dictionary<string, HWND> _lastToggleWindows = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, long> _recentStarts = new(StringComparer.OrdinalIgnoreCase);
 
     public AppSwitchResult? Execute(IReadOnlyList<ApplicationConfiguration> appGroup)
     {
@@ -74,8 +81,11 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         var appName = focusedAppWindow.GetProductName() ?? Path.GetFileNameWithoutExtension(focusedAppWindow.ProcessImagePath);
 
         logger.LogDebug("Switching to window #{Number} of {AppName}", index + 1, appName);
-        ActivateWindow(focusedAppWindows[index]);
-        focusedWindow = focusedAppWindows[index];
+        if (ActivateWindow(focusedAppWindows[index]))
+        {
+            focusedWindow = focusedAppWindows[index];
+        }
+
         return true;
     }
 
@@ -90,11 +100,18 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         var matchingWindows = topLevelWindows.Where(w =>
                 w.ProcessImagePath.EndsWith(appConfig.ProcessName, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
-        var window = matchingWindows.FirstOrDefault();
-        if (window is null)
+        if (matchingWindows.Count == 0)
         {
             if (appConfig.StartIfNotRunning)
             {
+                if (WasStartedRecently(appConfig))
+                {
+                    logger.LogInformation(
+                        "{ProcessName} was started less than {DebounceSeconds}s ago and has no window yet - ignoring repeated start request",
+                        appConfig.ProcessName, StartDebounceMs / 1000);
+                    return null;
+                }
+
                 if (appConfig.Type == ApplicationType.Packaged)
                 {
                     Process.Start("explorer.exe", $"shell:AppsFolder\\{appConfig.Aumid}");
@@ -107,6 +124,7 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
                     logger.LogInformation("Starting {ProcessName}", appConfig.ProcessName);
                 }
 
+                _recentStarts[appConfig.ProcessPath] = Stopwatch.GetTimestamp();
                 return AppSwitchResult.FromStarted(appConfig.ProcessPath);
             }
             logger.LogWarning("{ProcessName} process not found", appConfig.ProcessName);
@@ -114,29 +132,88 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         }
 
         var currentWindow = windowEnumerator.GetCurrentWindow();
+        var firstWindow = matchingWindows[0];
 
-        if (currentWindow?.ProcessId != window.ProcessId || appConfig.CycleMode == CycleMode.NextApp)
+        // ToggleWindow has its own remembered-target logic; other modes share the off-app gate.
+        if (appConfig.CycleMode == CycleMode.ToggleWindow)
         {
-            _nextWindows.Clear();
-            logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
-            ActivateWindow(window);
-            return AppSwitchResult.FromApplicationWindow(window);
+            return ExecuteToggleWindow(appConfig, matchingWindows, currentWindow);
         }
 
-        if (appConfig.CycleMode == CycleMode.Hide)
+        var isOnThisApp = currentWindow is not null &&
+                          matchingWindows.Exists(w => w.ProcessId == currentWindow.ProcessId);
+
+        if (!isOnThisApp || appConfig.CycleMode == CycleMode.NextApp)
         {
-            logger.LogDebug("Hiding {ProcessName}", appConfig.ProcessName);
-            HideWindow(window.Handle);
-        }
-        else if (appConfig.CycleMode == CycleMode.NextWindow)
-        {
-            logger.LogDebug("Switching to next window of {ProcessName}", appConfig.ProcessName);
-            var nextWindow = GetNextWindow(matchingWindows, currentWindow);
-            logger.LogDebug("Selected next window: {Handle}", nextWindow.Handle);
-            ActivateWindow(nextWindow);
+            return ActivateFirst(appConfig, firstWindow);
         }
 
-        return null;
+        switch (appConfig.CycleMode)
+        {
+            case CycleMode.Hide:
+                logger.LogInformation("Hiding {ProcessName} window {Handle} (state {State})",
+                    appConfig.ProcessName, firstWindow.Handle, firstWindow.State);
+                HideWindow(firstWindow.Handle);
+                return null;
+            case CycleMode.NextWindow:
+                var nextWindow = GetNextWindow(matchingWindows, currentWindow!);
+                logger.LogInformation("Switching to next window of {ProcessName}: {Handle} (state {State})",
+                    appConfig.ProcessName, nextWindow.Handle, nextWindow.State);
+                ActivateWindow(nextWindow);
+                return null;
+            default:
+                return ActivateFirst(appConfig, firstWindow);
+        }
+    }
+
+    private AppSwitchResult? ActivateFirst(ApplicationConfiguration appConfig, ApplicationWindow window)
+    {
+        _nextWindows.Clear();
+        logger.LogDebug("Switching to {ProcessName}", appConfig.ProcessName);
+        return TryActivate(window);
+    }
+
+    private AppSwitchResult? ExecuteToggleWindow(
+        ApplicationConfiguration appConfig,
+        List<ApplicationWindow> matchingWindows,
+        ApplicationWindow? currentWindow)
+    {
+        var rememberedWindow = _lastToggleWindows.TryGetValue(appConfig.ProcessName, out var rememberedHandle)
+            ? matchingWindows.Find(w => w.Handle == rememberedHandle)
+            : null;
+
+        var matchingHandles = matchingWindows.ConvertAll(static w => w.Handle);
+        var resolution = ToggleWindowTargetResolver.Resolve(
+            matchingHandles,
+            currentWindow?.Handle,
+            rememberedWindow?.Handle,
+            currentIsMinimized: IsMinimized(currentWindow),
+            rememberedIsMinimized: IsMinimized(rememberedWindow));
+
+        if (resolution is not { } resolved)
+        {
+            return null;
+        }
+
+        var target = matchingWindows.Find(w => w.Handle == resolved.Handle);
+        if (target is null)
+        {
+            return null;
+        }
+
+        _lastToggleWindows[appConfig.ProcessName] = target.Handle;
+
+        if (resolved.Action == ToggleWindowAction.Hide)
+        {
+            logger.LogInformation("ToggleWindow: hiding {ProcessName} window {Handle} (state {State}, foreground is {Foreground})",
+                appConfig.ProcessName, target.Handle, target.State, DescribeWindow(currentWindow));
+            HideWindow(target.Handle);
+            return null;
+        }
+
+        logger.LogInformation("ToggleWindow: activating {ProcessName} window {Handle} (state {State}, foreground is {Foreground})",
+            appConfig.ProcessName, target.Handle, target.State, DescribeWindow(currentWindow));
+        return TryActivate(target);
     }
 
     private ApplicationWindow GetNextWindow(List<ApplicationWindow> matchingWindows, ApplicationWindow window)
@@ -161,9 +238,13 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         return matchingWindows.First(w => !_nextWindows.Contains(w.Handle));
     }
 
-    internal void ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
+    private AppSwitchResult? TryActivate(ApplicationWindow window) =>
+        ActivateWindow(window) ? AppSwitchResult.FromApplicationWindow(window) : null;
+
+    internal bool ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
     {
         var hwnd = window.Handle;
+        CancelImeCompositionInForegroundWindow(hwnd);
         if (PInvoke.IsIconic(hwnd))
         {
             logger.LogDebug("Window is minimized - restoring...");
@@ -181,45 +262,137 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
 
         // Hack for SetForegroundWindow limitations (see Remarks here: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks)
         // https://github.com/microsoft/PowerToys/blob/8b8c75b9a54a342660ce8475989ef283fe39e8fe/src/common/ManagedCommon/WindowHelpers.cs#L11
-        INPUT input = new() { type = INPUT_TYPE.INPUT_MOUSE, Anonymous = new() { mi = new() } };
-        INPUT[] inputs = [input];
-        PInvoke.SendInput(inputs, Marshal.SizeOf(typeof(INPUT)));
+        INPUT[] inputs = [new() { type = INPUT_TYPE.INPUT_MOUSE, Anonymous = new() { mi = new() } }];
+        PInvoke.SendInput(inputs, Marshal.SizeOf<INPUT>());
 
-        PInvoke.SetForegroundWindow(hwnd);
+        var setForegroundSucceeded = (bool)PInvoke.SetForegroundWindow(hwnd);
 
-        var fgHandle = PInvoke.GetForegroundWindow();
-
-        if (fgHandle != hwnd)
+        if (PInvoke.GetForegroundWindow() != hwnd)
         {
-            var threadId1 = GetWindowThreadProcessId(hwnd);
-            var threadId2 = GetWindowThreadProcessId(fgHandle);
-
-            if (threadId1 != threadId2)
-            {
-                PInvoke.AttachThreadInput(threadId1, threadId2, true);
-                PInvoke.SetForegroundWindow(hwnd);
-                PInvoke.AttachThreadInput(threadId1, threadId2, false);
-            }
-            else
-            {
-                PInvoke.SetForegroundWindow(hwnd);
-            }
+            setForegroundSucceeded = ForceForegroundViaAttachThreadInput(hwnd);
         }
 
-        if (pulseBorder && configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
+        if (PInvoke.GetForegroundWindow() != hwnd)
+        {
+            // Last resort: the mechanism used by the Alt+Tab switcher, not subject to foreground-lock
+            // restrictions - needed e.g. when a ShellHost.exe light-dismiss flyout (Quick Settings)
+            // holds the foreground.
+            PInvoke.SwitchToThisWindow(hwnd, true);
+        }
+
+        var activated = PInvoke.GetForegroundWindow() == hwnd;
+        if (!activated)
+        {
+            logger.LogWarning(
+                "Failed to bring {ProcessName} window {Handle} to the foreground (SetForegroundWindow returned {SetForegroundResult}); {ForegroundInfo}",
+                window.ProcessName, hwnd, setForegroundSucceeded, DescribeForegroundWindow());
+        }
+
+        if (activated && pulseBorder && configurationManager.GetConfiguration()?.PulseBorderEnabled == true)
         {
             // it needs to go async because we're calling it from a keyboard hook which has narrow time limits
             _ = PulseBorder(hwnd, Color.Gold, 100);
         }
+
+        return activated;
     }
 
-    private async Task PulseBorder(IntPtr hwnd, Color highlightColor, int durationMs = 400)
+    // SetForegroundWindow is called on our own thread, so it is our thread that must share input
+    // state with the foreground window's thread to pass the foreground-rights check (the previous
+    // version attached the target and foreground threads to each other, which grants nothing).
+    private static bool ForceForegroundViaAttachThreadInput(HWND hwnd)
+    {
+        var foregroundHandle = PInvoke.GetForegroundWindow();
+        if (foregroundHandle == hwnd || foregroundHandle == HWND.Null)
+        {
+            return foregroundHandle == hwnd;
+        }
+
+        var currentThreadId = PInvoke.GetCurrentThreadId();
+        var foregroundThreadId = GetWindowThreadProcessId(foregroundHandle);
+        var targetThreadId = GetWindowThreadProcessId(hwnd);
+
+        var attachedToForeground = foregroundThreadId != currentThreadId &&
+                                   PInvoke.AttachThreadInput(currentThreadId, foregroundThreadId, true);
+        var attachedToTarget = targetThreadId != currentThreadId &&
+                               targetThreadId != foregroundThreadId &&
+                               PInvoke.AttachThreadInput(currentThreadId, targetThreadId, true);
+        try
+        {
+            var succeeded = (bool)PInvoke.SetForegroundWindow(hwnd);
+            if (PInvoke.GetForegroundWindow() != hwnd)
+            {
+                PInvoke.BringWindowToTop(hwnd);
+            }
+
+            return succeeded;
+        }
+        finally
+        {
+            if (attachedToTarget)
+            {
+                PInvoke.AttachThreadInput(currentThreadId, targetThreadId, false);
+            }
+            if (attachedToForeground)
+            {
+                PInvoke.AttachThreadInput(currentThreadId, foregroundThreadId, false);
+            }
+        }
+    }
+
+    // A pending IME composition in the window that is about to lose focus would get committed
+    // as raw text (e.g. pinyin letters) by Chinese IMEs - cancel it cleanly instead.
+    private void CancelImeCompositionInForegroundWindow(HWND targetHandle)
+    {
+        var foreground = PInvoke.GetForegroundWindow();
+        if (foreground == HWND.Null || foreground == targetHandle)
+        {
+            return;
+        }
+
+        var result = ImeComposition.CancelActiveComposition(foreground);
+        if (result.ContextAcquired)
+        {
+            logger.LogInformation(
+                "IME composition cancel in foreground window {Handle}: length {CompositionLength}, cancel accepted: {CancelAccepted}",
+                foreground, result.CompositionLength, result.CancelAccepted);
+        }
+    }
+
+    private string DescribeForegroundWindow()
+    {
+        try
+        {
+            return DescribeWindow(windowEnumerator.GetCurrentWindow());
+        }
+        catch (Exception ex)
+        {
+            return $"unidentifiable: {ex.Message}";
+        }
+    }
+
+    private static string DescribeWindow(ApplicationWindow? window) =>
+        window is null
+            ? "unknown"
+            : $"{window.ProcessName} window {window.Handle} (\"{window.Title}\", state {window.State}, " +
+              $"position ({window.Position.X},{window.Position.Y}), size {window.Size.Width}x{window.Size.Height})";
+
+    private static bool IsMinimized(ApplicationWindow? window) =>
+        window is
+        {
+            State: SHOW_WINDOW_CMD.SW_SHOWMINIMIZED
+                or SHOW_WINDOW_CMD.SW_MINIMIZE
+                or SHOW_WINDOW_CMD.SW_SHOWMINNOACTIVE
+                or SHOW_WINDOW_CMD.SW_FORCEMINIMIZE
+        };
+
+    private Task PulseBorder(IntPtr hwnd, Color highlightColor, int durationMs = 400)
     {
         var color = highlightColor.R | (highlightColor.G << 8) | (highlightColor.B << 16);
         // ReSharper disable once InconsistentNaming
-        var DWMWA_COLOR_DEFAULT = -1;
+        const int DWMWA_COLOR_DEFAULT = -1;
 
-        await Task.Run(async () =>
+        return Task.Run(async () =>
         {
             SetDwmColor(color);
             await Task.Delay(durationMs);
@@ -244,11 +417,24 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
 
     internal void HideWindow(HWND hwnd)
     {
+        // Hiding the foreground window mid-composition would commit raw IME text - cancel it first.
+        if (PInvoke.GetForegroundWindow() == hwnd)
+        {
+            var result = ImeComposition.CancelActiveComposition(hwnd);
+            if (result.ContextAcquired)
+            {
+                logger.LogInformation(
+                    "IME composition cancel before hiding window {Handle}: length {CompositionLength}, cancel accepted: {CancelAccepted}",
+                    hwnd, result.CompositionLength, result.CancelAccepted);
+            }
+        }
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 
-    private static unsafe uint GetWindowThreadProcessId(HWND hwnd)
-    {
-        return PInvoke.GetWindowThreadProcessId(hwnd, null);
-    }
+    private bool WasStartedRecently(ApplicationConfiguration appConfig) =>
+        _recentStarts.TryGetValue(appConfig.ProcessPath, out var startedAtTick) &&
+        Stopwatch.GetElapsedTime(startedAtTick).TotalMilliseconds < StartDebounceMs;
+
+    private static unsafe uint GetWindowThreadProcessId(HWND hwnd) =>
+        PInvoke.GetWindowThreadProcessId(hwnd, null);
 }

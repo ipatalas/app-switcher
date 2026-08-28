@@ -1,5 +1,6 @@
 ﻿ShowWindow
 SetForegroundWindow
+BringWindowToTop
 GetApplicationUserModelId
 GetBinaryType
 GetForegroundWindow
@@ -27,5 +28,12 @@ DwmGetWindowAttribute
 DwmSetWindowAttribute
 SwitchToThisWindow
 AssocQueryString
+ImmGetContext
+ImmReleaseContext
+ImmGetCompositionString
+ImmNotifyIME
+IME_COMPOSITION_STRING
+NOTIFY_IME_ACTION
+NOTIFY_IME_INDEX
 WINDOW_STYLE
 MAX_PATH

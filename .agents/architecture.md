@@ -35,7 +35,7 @@ Use Microsoft.Extensions.DependencyInjection:
 
 ```csharp
 services.AddSingleton<ConfigurationManager>();
-services.AddTransient<Switcher>(); // Switcher is transient, NOT singleton
+services.AddSingleton<Switcher>(); // session state: next-window cycle, toggle memory, start debounce
 services.AddSingleton<StatsService>();
 ```
 

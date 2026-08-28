@@ -31,10 +31,11 @@ You stop thinking about where a window is and just jump there.
 
 ## ✨ Key features
 
-- [**Three Intelligent Cycle Modes:**](https://app-switcher.com/docs/configuration/cycle-modes/)
+- [**Four Intelligent Cycle Modes:**](https://app-switcher.com/docs/configuration/cycle-modes/)
     * `NextApp`: Cycle between different apps assigned to the same key.
     * `NextWindow`: Cycle through all open windows of a *single* app (great for multi-instance browsers).
     * `Hide`: Minimize the app if you press the hotkey while it's already focused (the ultimate "toggle").
+    * `ToggleWindow`: Show/hide the last used window of the app (focusing another window of the same app retargets).
 - **Start if not running:** optional per-app setting to start the app when no matching process is running.
 - **Packaged app support:** works with modern Windows packaged apps (for example Windows Terminal) in addition to classic desktop apps.
 - [**Peek mode:**](https://app-switcher.com/docs/configuration/peek-mode/) hold the hotkey to peek at the target app and release to return to the original app.
@@ -94,7 +95,7 @@ The app starts in the background. Open Settings from the system tray icon to con
 
 1. Right-click the tray icon and open **Settings**.
 2. Add a hotkey and choose the target app.
-3. Pick a modifier and a letter key.
+3. Pick a modifier and a letter or punctuation key.
 4. Optional: enable **Start if not running** for that app.
 
 Tip: the `Menu/Apps` key is often an excellent modifier because it is usually unused as a shortcut modifier.

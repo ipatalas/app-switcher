@@ -1,11 +1,12 @@
+using AppSwitcher.Extensions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
-using UserControl = System.Windows.Controls.UserControl;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using KeyboardFocusChangedEventArgs = System.Windows.Input.KeyboardFocusChangedEventArgs;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace AppSwitcher.UI.Controls;
 
@@ -114,7 +115,7 @@ public partial class KeyAssignmentButton : UserControl
             return;
         }
 
-        if (e.Key is >= Key.A and <= Key.Z)
+        if (e.Key.IsApplicationKey())
         {
             SetCurrentValue(KeyProperty, e.Key); // Update via binding to propagate to parent
             StopListening();
@@ -141,7 +142,7 @@ public partial class KeyAssignmentButton : UserControl
             return;
         }
 
-        ButtonContent = key == Key.None ? "?" : key.ToString();
+        ButtonContent = key == Key.None ? "?" : key.ToFriendlyString();
         ButtonAppearance = ControlAppearance.Secondary;
     }
 

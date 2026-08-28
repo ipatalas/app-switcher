@@ -88,7 +88,9 @@ public class ConfigurationValidatorTests
     [InlineData(Key.F1)]
     [InlineData(Key.Return)]
     [InlineData(Key.Space)]
-    public void ValidateAndLog_ReturnsError_WhenApplicationKeyIsNotALetter(Key key)
+    [InlineData(Key.Oem8)]
+    [InlineData(Key.OemBackslash)]
+    public void ValidateAndLog_ReturnsError_WhenApplicationKeyIsNotALetterOrPunctuation(Key key)
     {
         var tempFile = Path.GetTempFileName();
         try
@@ -108,7 +110,18 @@ public class ConfigurationValidatorTests
     [InlineData(Key.A)]
     [InlineData(Key.M)]
     [InlineData(Key.Z)]
-    public void ValidateAndLog_ReturnsSuccess_WhenApplicationKeyIsALetter(Key key)
+    [InlineData(Key.OemTilde)]
+    [InlineData(Key.OemMinus)]
+    [InlineData(Key.OemPlus)]
+    [InlineData(Key.OemOpenBrackets)]
+    [InlineData(Key.OemCloseBrackets)]
+    [InlineData(Key.OemPipe)]
+    [InlineData(Key.OemSemicolon)]
+    [InlineData(Key.OemQuotes)]
+    [InlineData(Key.OemComma)]
+    [InlineData(Key.OemPeriod)]
+    [InlineData(Key.OemQuestion)]
+    public void ValidateAndLog_ReturnsSuccess_WhenApplicationKeyIsALetterOrPunctuation(Key key)
     {
         var tempFile = Path.GetTempFileName();
         try

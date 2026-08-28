@@ -95,6 +95,7 @@ public class ApplicationConfigurationDocumentTests
     [InlineData(CycleMode.NextApp)]
     [InlineData(CycleMode.Hide)]
     [InlineData(CycleMode.NextWindow)]
+    [InlineData(CycleMode.ToggleWindow)]
     public void RoundTrip_PreservesAllData_Win32(CycleMode cycleMode)
     {
         var original = new ApplicationConfiguration(Key.C, @"C:\apps\tool.exe", cycleMode, false);

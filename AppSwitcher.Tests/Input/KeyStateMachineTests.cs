@@ -125,7 +125,18 @@ public class KeyStateMachineTests
     [Theory]
     [InlineData(Key.A)]
     [InlineData(Key.Z)]
-    public void ProcessKeyDown_ReturnsLetterKeyPressed_WhenLetterPressedWhileModifierHeld(Key key)
+    [InlineData(Key.OemTilde)]
+    [InlineData(Key.OemMinus)]
+    [InlineData(Key.OemPlus)]
+    [InlineData(Key.OemOpenBrackets)]
+    [InlineData(Key.OemCloseBrackets)]
+    [InlineData(Key.OemPipe)]
+    [InlineData(Key.OemSemicolon)]
+    [InlineData(Key.OemQuotes)]
+    [InlineData(Key.OemComma)]
+    [InlineData(Key.OemPeriod)]
+    [InlineData(Key.OemQuestion)]
+    public void ProcessKeyDown_ReturnsLetterKeyPressed_WhenLetterOrPunctuationPressedWhileModifierHeld(Key key)
     {
         _sut.ProcessKeyDown(Key.Apps);
 
@@ -217,12 +228,15 @@ public class KeyStateMachineTests
 
     // ── Unrelated key handling ──────────────────────────────────────────────
 
-    [Fact]
-    public void ProcessKeyDown_ReturnsUnrelatedKeyReset_WhenUnrelatedKeyPressedWhileModifierHeld()
+    [Theory]
+    [InlineData(Key.F5)]
+    [InlineData(Key.Oem8)]
+    [InlineData(Key.OemBackslash)]
+    public void ProcessKeyDown_ReturnsUnrelatedKeyReset_WhenUnrelatedKeyPressedWhileModifierHeld(Key key)
     {
         _sut.ProcessKeyDown(Key.Apps);
 
-        var result = _sut.ProcessKeyDown(Key.F5);
+        var result = _sut.ProcessKeyDown(key);
 
         result.Should().BeOfType<UnrelatedKeyReset>();
         _sut.IsModifierHeld.Should().BeFalse();

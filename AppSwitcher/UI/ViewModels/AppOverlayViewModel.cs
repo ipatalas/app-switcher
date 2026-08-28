@@ -1,13 +1,17 @@
+using AppSwitcher.Extensions;
+using CommunityToolkit.Mvvm.ComponentModel;
+using JetBrains.Annotations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
-using JetBrains.Annotations;
 using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels;
 
-public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon, bool IsActive = false, bool IsElevated = false);
+public record OverlayAppItem(Key HotkeyKey, string Name, ImageSource? Icon, bool IsActive = false, bool IsElevated = false)
+{
+    public string HotkeyDisplay => HotkeyKey.ToFriendlyString();
+}
 
 public partial class AppOverlayViewModel : ObservableObject
 {
