@@ -1,4 +1,5 @@
 ﻿using AppSwitcher.Configuration;
+using AppSwitcher.Input;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
 using Windows.Win32.Foundation;
@@ -243,6 +244,7 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
     internal bool ActivateWindow(ApplicationWindow window, bool pulseBorder = true)
     {
         var hwnd = window.Handle;
+        CancelImeCompositionInForegroundWindow(hwnd);
         if (PInvoke.IsIconic(hwnd))
         {
             logger.LogDebug("Window is minimized - restoring...");
@@ -338,6 +340,25 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
         }
     }
 
+    // A pending IME composition in the window that is about to lose focus would get committed
+    // as raw text (e.g. pinyin letters) by Chinese IMEs - cancel it cleanly instead.
+    private void CancelImeCompositionInForegroundWindow(HWND targetHandle)
+    {
+        var foreground = PInvoke.GetForegroundWindow();
+        if (foreground == HWND.Null || foreground == targetHandle)
+        {
+            return;
+        }
+
+        var result = ImeComposition.CancelActiveComposition(foreground);
+        if (result.ContextAcquired)
+        {
+            logger.LogInformation(
+                "IME composition cancel in foreground window {Handle}: length {CompositionLength}, cancel accepted: {CancelAccepted}",
+                foreground, result.CompositionLength, result.CancelAccepted);
+        }
+    }
+
     private string DescribeForegroundWindow()
     {
         try
@@ -396,6 +417,17 @@ internal class Switcher(ILogger<Switcher> logger, IWindowEnumerator windowEnumer
 
     internal void HideWindow(HWND hwnd)
     {
+        // Hiding the foreground window mid-composition would commit raw IME text - cancel it first.
+        if (PInvoke.GetForegroundWindow() == hwnd)
+        {
+            var result = ImeComposition.CancelActiveComposition(hwnd);
+            if (result.ContextAcquired)
+            {
+                logger.LogInformation(
+                    "IME composition cancel before hiding window {Handle}: length {CompositionLength}, cancel accepted: {CancelAccepted}",
+                    hwnd, result.CompositionLength, result.CancelAccepted);
+            }
+        }
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_MINIMIZE);
     }
 
