@@ -4,6 +4,7 @@
 - Fix Packaged Apps with the executable in a subfolder (e.g. Claude Desktop) not being recognized as Packaged Apps
 - Fix Packaged App paths in the configuration losing the executable's subfolder after an app update
 - Automatically convert existing configuration entries for such apps from Win32 to Packaged App, even when they point to an old, already removed version
+- Fix Stats page failing to load when opened before the first app switch of the day
 - Other minor fixes and improvements
 
 ## [1.10.3] - 2026-07-27
