@@ -1,4 +1,3 @@
-using AppSwitcher.Extensions;
 using AppSwitcher.Stats.Storage;
 using System.Windows.Input;
 
@@ -7,7 +6,7 @@ namespace AppSwitcher.Stats;
 internal class SessionStats : ISessionStats
 {
     private DailyBucketDocument? _rolloverSnapshot;
-    private DailyBucketDocument _currentSnapshot = new();
+    private DailyBucketDocument _currentSnapshot = new() { Date = DateOnly.FromDateTime(DateTime.Today) };
     // All Record* calls happen from one thread, but they can still clash with another thread calling GetSnapshots
     // This could potentially lead to an exception when modifying the dictionary while it's being read, so we use a lock to be safe
     private readonly object _lock = new();
@@ -83,6 +82,8 @@ internal class SessionStats : ISessionStats
     {
         lock (_lock)
         {
+            // The date may have changed since the last recorded event (e.g. app left running past midnight)
+            CheckRollover();
             var today = _currentSnapshot.Clone();
             var previous = _rolloverSnapshot;
 

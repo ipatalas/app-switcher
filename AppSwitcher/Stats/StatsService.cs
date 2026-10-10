@@ -133,6 +133,12 @@ internal class StatsService(
 
             foreach (var snapshot in snapshots)
             {
+                if (snapshot.Date == default)
+                {
+                    _logger.LogWarning("Skipping stats flush for a snapshot without a date (reason={Reason})", reason);
+                    continue;
+                }
+
                 col.Upsert(snapshot);
                 _logger.LogDebug("Stats flushed for {Date} (reason={Reason})", snapshot.Date.ToString("yyyy-MM-dd"), reason);
             }

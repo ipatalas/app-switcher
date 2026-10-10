@@ -382,6 +382,38 @@ public class SessionStatsTests
     }
 
     [Fact]
+    public void GetSnapshots_ReturnsTodaysDate_WhenNothingRecorded()
+    {
+        _sut.GetSnapshots().Single().Date.Should().Be(_today);
+    }
+
+    [Fact]
+    public void GetSnapshots_RollsOver_WhenDateChangedWithoutNewEvents()
+    {
+        var yesterday = _today.AddDays(-1);
+        _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
+        _sut.SimulateLastRecordedDate(yesterday);
+
+        var snapshots = _sut.GetSnapshots();
+
+        snapshots.Should().HaveCount(2);
+        snapshots[0].Date.Should().Be(yesterday);
+        snapshots[0].TotalSwitches.Should().Be(1);
+        snapshots[1].Date.Should().Be(_today);
+        snapshots[1].TotalSwitches.Should().Be(0);
+    }
+
+    [Fact]
+    public void GetSnapshots_DoesNotRollOverEmptySnapshot_WhenDateChanged()
+    {
+        _sut.SimulateLastRecordedDate(_today.AddDays(-1));
+
+        var snapshots = _sut.GetSnapshots();
+
+        snapshots.Should().ContainSingle().Which.Date.Should().Be(_today);
+    }
+
+    [Fact]
     public void Snapshot_ReturnsSingleDocument_WhenNoRolloverOccurred()
     {
         _sut.RecordSwitch("notepad.exe", null, durationMs: 100, savedMs: 100, isDynamic: false);
