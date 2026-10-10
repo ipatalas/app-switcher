@@ -44,7 +44,7 @@ public class StatsCalculatorTests
         var windowEnumerator = Substitute.For<IWindowEnumerator>();
         windowEnumerator.GetWindows().Returns([]);
         var packagedAppsService = Substitute.For<IPackagedAppsService>();
-        packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        packagedAppsService.GetInstalledPackages().Returns(InstalledPackages.Empty);
         var processInspector = Substitute.For<IProcessInspector>();
         var cache = new AppRegistryCache(
             db,

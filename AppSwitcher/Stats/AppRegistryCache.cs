@@ -32,16 +32,16 @@ internal class AppRegistryCache(
         }
 
         // all running windows
-        var installedPaths = packagedAppsService.GetInstalledPaths();
+        var installedPackages = packagedAppsService.GetInstalledPackages();
         foreach (var window in windows.Where(window => !_cache.ContainsKey(window.ProcessName)))
         {
-            Add(window.ProcessName, window.ProcessImagePath, installedPaths);
+            Add(window.ProcessName, window.ProcessImagePath, installedPackages);
         }
 
         // all configured apps - some of them may not be running now so previous loop wouldn't cover them
         foreach (var app in config.Applications.Where(app => !_cache.ContainsKey(app.ProcessName)))
         {
-            Add(app.ProcessName, app.ProcessPath, installedPaths);
+            Add(app.ProcessName, app.ProcessPath, installedPackages);
         }
     }
 
@@ -56,8 +56,8 @@ internal class AppRegistryCache(
             return false;
         }
 
-        var installedPaths = packagedAppsService.GetInstalledPaths();
-        Add(processName, processPath, installedPaths);
+        var installedPackages = packagedAppsService.GetInstalledPackages();
+        Add(processName, processPath, installedPackages);
         return true;
     }
 
@@ -79,9 +79,9 @@ internal class AppRegistryCache(
         return Path.GetFileNameWithoutExtension(processName);
     }
 
-    private void Add(string processName, string processPath, IReadOnlySet<string> installedPaths)
+    private void Add(string processName, string processPath, InstalledPackages installedPackages)
     {
-        var isPackagedApp = installedPaths.Contains(Path.GetDirectoryName(processPath)!);
+        var isPackagedApp = installedPackages.Contains(processPath);
 
         var displayName = isPackagedApp
             ? packagedAppsService.GetDisplayName(processPath)

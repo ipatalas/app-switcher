@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
@@ -15,11 +14,12 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
     // this never changes so no expiration
     private readonly Dictionary<string, PackagedAppInfo> _packageCache = new();
 
-    public IReadOnlySet<string> GetInstalledPaths()
+    public InstalledPackages GetInstalledPackages()
     {
         var sw = Stopwatch.StartNew();
-        var result = new PackageManager().FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main)
-            .Select(p => p.InstalledPath).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        var result = new InstalledPackages(new PackageManager()
+            .FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main)
+            .Select(p => p.InstalledPath));
         logger.LogDebug($"Found {result.Count} installed packages in {sw.ElapsedMilliseconds}ms");
         return result;
     }

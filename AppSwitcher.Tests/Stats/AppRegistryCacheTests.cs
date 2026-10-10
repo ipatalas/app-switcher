@@ -23,7 +23,7 @@ public class AppRegistryCacheTests : IDisposable
     public AppRegistryCacheTests()
     {
         _windowEnumerator.GetWindows().Returns([]);
-        _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        _packagedAppsService.GetInstalledPackages().Returns(InstalledPackages.Empty);
         _sut = new AppRegistryCache(
             _db,
             _windowEnumerator,

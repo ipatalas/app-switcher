@@ -2,7 +2,6 @@ using AppSwitcher.Configuration;
 using AppSwitcher.Extensions;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Windows.Input;
 
 namespace AppSwitcher.Input;
@@ -20,7 +19,7 @@ internal class DynamicModeService(
         using var _ = logger.MeasureTime("GetAllDynamicApps");
         var staticKeys = staticApps.Select(a => a.Key).ToHashSet();
         var excludedProcessNames = GetExcludedProcessNames(staticApps);
-        var packagedApps = packagedAppsService.GetInstalledPaths();
+        var installedPackages = packagedAppsService.GetInstalledPackages();
 
         return windows
             .DistinctBy(w => w.ProcessImagePath, StringComparer.OrdinalIgnoreCase)
@@ -32,7 +31,7 @@ internal class DynamicModeService(
                 ProcessPath: x.Window.ProcessImagePath,
                 CycleMode: CycleMode.NextApp,
                 StartIfNotRunning: false,
-                Type: packagedApps.Contains(Path.GetDirectoryName(x.Window.ProcessImagePath)!) ? ApplicationType.Packaged : ApplicationType.Win32))
+                Type: installedPackages.Contains(x.Window.ProcessImagePath) ? ApplicationType.Packaged : ApplicationType.Win32))
             .ToList();
     }
 

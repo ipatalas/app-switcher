@@ -29,7 +29,7 @@ public class DynamicModeServiceTests
     public DynamicModeServiceTests()
     {
         _windowEnumerator.GetCachedWindows().Returns([]);
-        _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        _packagedAppsService.GetInstalledPackages().Returns(InstalledPackages.Empty);
         _appNameResolver.GetDynamicKey(Path.GetFileName(SpotifyPath), SpotifyPath).Returns(Key.S);
         _appNameResolver.GetDynamicKey(Path.GetFileName(PaintPath), PaintPath).Returns(Key.P);
         _appNameResolver.GetDynamicKey(Path.GetFileName(PowerpointPath), PowerpointPath).Returns(Key.P);
@@ -197,7 +197,7 @@ public class DynamicModeServiceTests
             MakeWindow(PaintPath),
             MakeWindow(TerminalPath) // PackagedApp
         };
-        _packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>([Path.GetDirectoryName(TerminalPath)!]));
+        _packagedAppsService.GetInstalledPackages().Returns(new InstalledPackages([Path.GetDirectoryName(TerminalPath)!]));
 
         var result = _sut.GetAllDynamicApps([], windows);
 

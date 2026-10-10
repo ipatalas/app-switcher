@@ -19,17 +19,16 @@ internal class RunningApplicationsService(
             .Concat(["appswitcher.exe"])
             .ToHashSet();
 
-        var packagedApps = packagedAppsService.GetInstalledPaths();
+        var installedPackages = packagedAppsService.GetInstalledPackages();
 
         return windowEnumerator.GetWindows()
-            .Select(w => (Name: Path.GetFileName(w.ProcessImagePath), Path: w.ProcessImagePath, Id: w.ProcessId,
-                Directory: Path.GetDirectoryName(w.ProcessImagePath)!))
+            .Select(w => (Name: Path.GetFileName(w.ProcessImagePath), Path: w.ProcessImagePath, Id: w.ProcessId))
             .DistinctBy(item => item.Name.ToLowerInvariant())
             .Where(item => !excluded.Contains(item.Name.ToLowerInvariant()))
             .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase)
             .Select(item =>
             {
-                var isPackagedApp = packagedApps.Contains(item.Directory);
+                var isPackagedApp = installedPackages.Contains(item.Path);
                 var icon = isPackagedApp
                     ? iconExtractor.GetByIconPath(packagedAppsService.GetByInstalledPath(item.Path, item.Id)?.IconPath)
                     : iconExtractor.GetByProcessPath(item.Path);

@@ -32,8 +32,9 @@ internal class PackagedAppPathSanitizer(IPackagedAppsService packagedAppsService
                 continue;
             }
 
-            var exeName = Path.GetFileName(app.ProcessPath);
-            var newProcessPath = Path.Combine(newInstalledPath, exeName);
+            var exeRelativePath = GetPathRelativeToPackage(app.ProcessPath, newInstalledPath)
+                                  ?? Path.GetFileName(app.ProcessPath);
+            var newProcessPath = Path.Combine(newInstalledPath, exeRelativePath);
             logger.LogInformation("Updated stale path for '{ProcessName}': '{OldPath}' -> '{NewPath}'",
                 app.ProcessName, app.ProcessPath, newProcessPath);
 
@@ -47,5 +48,30 @@ internal class PackagedAppPathSanitizer(IPackagedAppsService packagedAppsService
         }
 
         return config with { Applications = updatedApps };
+    }
+
+    /// <summary>
+    /// Package updates are installed side by side (<c>&lt;root&gt;\&lt;PackageFullName&gt;</c>), so the stale path is
+    /// expected to live in a sibling of <paramref name="newInstalledPath"/>. Returns the part of
+    /// <paramref name="stalePath"/> below its package directory (e.g. <c>app\Claude.exe</c>), or <c>null</c>
+    /// when <paramref name="stalePath"/> is not located under the same root.
+    /// </summary>
+    private static string? GetPathRelativeToPackage(string stalePath, string newInstalledPath)
+    {
+        var packageRoot = Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(newInstalledPath));
+        if (packageRoot is null)
+        {
+            return null;
+        }
+
+        var relativeToRoot = Path.GetRelativePath(packageRoot, stalePath);
+        if (Path.IsPathRooted(relativeToRoot) || relativeToRoot.StartsWith(".." + Path.DirectorySeparatorChar))
+        {
+            return null;
+        }
+
+        // strip the stale package directory, keep everything below it
+        var separatorIndex = relativeToRoot.IndexOf(Path.DirectorySeparatorChar);
+        return separatorIndex < 0 ? null : relativeToRoot[(separatorIndex + 1)..];
     }
 }

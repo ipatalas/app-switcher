@@ -39,7 +39,7 @@ public class StatsConsumerTests
         var windowEnumerator = Substitute.For<IWindowEnumerator>();
         windowEnumerator.GetWindows().Returns([]);
         var packagedAppsService = Substitute.For<IPackagedAppsService>();
-        packagedAppsService.GetInstalledPaths().Returns(new HashSet<string>());
+        packagedAppsService.GetInstalledPackages().Returns(InstalledPackages.Empty);
         var processInspector = Substitute.For<IProcessInspector>();
         processInspector.GetProcessDisplayName(Arg.Any<string>()).Returns(x => Path.GetFileNameWithoutExtension((string)x[0]));
         return new AppRegistryCache(
