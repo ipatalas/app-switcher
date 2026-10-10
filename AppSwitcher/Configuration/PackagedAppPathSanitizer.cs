@@ -1,45 +1,36 @@
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace AppSwitcher.Configuration;
 
 internal class PackagedAppPathSanitizer(IPackagedAppsService packagedAppsService, ILogger<PackagedAppPathSanitizer> logger)
 {
+    // <Name>_<Version>_<Architecture>_<ResourceId>_<PublisherId> - package names cannot contain underscores
+    private static readonly Regex PackageDirectoryRegex = new(
+        @"^(?<name>[A-Za-z0-9.-]{3,50})_\d+(\.\d+){3}_[A-Za-z0-9]*_[^_]*_(?<publisherId>[a-z0-9]{13})$",
+        RegexOptions.CultureInvariant);
+
     /// <summary>
-    /// Checks all packaged app paths and fixes any that are stale (e.g. after a package update).
-    /// Returns an updated <see cref="Configuration"/> if any paths were corrected, or <c>null</c> if nothing changed.
+    /// Reclassifies Win32 apps that are actually located in a package directory as packaged apps,
+    /// and fixes packaged app paths that are stale (e.g. after a package update).
+    /// Returns an updated <see cref="Configuration"/> if anything was corrected, or <c>null</c> if nothing changed.
     /// </summary>
     public Configuration? Sanitize(Configuration config)
     {
         var updatedApps = new List<ApplicationConfiguration>(config.Applications.Count);
         var changed = false;
 
-        foreach (var app in config.Applications)
+        foreach (var original in config.Applications)
         {
-            if (app.Type != ApplicationType.Packaged || File.Exists(app.ProcessPath))
-            {
-                updatedApps.Add(app);
-                continue;
-            }
+            var app = original.Type == ApplicationType.Win32
+                ? TryConvertToPackaged(original) ?? original
+                : original;
+            app = TryFixStalePath(app) ?? app;
 
-            var newInstalledPath = packagedAppsService.GetInstalledPathByAumid(app.Aumid);
-            if (newInstalledPath is null)
-            {
-                logger.LogWarning("Packaged app '{ProcessName}' has a stale path and could not be resolved via AUMID '{Aumid}' - it may be uninstalled",
-                    app.ProcessName, app.Aumid);
-                updatedApps.Add(app);
-                continue;
-            }
-
-            var exeRelativePath = GetPathRelativeToPackage(app.ProcessPath, newInstalledPath)
-                                  ?? Path.GetFileName(app.ProcessPath);
-            var newProcessPath = Path.Combine(newInstalledPath, exeRelativePath);
-            logger.LogInformation("Updated stale path for '{ProcessName}': '{OldPath}' -> '{NewPath}'",
-                app.ProcessName, app.ProcessPath, newProcessPath);
-
-            updatedApps.Add(app with { ProcessPath = newProcessPath });
-            changed = true;
+            changed |= app != original;
+            updatedApps.Add(app);
         }
 
         if (!changed)
@@ -48,6 +39,72 @@ internal class PackagedAppPathSanitizer(IPackagedAppsService packagedAppsService
         }
 
         return config with { Applications = updatedApps };
+    }
+
+    private ApplicationConfiguration? TryConvertToPackaged(ApplicationConfiguration app)
+    {
+        var packageFamilyName = GetPackageFamilyName(app.ProcessPath);
+        if (packageFamilyName is null)
+        {
+            return null;
+        }
+
+        var packagedApp = packagedAppsService.GetByPackageFamilyName(packageFamilyName);
+        if (packagedApp is null)
+        {
+            logger.LogWarning("'{ProcessName}' is located in a package directory but package '{PackageFamilyName}' could not be resolved - it may be uninstalled",
+                app.ProcessName, packageFamilyName);
+            return null;
+        }
+
+        logger.LogInformation("Reclassified '{ProcessName}' as packaged app with AUMID '{Aumid}'",
+            app.ProcessName, packagedApp.Aumid);
+        return app with { Type = ApplicationType.Packaged, Aumid = packagedApp.Aumid };
+    }
+
+    private ApplicationConfiguration? TryFixStalePath(ApplicationConfiguration app)
+    {
+        if (app.Type != ApplicationType.Packaged || File.Exists(app.ProcessPath))
+        {
+            return null;
+        }
+
+        var newInstalledPath = packagedAppsService.GetInstalledPathByAumid(app.Aumid);
+        if (newInstalledPath is null)
+        {
+            logger.LogWarning("Packaged app '{ProcessName}' has a stale path and could not be resolved via AUMID '{Aumid}' - it may be uninstalled",
+                app.ProcessName, app.Aumid);
+            return null;
+        }
+
+        var exeRelativePath = GetPathRelativeToPackage(app.ProcessPath, newInstalledPath)
+                              ?? Path.GetFileName(app.ProcessPath);
+        var newProcessPath = Path.Combine(newInstalledPath, exeRelativePath);
+        logger.LogInformation("Updated stale path for '{ProcessName}': '{OldPath}' -> '{NewPath}'",
+            app.ProcessName, app.ProcessPath, newProcessPath);
+
+        return app with { ProcessPath = newProcessPath };
+    }
+
+    /// <summary>
+    /// Derives the package family name (<c>&lt;Name&gt;_&lt;PublisherId&gt;</c>) from the package directory
+    /// <paramref name="processPath"/> is located in. The family name does not change between package versions,
+    /// so it also works for stale paths pointing to an already removed version.
+    /// </summary>
+    private static string? GetPackageFamilyName(string processPath)
+    {
+        for (var directory = Path.GetDirectoryName(processPath);
+             !string.IsNullOrEmpty(directory);
+             directory = Path.GetDirectoryName(directory))
+        {
+            var match = PackageDirectoryRegex.Match(Path.GetFileName(directory));
+            if (match.Success)
+            {
+                return $"{match.Groups["name"].Value}_{match.Groups["publisherId"].Value}";
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

@@ -54,40 +54,46 @@ internal class PackagedAppsService(ILogger<PackagedAppsService> logger) : IPacka
     public PackagedAppInfo? GetByAumid(string? aumid)
     {
         var package = GetByAumidInternal(aumid);
+        return package == null ? null : GetPackagedAppInfo(package, fallbackAumid: aumid);
+    }
+
+    public PackagedAppInfo? GetByPackageFamilyName(string packageFamilyName)
+    {
+        var package = GetByPackageFamilyNameInternal(packageFamilyName);
         return package == null ? null : GetPackagedAppInfo(package);
     }
 
-    private Package? GetByAumidInternal(string? aumid)
+    private static Package? GetByAumidInternal(string? aumid)
     {
         if (string.IsNullOrEmpty(aumid))
         {
             return null;
         }
 
-        var packageManager = new PackageManager();
-        var packageFamilyName = aumid.Split('!')[0];
-
-        return packageManager.FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
+        return GetByPackageFamilyNameInternal(aumid.Split('!')[0]);
     }
 
-    private PackagedAppInfo? GetPackagedAppInfo(Package package, uint? processId = null)
+    private static Package? GetByPackageFamilyNameInternal(string packageFamilyName) =>
+        new PackageManager().FindPackagesForUser(string.Empty, packageFamilyName).FirstOrDefault();
+
+    private PackagedAppInfo? GetPackagedAppInfo(Package package, uint? processId = null, string? fallbackAumid = null)
     {
         if (_packageCache.TryGetValue(package.InstalledPath, out var cachedApp))
         {
             return cachedApp;
         }
 
-        var aumid = package.GetAppListEntries().FirstOrDefault()?.AppUserModelId;
-        if (aumid == null && processId != null)
+        var aumid = package.GetAppListEntries().FirstOrDefault()?.AppUserModelId
+                    ?? fallbackAumid
+                    ?? (processId is null ? null : GetAumidByProcessId(processId.Value));
+        if (aumid is null)
         {
-            aumid = GetAumidByProcessId(processId.Value);
-            if (aumid == null)
-            {
-                return null;
-            }
+            // not cached - a later call with a process ID may still resolve it
+            logger.LogDebug("Could not resolve AUMID for package {PackageFullName}", package.Id.FullName);
+            return null;
         }
 
-        var result = new PackagedAppInfo(Aumid: aumid!,
+        var result = new PackagedAppInfo(Aumid: aumid,
             IconPath: package.Logo.IsFile ? package.Logo.LocalPath : string.Empty);
 
         _packageCache[package.InstalledPath] = result;
