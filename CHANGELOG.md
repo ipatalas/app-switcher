@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.10.4] - 2026-10-10
+- Fix Packaged Apps with the executable in a subfolder (e.g. Claude Desktop) not being recognized as Packaged Apps
+- Fix Packaged App paths in the configuration losing the executable's subfolder after an app update
+- Automatically convert existing configuration entries for such apps from Win32 to Packaged App, even when they point to an old, already removed version
+- Other minor fixes and improvements
+
 ## [1.10.3] - 2026-07-27
 - Pass through unbound modifier+key combinations to Windows instead of suppressing them (e.g. `Win+D` shows the desktop when not assigned to any app)
 
