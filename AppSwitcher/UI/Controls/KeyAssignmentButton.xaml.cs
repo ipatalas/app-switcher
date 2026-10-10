@@ -3,9 +3,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
-using UserControl = System.Windows.Controls.UserControl;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using KeyboardFocusChangedEventArgs = System.Windows.Input.KeyboardFocusChangedEventArgs;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace AppSwitcher.UI.Controls;
 

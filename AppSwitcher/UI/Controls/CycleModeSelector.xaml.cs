@@ -55,4 +55,3 @@ public partial class CycleModeSelector : UserControl
             tag == selectedTag ? ControlAppearance.Primary : ControlAppearance.Secondary;
     }
 }
-

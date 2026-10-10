@@ -71,7 +71,10 @@ internal class StatsSettingsViewModelDesignTime : StatsSettingsViewModel
             AltTabKeystrokes = 23,
             FastestSwitch = new FastestSwitchRecord
             {
-                DurationMs = 45, AppName = "WindowsTerminal.exe", Letter = "T", Date = new DateTime(2026, 4, 10),
+                DurationMs = 45,
+                AppName = "WindowsTerminal.exe",
+                Letter = "T",
+                Date = new DateTime(2026, 4, 10),
             },
             StaticAppUsage = new Dictionary<string, AppUsageStats>
             {

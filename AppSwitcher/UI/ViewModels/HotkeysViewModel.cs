@@ -3,9 +3,9 @@ using AppSwitcher.UI.ViewModels.Common;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
+using System.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
-using System.Windows;
 
 namespace AppSwitcher.UI.ViewModels;
 

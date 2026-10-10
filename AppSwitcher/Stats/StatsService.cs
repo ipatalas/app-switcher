@@ -1,8 +1,8 @@
 using AppSwitcher.Stats.Migrations;
 using AppSwitcher.Stats.Storage;
-using AppConfig = AppSwitcher.Configuration.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
+using AppConfig = AppSwitcher.Configuration.Configuration;
 
 namespace AppSwitcher.Stats;
 

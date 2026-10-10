@@ -105,7 +105,8 @@ internal class AppRegistryCache(
             {
                 col.Insert(new AppRegistryDocument
                 {
-                    ProcessName = processName, DisplayName = displayName
+                    ProcessName = processName,
+                    DisplayName = displayName
                 });
             }
         }

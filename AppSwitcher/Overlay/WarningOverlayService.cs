@@ -1,7 +1,7 @@
 using AppSwitcher.UI.Windows;
 using Microsoft.Extensions.Logging;
-using System.Windows.Threading;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace AppSwitcher.Overlay;
 

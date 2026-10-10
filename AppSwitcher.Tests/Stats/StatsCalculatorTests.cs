@@ -78,12 +78,12 @@ public class StatsCalculatorTests
     }
 
     [Theory]
-    [InlineData(30_000,     "30s")]       // 30 seconds
-    [InlineData(59_000,     "59s")]       // 59 seconds
-    [InlineData(90_000,     "1m 30s")]    // 1 minute 30 seconds
-    [InlineData(1_800_000,  "30m")]       // 30 minutes exactly (no trailing 0s)
-    [InlineData(3_599_000,  "59m 59s")]   // just under 1 hour
-    [InlineData(5_400_000,  "1h 30m")]    // 1 hour 30 minutes
+    [InlineData(30_000, "30s")]       // 30 seconds
+    [InlineData(59_000, "59s")]       // 59 seconds
+    [InlineData(90_000, "1m 30s")]    // 1 minute 30 seconds
+    [InlineData(1_800_000, "30m")]       // 30 minutes exactly (no trailing 0s)
+    [InlineData(3_599_000, "59m 59s")]   // just under 1 hour
+    [InlineData(5_400_000, "1h 30m")]    // 1 hour 30 minutes
     public void ComputeLifeGained_FormatsCorrectly(int timeSavedMs, string expectedResult)
     {
         var today = new DailyBucketDocument { Date = Today, TotalTimeSavedMs = timeSavedMs };
@@ -120,12 +120,12 @@ public class StatsCalculatorTests
 
     [Theory]
     // index = (1.0*static + 0.7*dynamic) / (static + dynamic + relapses) * 100
-    [InlineData(96, 0, 4,  "S", "Shadow Walker")] // 96/100 * 100 = 96
+    [InlineData(96, 0, 4, "S", "Shadow Walker")] // 96/100 * 100 = 96
     [InlineData(85, 0, 15, "A", "Teleporter")]    // 85/100 * 100 = 85
     [InlineData(70, 0, 30, "B", "The Navigator")] // 70/100 * 100 = 70
     [InlineData(50, 0, 50, "C", "Learner")]       // 50/100 * 100 = 50
     [InlineData(30, 0, 70, "D", "Novice")]        // 30/100 * 100 = 30
-    [InlineData(0,  0, 100, "F", "Alt-Tabber")]   // 0/100 * 100 = 0
+    [InlineData(0, 0, 100, "F", "Alt-Tabber")]   // 0/100 * 100 = 0
     public void ComputeMuscleMemoGrade_ReturnsCorrectGrade(
         int staticSwitches, int dynamicSwitches, int relapses,
         string expectedGrade, string expectedPersona)
@@ -135,10 +135,10 @@ public class StatsCalculatorTests
             Date = Today,
             AltTabSwitches = relapses,
             StaticAppUsage = staticSwitches > 0
-                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(staticSwitches)}
+                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(staticSwitches) }
                 : [],
             DynamicAppUsage = dynamicSwitches > 0
-                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(dynamicSwitches)}
+                ? new Dictionary<string, AppUsageStats> { ["app.exe"] = new(dynamicSwitches) }
                 : [],
         };
 
@@ -431,7 +431,10 @@ public class StatsCalculatorTests
         };
         var displayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["a.exe"] = "App A", ["b.exe"] = "App B", ["c.exe"] = "App C", ["d.exe"] = "App D",
+            ["a.exe"] = "App A",
+            ["b.exe"] = "App B",
+            ["c.exe"] = "App C",
+            ["d.exe"] = "App D",
         };
 
         var result = StatsCalculator.BuildPodium(combined, FakeRegistryCache(displayNames));

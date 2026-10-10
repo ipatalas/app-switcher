@@ -45,7 +45,10 @@ internal class AppUsageStats(int switches = 0, int peeks = 0, int totalPeekTimeM
 
     public AppUsageStats Clone() => new()
     {
-        Switches = Switches, Peeks = Peeks, TotalPeekTimeMs = TotalPeekTimeMs, TotalSwitchTimeMs = TotalSwitchTimeMs,
+        Switches = Switches,
+        Peeks = Peeks,
+        TotalPeekTimeMs = TotalPeekTimeMs,
+        TotalSwitchTimeMs = TotalSwitchTimeMs,
     };
 }
 

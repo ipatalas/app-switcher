@@ -11,7 +11,7 @@ public static class KeyExtensions
     {
         if (key.IsDigit())
         {
-            return ((char)('0'+ key - Key.D0)).ToString();
+            return ((char)('0' + key - Key.D0)).ToString();
         }
 
         return key.ToString();

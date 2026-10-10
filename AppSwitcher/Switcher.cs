@@ -1,14 +1,14 @@
 ﻿using AppSwitcher.Configuration;
 using AppSwitcher.WindowDiscovery;
 using Microsoft.Extensions.Logging;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
-using Windows.Win32.UI.Input.KeyboardAndMouse;
-using Windows.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace AppSwitcher;
 

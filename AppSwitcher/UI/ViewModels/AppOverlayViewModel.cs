@@ -1,8 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using JetBrains.Annotations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
-using JetBrains.Annotations;
 using System.Windows.Media.Imaging;
 
 namespace AppSwitcher.UI.ViewModels;
