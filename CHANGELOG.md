@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.10.5] - 2026-11-07
+- Fix hotkey firing when extra modifiers are held (e.g. `Alt+Shift+S` triggering the `Shift+S` hotkey) - [#11](https://github.com/ipatalas/app-switcher/issues/11)
+
 ## [1.10.4] - 2026-10-10
 - Fix Packaged Apps with the executable in a subfolder (e.g. Claude Desktop) not being recognized as Packaged Apps
 - Fix Packaged App paths in the configuration losing the executable's subfolder after an app update
