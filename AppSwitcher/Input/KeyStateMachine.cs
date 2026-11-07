@@ -19,8 +19,18 @@ internal sealed class KeyStateMachine
         Key.Capital, // toggles Caps Lock state
     }.ToFrozenSet();
 
+    // Keys that, when held alongside the configured modifier, make the combination a different hotkey
+    private static readonly FrozenSet<Key> ModifierKeys = new[]
+    {
+        Key.LeftShift, Key.RightShift,
+        Key.LeftCtrl, Key.RightCtrl,
+        Key.LeftAlt, Key.RightAlt,
+        Key.LWin, Key.RWin,
+    }.ToFrozenSet();
+
     private State _state = State.Idle;
     private Key _configuredModifier;
+    private readonly HashSet<Key> _otherModifiersHeld = [];
 
     // Alt+Tab tracking (independent of the configured modifier)
     private bool _altHeld;        // LeftAlt or RightAlt is currently down
@@ -36,6 +46,11 @@ internal sealed class KeyStateMachine
 
     public KeyTransition ProcessKeyDown(Key key)
     {
+        if (IsOtherModifier(key))
+        {
+            _otherModifiersHeld.Add(key);
+        }
+
         // Alt+Tab tracking — guard: only when the key is not the configured modifier
         if (key != _configuredModifier && HandleAltTabTracking(out var transition))
         {
@@ -49,6 +64,12 @@ internal sealed class KeyStateMachine
             {
                 // key repeat
                 return new KeyTransition.ModifierPressed(IsFirstPress: false, HasSideEffect: hasSideEffect);
+            }
+
+            if (_otherModifiersHeld.Count > 0)
+            {
+                // extra modifiers held (e.g. Alt+Shift when Shift is configured) - not our hotkey
+                return new KeyTransition.NoOp();
             }
 
             _state = State.ModifierHeld;
@@ -118,6 +139,8 @@ internal sealed class KeyStateMachine
 
     public KeyTransition ProcessKeyUp(Key key)
     {
+        _otherModifiersHeld.Remove(key);
+
         // Alt+Tab tracking — guard: only when the key is not the configured modifier
         if (key != _configuredModifier)
         {
@@ -162,8 +185,15 @@ internal sealed class KeyStateMachine
     public void Reset()
     {
         _state = State.Idle;
+        _otherModifiersHeld.Clear();
         ResetAltTabState();
     }
+
+    private bool IsOtherModifier(Key key) =>
+        key != _configuredModifier
+        && ModifierKeys.Contains(key)
+        // AltGr layouts send a fake LeftCtrl down right before RightAlt
+        && !(key == Key.LeftCtrl && _configuredModifier == Key.RightAlt);
 
     private void ResetAltTabState()
     {

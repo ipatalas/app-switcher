@@ -574,6 +574,86 @@ public class KeyStateMachineTests
         result.Should().Be(new AltTabSwitched(2));
     }
 
+    // ── Extra modifiers ─────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(Key.LeftCtrl)]
+    [InlineData(Key.RightCtrl)]
+    [InlineData(Key.LeftAlt)]
+    [InlineData(Key.RightAlt)]
+    [InlineData(Key.LWin)]
+    [InlineData(Key.RWin)]
+    [InlineData(Key.RightShift)]
+    public void ProcessKeyDown_ReturnsNoOp_WhenConfiguredModifierPressedWhileOtherModifierHeld(Key otherModifier)
+    {
+        _sut.Configure(Key.LeftShift);
+        _sut.ProcessKeyDown(otherModifier);
+
+        var result = _sut.ProcessKeyDown(Key.LeftShift);
+
+        result.Should().BeOfType<NoOp>();
+        _sut.IsModifierHeld.Should().BeFalse();
+        _sut.ProcessKeyDown(Key.S).Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void ProcessKeyDown_ReturnsUnrelatedKeyReset_WhenOtherModifierPressedWhileConfiguredModifierHeld()
+    {
+        _sut.Configure(Key.LeftShift);
+        _sut.ProcessKeyDown(Key.LeftShift);
+
+        var result = _sut.ProcessKeyDown(Key.LeftAlt);
+
+        result.Should().BeOfType<UnrelatedKeyReset>();
+        _sut.ProcessKeyDown(Key.S).Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void ProcessKeyDown_ReturnsModifierPressed_AfterOtherModifierReleased()
+    {
+        _sut.Configure(Key.LeftShift);
+        _sut.ProcessKeyDown(Key.LeftAlt);
+        _sut.ProcessKeyUp(Key.LeftAlt);
+
+        _sut.ProcessKeyDown(Key.LeftShift).Should().BeOfType<ModifierPressed>()
+            .Which.IsFirstPress.Should().BeTrue();
+        _sut.ProcessKeyDown(Key.S).Should().BeOfType<LetterKeyPressed>();
+    }
+
+    [Fact]
+    public void ProcessKeyUp_ReturnsNoOp_WhenConfiguredModifierReleasedAfterBlockedPress()
+    {
+        _sut.Configure(Key.LWin);
+        _sut.ProcessKeyDown(Key.LeftCtrl);
+        _sut.ProcessKeyDown(Key.LWin);
+
+        var result = _sut.ProcessKeyUp(Key.LWin);
+
+        result.Should().BeOfType<NoOp>();
+    }
+
+    [Fact]
+    public void AltGr_FakeLeftCtrl_DoesNotBlockRightAltModifier()
+    {
+        _sut.Configure(Key.RightAlt);
+        _sut.ProcessKeyDown(Key.LeftCtrl);
+
+        _sut.ProcessKeyDown(Key.RightAlt).Should().BeOfType<ModifierPressed>()
+            .Which.IsFirstPress.Should().BeTrue();
+        _sut.ProcessKeyDown(Key.A).Should().BeOfType<LetterKeyPressed>();
+    }
+
+    [Fact]
+    public void Reset_ClearsOtherModifiersHeld()
+    {
+        _sut.ProcessKeyDown(Key.LeftAlt);
+
+        _sut.Reset();
+
+        _sut.ProcessKeyDown(Key.Apps).Should().BeOfType<ModifierPressed>()
+            .Which.IsFirstPress.Should().BeTrue();
+    }
+
     // ── ConfiguredModifierHasSideEffect ─────────────────────────────────────
 
     [Theory]
