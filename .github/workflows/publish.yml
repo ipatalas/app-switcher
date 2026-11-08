@@ -48,6 +48,7 @@ jobs:
       - uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: ipatalas.AppSwitcher
+          installers-regex: '^AppSwitcher\.Installer\.exe$'
           max-versions-to-keep: 5
           token: ${{ secrets.WINGET_GITHUB_TOKEN }}
       - name: Find Dynamic Branch Name
