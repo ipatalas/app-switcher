@@ -1,5 +1,8 @@
 # Change Log
 
+## [Unreleased]
+- Migrate to .NET 10 (LTS). Framework-dependent builds now require the .NET 10 Desktop Runtime (self-contained builds are unaffected)
+
 ## [1.10.5] - 2026-11-07
 - Fix hotkey firing when extra modifiers are held (e.g. `Alt+Shift+S` triggering the `Shift+S` hotkey) - [#11](https://github.com/ipatalas/app-switcher/issues/11)
 

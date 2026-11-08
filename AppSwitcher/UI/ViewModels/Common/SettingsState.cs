@@ -38,10 +38,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
         ObservableCollection<ApplicationShortcutViewModel>? oldValue,
         ObservableCollection<ApplicationShortcutViewModel> newValue)
     {
-        if (oldValue is not null)
-        {
-            oldValue.CollectionChanged -= OnApplicationsCollectionChanged;
-        }
+        oldValue?.CollectionChanged -= OnApplicationsCollectionChanged;
 
         newValue.CollectionChanged += OnApplicationsCollectionChanged;
         OnPropertyChanged(nameof(HasNoApplications));
@@ -99,10 +96,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
         ObservableCollection<DynamicApplicationViewModel>? oldValue,
         ObservableCollection<DynamicApplicationViewModel> newValue)
     {
-        if (oldValue is not null)
-        {
-            oldValue.CollectionChanged -= OnDynamicApplicationsCollectionChanged;
-        }
+        oldValue?.CollectionChanged -= OnDynamicApplicationsCollectionChanged;
 
         newValue.CollectionChanged += OnDynamicApplicationsCollectionChanged;
     }
@@ -211,7 +205,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
                 CycleMode = app.CycleMode,
                 Type = app.Type,
                 Aumid = app.Aumid,
-                ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon()
+                ProcessIcon = processIcon ?? _iconExtractor.DefaultIcon
             };
         }).ToList());
 
@@ -331,7 +325,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             DisplayName = _appRegistryCache.GetDisplayName(args.ProcessName),
             Type = args.Type,
             Aumid = packagedApp?.Aumid,
-            ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),
+            ProcessIcon = processIcon ?? _iconExtractor.DefaultIcon,
             StartIfNotRunning = true
         };
 
@@ -372,7 +366,7 @@ internal partial class SettingsState : ObservableObject, ISettingsState, IDispos
             DisplayName = _appRegistryCache.GetDisplayName(dynamic.ProcessName),
             Type = dynamic.Type,
             Aumid = packagedApp?.Aumid,
-            ProcessIcon = processIcon ?? _iconExtractor.GetDefaultIcon(),
+            ProcessIcon = processIcon ?? _iconExtractor.DefaultIcon,
             StartIfNotRunning = true
         };
 

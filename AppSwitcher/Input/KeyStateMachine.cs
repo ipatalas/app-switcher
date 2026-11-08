@@ -83,13 +83,13 @@ internal sealed class KeyStateMachine
             return new KeyTransition.NoOp();
         }
 
-        if (key.IsLetter())
+        if (key.IsLetter)
         {
             _state = State.ModifierHeldWithActionKey;
             return new KeyTransition.LetterKeyPressed(key);
         }
 
-        if (key.IsDigit())
+        if (key.IsDigit)
         {
             _state = State.ModifierHeldWithActionKey;
             return new KeyTransition.DigitKeyPressed(key);

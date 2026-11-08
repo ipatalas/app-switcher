@@ -57,7 +57,7 @@ begin
     Exit;
 
   { Example line:
-    Microsoft.WindowsDesktop.App 8.0.25 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App] }
+    Microsoft.WindowsDesktop.App 10.0.0 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App] }
   VersionPart := Copy(Line, Length(Prefix) + 1, MaxInt);
   DotPos := Pos('.', VersionPart);
 
@@ -88,7 +88,7 @@ begin
   begin
     MsgBox(
       'Unable to query installed .NET runtimes.'#13#10 +
-      'Please install .NET Desktop Runtime 8+ and run setup again.',
+      'Please install .NET Desktop Runtime 10+ and run setup again.',
       mbError,
       MB_OK);
     Exit;
@@ -97,7 +97,7 @@ begin
   for I := 0 to Length(Output.StdOut) - 1 do
   begin
     Major := GetWindowsDesktopMajorVersion(Trim(Output.StdOut[I]));
-    if Major >= 8 then
+    if Major >= 10 then
     begin
       Result := True;
       Exit;
@@ -107,9 +107,9 @@ begin
   end;
 
   MsgBox(
-    'AppSwitcher requires .NET 8.0 or newer.'#13#10 +
+    'AppSwitcher requires .NET 10.0 or newer.'#13#10 +
     'Detected version: ' + IntToStr(HighestMajor) + '.x'#13#10 +
-    'Please install .NET Desktop Runtime 8+ and run setup again.',
+    'Please install .NET Desktop Runtime 10+ and run setup again.',
     mbError,
     MB_OK
   );

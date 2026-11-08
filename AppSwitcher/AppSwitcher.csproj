@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <RollForward>Major</RollForward>
     <RootNamespace>AppSwitcher</RootNamespace>
     <Nullable>enable</Nullable>
@@ -14,7 +14,7 @@
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <Version>1.0.0</Version>
     <ApplicationIcon>app-switcher.ico</ApplicationIcon>
-    <LangVersion>13</LangVersion>
+    <LangVersion>14</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- Uncomment to force all relay command error handlers to fire for visual testing -->
     <!-- <DefineConstants>$(DefineConstants);DEBUG_ERROR_HANDLING</DefineConstants> -->
@@ -55,9 +55,9 @@
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="KeyboardHookLite" Version="1.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.369">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

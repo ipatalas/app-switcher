@@ -32,21 +32,11 @@
                 corners without touching the outer card's drop shadow.
             -->
             <Border x:Name="CardContent" CornerRadius="12">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="2" />
-                    </Grid.RowDefinitions>
-
+                <Grid RowDefinitions="*,2">
                     <!-- Card content -->
                     <Grid Grid.Row="0"
-                          Margin="14,12,14,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
+                          Margin="14,12,14,12"
+                          ColumnDefinitions="Auto,*,Auto">
                         <!-- Warning icon -->
                         <ui:SymbolIcon x:Name="IconSymbol"
                                        Grid.Column="0"

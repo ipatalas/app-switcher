@@ -8,7 +8,6 @@ namespace AppSwitcher.WindowDiscovery;
 public class IconExtractor
 {
     private readonly Dictionary<string, ImageSource> _images = new();
-    private ImageSource? _defaultIcon;
 
     public ImageSource? GetByProcessPath(string processPath)
     {
@@ -55,13 +54,8 @@ public class IconExtractor
         }
     }
 
-    public ImageSource GetDefaultIcon()
-    {
-        _defaultIcon ??= GetByProcessPath(
-            Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll")!;
-
-        return _defaultIcon;
-    }
+    public ImageSource DefaultIcon => field ??= GetByProcessPath(
+        Environment.GetFolderPath(Environment.SpecialFolder.System) + "\\shell32.dll")!;
 
     private static BitmapImage? LoadIconFromExe(string path)
     {

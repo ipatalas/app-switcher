@@ -271,12 +271,7 @@
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <!-- Main two-column grid                                           -->
         <!-- ═══════════════════════════════════════════════════════════════ -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="300" />
-            </Grid.ColumnDefinitions>
-
+        <Grid ColumnDefinitions="*,300">
             <!-- ─── Left column ─────────────────────────────────────────── -->
             <StackPanel Grid.Column="0" Margin="0,0,12,0">
 
@@ -366,11 +361,7 @@
 
                     <StackPanel>
                         <!-- Warmup state -->
-                        <Grid Visibility="{Binding IsMaintenanceWarmup, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                        <Grid Visibility="{Binding IsMaintenanceWarmup, Converter={StaticResource BooleanToVisibilityConverter}}" ColumnDefinitions="Auto,*">
                             <ToolTipService.ToolTip>
                                 <ToolTip>
                                     <TextBlock>
@@ -393,11 +384,7 @@
                         </Grid>
 
                         <!-- Healthy state -->
-                        <Grid Visibility="{Binding IsMaintenanceActuallyHealthy, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                        <Grid Visibility="{Binding IsMaintenanceActuallyHealthy, Converter={StaticResource BooleanToVisibilityConverter}}" ColumnDefinitions="Auto,*">
                             <ui:SymbolIcon Grid.Column="0"
                                            Symbol="CheckmarkCircle24"
                                            FontSize="22"
@@ -413,13 +400,7 @@
                         </Grid>
 
                         <!-- Warning state -->
-                        <Grid Visibility="{Binding IsMaintenanceWarning, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
+                        <Grid Visibility="{Binding IsMaintenanceWarning, Converter={StaticResource BooleanToVisibilityConverter}}" ColumnDefinitions="Auto,*,Auto">
                             <Image Grid.Column="0"
                                    Source="{Binding FirstStaleShortcut.Icon}"
                                    Width="32" Height="32"

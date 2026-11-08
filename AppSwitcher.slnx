@@ -1,0 +1,28 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/release.yml" />
+    <File Path=".gitignore" />
+    <File Path="AGENTS.md" />
+    <File Path="CHANGELOG.md" />
+    <File Path="extract-changelog.ps1" />
+    <File Path="LICENSE.md" />
+    <File Path="README.md" />
+    <File Path="resume.ps1" />
+    <File Path="suspend.ps1" />
+  </Folder>
+  <Folder Name="/Solution Items/.agents/">
+    <File Path=".agents/architecture.md" />
+    <File Path=".agents/csharp-conventions.md" />
+    <File Path=".agents/testing-conventions.md" />
+    <File Path=".agents/windows-api.md" />
+    <File Path=".agents/wpf-patterns.md" />
+  </Folder>
+  <Project Path="AppSwitcher.Tests/AppSwitcher.Tests.csproj" />
+  <Project Path="AppSwitcher/AppSwitcher.csproj" />
+</Solution>

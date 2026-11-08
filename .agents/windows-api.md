@@ -15,5 +15,5 @@ PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
 ## Target Platform
 
 - Windows only (win-x86, win-x64)
-- .NET 8.0 Windows Desktop
-- C# 13 language version
+- .NET 10.0 Windows Desktop
+- C# 14 language version

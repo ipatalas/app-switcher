@@ -66,7 +66,7 @@ AppSwitcher uses a system-wide keyboard hook to detect your hotkeys. That is exa
 ### Requirements
 
 - Windows 10 version 20H1 (build 19041) or newer, or Windows 11
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) for non-self-contained builds
+- [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (or higher) for non-self-contained builds
 
 ### Choose a release
 

@@ -38,14 +38,7 @@
                     </Style>
                 </Border.Style>
 
-                <Grid Height="32">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
+                <Grid Height="32" ColumnDefinitions="Auto,*,Auto,Auto">
                     <!-- Icon -->
                     <Image Grid.Column="0"
                            Source="{Binding Icon}"

@@ -44,12 +44,8 @@
 
                     <Grid Margin="0,20,0,0"
 
-                          VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
+                          VerticalAlignment="Center"
+                          ColumnDefinitions="*,Auto">
                         <!-- Left: Local Data Disclaimer -->
                         <StackPanel Grid.Column="0"
                                     Orientation="Horizontal"

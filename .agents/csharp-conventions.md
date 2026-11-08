@@ -80,6 +80,23 @@ private readonly List<HWND> _nextWindows = [];
 INPUT[] inputs = [input];
 ```
 
+## C# 14 Features
+
+- Write new extension methods/properties as `extension` blocks inside a static class (see `Extensions/KeyExtensions.cs`). Use extension properties for side-effect-free predicates (`key.IsLetter`, `e.IsKeyDown`).
+- Use the `field` keyword instead of a private backing field for simple lazy or validated properties:
+
+```csharp
+public ImageSource DefaultIcon => field ??= LoadDefaultIcon();
+```
+
+- Use null-conditional assignment instead of a null-check block around a single assignment or event unsubscribe:
+
+```csharp
+oldValue?.CollectionChanged -= OnCollectionChanged;
+```
+
+- XAML: prefer the .NET 10 `Grid` shorthand (`RowDefinitions="Auto,*"`, `ColumnDefinitions="*,300"`) when definitions only set `Height`/`Width`; keep the element form for `MinWidth`, `MaxHeight`, `SharedSizeGroup`, etc.
+
 ## Null Handling
 
 - Nullable reference types are enabled project-wide

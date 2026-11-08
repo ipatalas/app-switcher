@@ -25,11 +25,7 @@
     <ui:FluentWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </ui:FluentWindow.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="50" />
-        </Grid.RowDefinitions>
+    <Grid RowDefinitions="*,50">
         <ui:TitleBar
             Grid.Row="0"
             Title="AppSwitcher">
@@ -80,20 +76,12 @@
                 </ui:NavigationViewItem>
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
-        <Grid Grid.Row="1" Margin="26,0,12,0">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" Margin="26,0,12,0" ColumnDefinitions="*,Auto">
 
             <Grid Grid.Column="0"
                   VerticalAlignment="Center"
-                   Visibility="{Binding State.HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+                   Visibility="{Binding State.HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   ColumnDefinitions="Auto,*">
                 <ui:SymbolIcon Grid.Column="0"
                                Symbol="Warning24"
                                Margin="0,0,8,0"

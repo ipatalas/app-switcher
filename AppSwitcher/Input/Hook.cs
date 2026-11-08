@@ -77,7 +77,7 @@ internal class Hook(
             ArgumentNullException.ThrowIfNull(_config);
             using var _ = logger.MeasureTime($"Handling key event {e.ToFriendlyString()}");
 
-            if (e.IsInjected())
+            if (e.IsInjected)
             {
                 logger.LogDebug("Ignoring injected event for {Event}", e.ToFriendlyString());
                 return;
@@ -85,7 +85,7 @@ internal class Hook(
 
             logger.LogDebug("{Event}, ModifierDown: {ModifierDown}", e.ToFriendlyString(), _stateMachine.IsModifierHeld);
 
-            if (e.IsKeyDown())
+            if (e.IsKeyDown)
             {
                 HandleKeyDown(e);
             }

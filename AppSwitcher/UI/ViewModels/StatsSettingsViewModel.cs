@@ -340,6 +340,6 @@ internal partial class StatsSettingsViewModel(
             return dynamicMatch.ProcessIcon;
         }
 
-        return iconExtractor.GetDefaultIcon();
+        return iconExtractor.DefaultIcon;
     }
 }

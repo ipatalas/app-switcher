@@ -1,6 +1,6 @@
 # AGENTS.md - AppSwitcher
 
-AppSwitcher is a Windows desktop application (.NET 8.0, C# 13) that enables hotkey-based window switching.
+AppSwitcher is a Windows desktop application (.NET 10.0, C# 14) that enables hotkey-based window switching.
 
 ## Build Commands
 

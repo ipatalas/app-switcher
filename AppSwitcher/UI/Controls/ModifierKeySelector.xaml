@@ -48,30 +48,9 @@
 
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
+    <Grid RowDefinitions="Auto,Auto,Auto">
         <!-- Row 0: Caps Lock row — proportional widths: 70* | 36*×5 | * -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="80*"/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" ColumnDefinitions="80*,36*,36*,36*,36*,36*,36*,36*,36*,36*,36*,36*,80*">
             <ui:Button Grid.Column="0"
                        x:Name="CapsLockButton"
                        Content="Caps Lock"
@@ -93,21 +72,7 @@
         </Grid>
 
         <!-- Row 1: Shift row — proportional widths: 80* | 36*×10 | 100* -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="90*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="90*"/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" ColumnDefinitions="90*,36*,36*,36*,36*,36*,36*,36*,36*,36*,36*,90*">
             <ui:Button Grid.Column="0"
                        x:Name="LeftShiftButton"
                        Content="Shift"
@@ -133,16 +98,7 @@
         </Grid>
 
         <!-- Row 2: Space bar row — proportional widths: 44* | 44* | 44* | 304* | 44* | 36* | 44* -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="44*"/>
-                <ColumnDefinition Width="44*"/>
-                <ColumnDefinition Width="44*"/>
-                <ColumnDefinition Width="304*"/>
-                <ColumnDefinition Width="44*"/>
-                <ColumnDefinition Width="36*"/>
-                <ColumnDefinition Width="44*"/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="2" ColumnDefinitions="44*,44*,44*,304*,44*,36*,44*">
             <ui:Button Grid.Column="0"
                        x:Name="LeftCtrlButton"
                        Content="Ctrl"
